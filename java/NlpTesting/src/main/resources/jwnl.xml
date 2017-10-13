@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jwnl_properties language="en" country="uk">
+	<dictionary class="net.didion.jwnl.dictionary.FileBackedDictionary"/>
+	<version publisher="WordNet" number="3.1"/>
+	<resource class="jwnl.properties"/>
+</jwnl_properties>
