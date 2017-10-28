@@ -16,21 +16,25 @@ import org.apache.pdfbox.text.PDFTextStripper;
  */
 public class PDFPaper extends Paper {
 
+    private static final long serialVersionUID = 3727602886028917271L;
     private static final Logger log = LogManager.getLogger(PDFPaper.class);
 
     public PDFPaper(String fileLocation) {
         super(fileLocation);
 
-        try {
-            File pdf = new File(fileLocation);
-            PDDocument pdd = PDDocument.load(pdf);
-            PDFTextStripper textStripper = new PDFTextStripper();
+        // Text may have been loaded in.
+        if (getText() == null) {
+            try {
+                File pdf = new File(fileLocation);
+                PDDocument pdd = PDDocument.load(pdf);
+                PDFTextStripper textStripper = new PDFTextStripper();
 
-            setText(textStripper.getText(pdd));
+                setText(textStripper.getText(pdd));
 
-            pdd.close();
-        } catch (IOException e) {
-            log.error("Problem loading PDF document", e);
+                pdd.close();
+            } catch (IOException e) {
+                log.error("Problem loading PDF document", e);
+            }
         }
     }
 

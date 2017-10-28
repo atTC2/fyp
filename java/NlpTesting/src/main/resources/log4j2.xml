@@ -5,15 +5,10 @@
       <PatternLayout
         pattern="%d{HH:mm:ss.SSS} [%t] %-4level %logger{36} - %msg%n" />
     </Console>
-    <File name="LogFile" fileName="C:\Users\Tom\Desktop\fyp.log">
-      <PatternLayout
-        pattern="%d{HH:mm:ss.SSS} [%t] %-4level %logger{36} - %msg%n" />
-    </File>
   </Appenders>
   <Loggers>
     <Root level="debug">
       <AppenderRef ref="Console" level="info" />
-      <AppenderRef ref="LogFile" level="info" />
     </Root>
   </Loggers>
 </Configuration>

@@ -15,14 +15,19 @@ import org.apache.logging.log4j.Logger;
  */
 public class TextPaper extends Paper {
 
+    private static final long serialVersionUID = 1673335959412177249L;
     private static final Logger log = LogManager.getLogger(Paper.class);
 
     public TextPaper(String textLocation) {
         super(textLocation);
-        try {
-            setText(new String(Files.readAllBytes(Paths.get(textLocation))));
-        } catch (IOException e) {
-            log.error("Problem loading text document", e);
+
+        // Text may have been loaded in.
+        if (getText() == null) {
+            try {
+                setText(new String(Files.readAllBytes(Paths.get(textLocation))));
+            } catch (IOException e) {
+                log.error("Problem loading text document", e);
+            }
         }
     }
 
