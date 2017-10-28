@@ -1,7 +1,10 @@
-package xyz.tomclarke.fyp.nlp.nlptesting.wordnet;
+package xyz.tomclarke.fyp.nlp.wordnet;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.sf.extjwnl.JWNLException;
 import net.sf.extjwnl.data.IndexWord;
@@ -18,6 +21,8 @@ import net.sf.extjwnl.dictionary.Dictionary;
  *
  */
 public class ExtJwnlTesting {
+
+    private static final Logger log = LogManager.getLogger(ExtJwnlTesting.class);
 
     public static void main(String[] args) throws JWNLException {
         new ExtJwnlTesting();
@@ -68,9 +73,9 @@ public class ExtJwnlTesting {
      *            The sets of synonyms
      */
     public void printPossibleSynonyms(String word, List<List<String>> possibleSynonyms) {
-        System.out.println("Original word: " + word);
+        log.info("Original word: " + word);
         for (List<String> synonyms : possibleSynonyms) {
-            System.out.println("Possible synonyms: " + synonyms);
+            log.info("Possible synonyms: " + synonyms);
         }
     }
 
