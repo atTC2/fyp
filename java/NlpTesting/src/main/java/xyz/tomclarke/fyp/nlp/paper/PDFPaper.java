@@ -9,7 +9,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 /**
- * Loads PDFs in, strips not useful parts and allowed retrieval of text
+ * Loads PDFs in, strips not useful parts and allows retrieval of text
  * 
  * @author tbc452
  *
@@ -30,6 +30,7 @@ public class PDFPaper extends Paper {
                 PDFTextStripper textStripper = new PDFTextStripper();
 
                 setText(textStripper.getText(pdd));
+                // TODO make it so it saves the text it produces to a file to help debug
 
                 pdd.close();
             } catch (IOException e) {

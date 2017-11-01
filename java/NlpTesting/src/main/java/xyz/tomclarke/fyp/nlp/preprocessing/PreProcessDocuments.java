@@ -21,12 +21,15 @@ public class PreProcessDocuments {
         List<Paper> papers = LoadPapers.loadNewPapers();
         PreProcessor pp = new PreProcessor();
         for (Paper paper : papers) {
+            log.info(paper);
+            paper.printKeyPhraseInformation();
             if (paper.getCoreNLPAnnotations() == null) {
                 pp.annotate(paper);
             } else {
-                log.debug("ALREADY PROCESSED...");
+                log.debug("Already processed...");
             }
             paper.printAnnotations();
+            break;
         }
     }
 
