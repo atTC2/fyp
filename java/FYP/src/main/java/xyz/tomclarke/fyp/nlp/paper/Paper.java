@@ -8,7 +8,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.logging.log4j.LogManager;
@@ -45,10 +47,12 @@ public abstract class Paper implements Serializable {
     private String text;
     private List<CoreMap> coreNLPAnnotations;
     private List<Extraction> keyPhrasesExtractions;
+    private Map<String, Integer> tokenCounts;
 
     public Paper(String location) {
         this.location = location;
-        this.keyPhrasesExtractions = new ArrayList<Extraction>();
+        keyPhrasesExtractions = new ArrayList<Extraction>();
+        tokenCounts = new HashMap<String, Integer>();
 
         // Set up the serialise file location
         // TODO support none local file saves
@@ -64,7 +68,8 @@ public abstract class Paper implements Serializable {
                 // Set the necessary parameters
                 text = loadedPaper.getText();
                 coreNLPAnnotations = loadedPaper.getCoreNLPAnnotations();
-                this.keyPhrasesExtractions = loadedPaper.getKeyPhrasesExtractions();
+                keyPhrasesExtractions = loadedPaper.getKeyPhrasesExtractions();
+                tokenCounts = loadedPaper.getTokenCounts();
             } catch (IOException | ClassNotFoundException e) {
                 log.error("Error reading serialisation", e);
             }
@@ -113,7 +118,9 @@ public abstract class Paper implements Serializable {
             }
         }
 
-        return location + " (" + keyPhraseCount + " keyphrases found, " + relationshipCount + " relationships found)";
+        return location + " (" + keyPhraseCount + " keyphrases found, " + relationshipCount + " relationships found, "
+                + tokenCounts.size() + " different tokens, " + tokenCounts.values().stream().reduce(0, Integer::sum)
+                + " total tokens)";
     }
 
     /**
@@ -280,6 +287,22 @@ public abstract class Paper implements Serializable {
      */
     public void setCoreNLPAnnotations(List<CoreMap> coreNLPAnnotations) {
         this.coreNLPAnnotations = coreNLPAnnotations;
+
+        // Calculate token counts
+        for (CoreMap sentence : coreNLPAnnotations) {
+            for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
+                String word = token.get(TextAnnotation.class).toLowerCase();
+
+                if (!tokenCounts.containsKey(word)) {
+                    // Not already seen, add
+                    tokenCounts.put(word, 1);
+                } else {
+                    // Already seen, add
+                    tokenCounts.put(word, tokenCounts.get(word) + 1);
+                }
+            }
+        }
+
         save();
     }
 
@@ -310,6 +333,26 @@ public abstract class Paper implements Serializable {
      */
     public void addKeyPhraseExtraction(Extraction keyPhraseExtraction) {
         keyPhrasesExtractions.add(keyPhraseExtraction);
+    }
+
+    /**
+     * Gets the token counts
+     * 
+     * @return Gets the token counts
+     */
+    public Map<String, Integer> getTokenCounts() {
+        return tokenCounts;
+    }
+
+    /**
+     * Sets the token counts
+     * 
+     * @param tokenCounts
+     *            The token counts
+     */
+    public void setTokenCounts(Map<String, Integer> tokenCounts) {
+        this.tokenCounts = tokenCounts;
+        save();
     }
 
     /**

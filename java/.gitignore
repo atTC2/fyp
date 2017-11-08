@@ -13,6 +13,7 @@ local.properties
 RemoteSystemsTempFiles
 .project
 .classpath
+.vs
 
 # External tool builders
 .externalToolBuilders/

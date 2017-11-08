@@ -1,3 +1,0 @@
-#C:\Users\Tom\OneDrive\University\Yr3\FYP\Data\ScienceDirect\1-s2.0-S1566253516301117-main.pdf
-#C:\Users\Tom\OneDrive\University\Yr3\FYP\Data\ScienceIE\scienceie2017_train\train2\
-C:\Users\Tom\OneDrive\University\Yr3\FYP\Data\ScienceIE\scienceie2017_dev\dev\

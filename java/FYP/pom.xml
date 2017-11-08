@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>xyz.tomclarke.fyp.nlp</groupId>
-  <artifactId>NlpTesting</artifactId>
+  <artifactId>FYP</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>NlpTesting</name>
+  <name>FYP</name>
   <url>http://tomclarke.xyz</url>
 
   <properties>
@@ -73,6 +73,42 @@
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
       <version>2.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>com.datumbox</groupId>
+      <artifactId>libsvm</artifactId>
+      <version>3.22</version>
+    </dependency>
+    <!-- Core DL4J functionality -->
+    <dependency>
+      <groupId>org.bytedeco</groupId>
+      <artifactId>javacpp</artifactId>
+      <version>1.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bytedeco.javacpp-presets</groupId>
+      <artifactId>openblas</artifactId>
+      <version>0.2.20-1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.nd4j</groupId>
+      <artifactId>nd4j-native-platform</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-core</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-nlp</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-zoo</artifactId>
+      <version>0.9.1</version>
     </dependency>
   </dependencies>
 </project>
