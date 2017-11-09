@@ -26,11 +26,11 @@ public class LoadPapers {
     /**
      * Loads a series of papers from resources/papers.txt
      * 
+     * @param papersList A file containing locations of papers
      * @return A list of loaded papers
      */
-    public static List<Paper> loadNewPapers() {
+    public static List<Paper> loadNewPapers(File papersList) {
         ArrayList<Paper> papers = new ArrayList<Paper>();
-        File papersList = new File(new LoadPapers().getClass().getClassLoader().getResource("papers.txt").getFile());
         // Read through each line and try to load in the file.
         try (Scanner scanner = new Scanner(papersList)) {
             while (scanner.hasNextLine()) {

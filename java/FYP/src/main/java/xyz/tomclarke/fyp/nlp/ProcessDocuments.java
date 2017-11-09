@@ -1,5 +1,6 @@
 package xyz.tomclarke.fyp.nlp;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -22,7 +23,8 @@ public class ProcessDocuments {
     private static final Logger log = LogManager.getLogger(ProcessDocuments.class);
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        List<Paper> papers = LoadPapers.loadNewPapers();
+        List<Paper> papers = LoadPapers.loadNewPapers(
+                new File(new LoadPapers().getClass().getClassLoader().getResource("papers.txt").getFile()));
         PreProcessor pp = null;
         for (Paper paper : papers) {
             log.info(paper);

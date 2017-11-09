@@ -32,7 +32,7 @@ public class ConfusionStatistics {
         return recall;
     }
 
-    public double getFone() {
+    public double getFOne() {
         return fone;
     }
 
