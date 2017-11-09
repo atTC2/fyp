@@ -11,6 +11,7 @@
   <url>http://tomclarke.xyz</url>
 
   <properties>
+    <dl4j>0.8.0</dl4j>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -79,7 +80,7 @@
       <artifactId>libsvm</artifactId>
       <version>3.22</version>
     </dependency>
-    <!-- Core DL4J functionality -->
+    <!-- Core DL4J / Word2Vec functionality -->
     <dependency>
       <groupId>org.bytedeco</groupId>
       <artifactId>javacpp</artifactId>
@@ -91,24 +92,50 @@
       <version>0.2.20-1.3</version>
     </dependency>
     <dependency>
-      <groupId>org.nd4j</groupId>
-      <artifactId>nd4j-native-platform</artifactId>
-      <version>0.9.1</version>
+       <groupId>org.nd4j</groupId>
+       <artifactId>nd4j-native-platform</artifactId>
+       <version>${dl4j}</version>
     </dependency>
     <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-core</artifactId>
-      <version>0.9.1</version>
+    	<groupId>org.deeplearning4j</groupId>
+    	<artifactId>deeplearning4j-core</artifactId>
+    	<version>${dl4j}</version>
+	</dependency>
+	<dependency>
+    	<groupId>org.deeplearning4j</groupId>
+    	<artifactId>deeplearning4j-nn</artifactId>
+    	<version>${dl4j}</version>
+	</dependency>
+    <dependency>
+        <groupId>org.deeplearning4j</groupId>
+        <artifactId>deeplearning4j-ui_2.10</artifactId>
+        <version>${dl4j}</version>
     </dependency>
     <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-nlp</artifactId>
-      <version>0.9.1</version>
+       <groupId>org.deeplearning4j</groupId>
+       <artifactId>deeplearning4j-play_2.10</artifactId>
+       <version>${dl4j}</version>
     </dependency>
     <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-zoo</artifactId>
-      <version>0.9.1</version>
+       <groupId>org.deeplearning4j</groupId>
+       <artifactId>deeplearning4j-ui-model</artifactId>
+       <version>${dl4j}</version>
+    </dependency>
+    <dependency>
+       <groupId>org.deeplearning4j</groupId>
+       <artifactId>deeplearning4j-ui-components</artifactId>
+       <version>${dl4j}</version>
+    </dependency>
+    <dependency>
+       <groupId>org.deeplearning4j</groupId>
+       <artifactId>deeplearning4j-ui-resources</artifactId>
+       <version>${dl4j}</version>
+    </dependency>
+    <dependency>
+       <groupId>org.deeplearning4j</groupId>
+       <artifactId>deeplearning4j-ui-parent</artifactId>
+       <version>${dl4j}</version>
+       <type>pom</type>
     </dependency>
   </dependencies>
 </project>

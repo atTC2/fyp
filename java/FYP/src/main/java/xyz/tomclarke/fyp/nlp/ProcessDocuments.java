@@ -6,11 +6,13 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.preprocessing.LoadPapers;
 import xyz.tomclarke.fyp.nlp.preprocessing.PreProcessor;
-import xyz.tomclarke.fyp.nlp.svm.SVMProcessor;
+import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
  * A class which annotates all supplied data.
@@ -42,18 +44,18 @@ public class ProcessDocuments {
         // Processed all papers
 
         // Word2Vec
-        // Word2Vec vec = Word2VecProcessor.process(papers);
+        Word2Vec vec = Word2VecProcessor.process(papers);
         //
-        // WordVectorSerializer.writeWord2VecModel(vec, new File("test.csv"));
+        WordVectorSerializer.writeWord2VecModel(vec, new File("test.csv"));
 
         // SVM
-        SVMProcessor svm = new SVMProcessor();
-        svm.generateTrainingData(papers);
-        try {
-            svm.train();
-        } catch (Exception e) {
-            log.error("Error training SVM", e);
-        }
+        // SVMProcessor svm = new SVMProcessor();
+        // svm.generateTrainingData(papers);
+        // try {
+        // svm.train();
+        // } catch (Exception e) {
+        // log.error("Error training SVM", e);
+        // }
     }
 
 }
