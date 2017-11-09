@@ -235,7 +235,7 @@ public class SVMProcessor {
      */
     public boolean predictIsKeyword(svm_node[] nodes) {
         double prediction = svm.svm_predict(model, nodes);
-        log.info("Prediction: " + prediction);
+        log.debug("Prediction: " + prediction);
         return prediction > 0.0;
     }
 
