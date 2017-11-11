@@ -1,0 +1,1 @@
+/home/tom/FYP/tbc452/resources/data/ScienceIE/semeval_articles_test/semeval_articles_test/

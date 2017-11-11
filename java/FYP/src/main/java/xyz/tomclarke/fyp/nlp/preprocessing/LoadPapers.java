@@ -26,7 +26,8 @@ public class LoadPapers {
     /**
      * Loads a series of papers from resources/papers.txt
      * 
-     * @param papersList A file containing locations of papers
+     * @param papersList
+     *            A file containing locations of papers
      * @return A list of loaded papers
      */
     public static List<Paper> loadNewPapers(File papersList) {
@@ -88,8 +89,9 @@ public class LoadPapers {
 
         // TODO support web pages (will come much later in development)
 
-        // No other option
-        log.warn("Unsupported paper: " + location);
+        // No other option (and debug because 'warn' always shows up and is really
+        // annoying)
+        log.debug("Unsupported paper: " + location);
         return null;
     }
 
