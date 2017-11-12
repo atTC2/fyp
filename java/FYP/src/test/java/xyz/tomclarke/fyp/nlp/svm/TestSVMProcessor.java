@@ -6,11 +6,12 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
 import libsvm.svm_node;
 import libsvm.svm_problem;
@@ -36,8 +37,8 @@ public class TestSVMProcessor {
     @BeforeClass
     public static void initalise() throws Exception {
         log.info("Loading training data...");
-        List<Paper> papers = PaperUtil.annotatePapers(LoadPapers.loadNewPapers(
-                new File(new LoadPapers().getClass().getClassLoader().getResource("papers.txt").getFile())));
+        List<Paper> papers = PaperUtil.annotatePapers(LoadPapers
+                .loadNewPapers(new File(TestSVMProcessor.class.getClassLoader().getResource("papers.txt").getFile())));
 
         // Setup the SVM
         log.info("Building SVM...");
@@ -48,6 +49,7 @@ public class TestSVMProcessor {
         log.info("SVM trained, now to test...");
     }
 
+    @Ignore
     @Test
     public void testSvmProcessorSameData() throws Exception {
         log.info("Testing with training data");
@@ -73,9 +75,10 @@ public class TestSVMProcessor {
         }
 
         log.info(String.format("tp: %.8f fp: %.8f tn: %.8f fn: %.8f", tp, fp, tn, fn));
-        log.info("Training -> Training: " + ConfusionStatistics.calculateScore(tp, fp, tn, fn));
+        log.info(ConfusionStatistics.calculateScore(tp, fp, tn, fn));
     }
 
+    @Ignore
     @Test
     public void testSvmProcessorTestData() throws Exception {
         log.info("Testing with test data");
@@ -94,7 +97,7 @@ public class TestSVMProcessor {
 
                     // Key phrase (answer)
                     double keyPhrase = 0.0;
-                    for (Extraction phrase : paper.getKeyPhrasesExtractions()) {
+                    for (Extraction phrase : paper.getExtractions()) {
                         if (phrase instanceof KeyPhrase
                                 && ((KeyPhrase) phrase).getPhrase().toLowerCase().contains(word)) {
                             keyPhrase = 1.0;
@@ -103,7 +106,7 @@ public class TestSVMProcessor {
                     }
 
                     // SV Nodes (question)
-                    svm_node[] nodes = svm.generateSupportVectors(paper, token);
+                    svm_node[] nodes = svm.generateSupportVectors(token, paper);
 
                     // Ask the question and compare the answer to the expected answer
                     boolean isPredictedKeyPhrase = svm.predictIsKeyword(nodes);
@@ -121,7 +124,25 @@ public class TestSVMProcessor {
         }
 
         log.info(String.format("tp: %.8f fp: %.8f tn: %.8f fn: %.8f", tp, fp, tn, fn));
-        log.info("Training -> Testing: " + ConfusionStatistics.calculateScore(tp, fp, tn, fn));
+        log.info(ConfusionStatistics.calculateScore(tp, fp, tn, fn));
+    }
+
+    @Test
+    public void testSvmPredictKeyPhrases() {
+        log.info("Testing with test data, getting key phrase objects");
+        // Get test data parsed...
+        List<Paper> testPapers = PaperUtil.annotatePapers(LoadPapers
+                .loadNewPapers(new File(getClass().getClassLoader().getResource("papers_test.txt").getFile())));
+
+        for (Paper paper : testPapers) {
+            List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
+            System.out.println(paper);
+            for(KeyPhrase phrase : phrases) {
+                System.out.println(phrase);
+            }
+            break;
+        }
+
     }
 
 }

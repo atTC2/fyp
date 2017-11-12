@@ -10,20 +10,28 @@ public class Relationship extends Extraction {
 
     private static final long serialVersionUID = -5036452867442789150L;
     private final RelationType type;
-    private final KeyPhrase phrase1;
-    private final KeyPhrase phrase2;
+    private final KeyPhrase[] phrases;
 
-    public Relationship(int id, RelationType type, KeyPhrase phrase1, KeyPhrase phrase2) {
+    public Relationship(int id, RelationType type, KeyPhrase[] phrases) {
         super(id);
         this.type = type;
-        this.phrase1 = phrase1;
-        this.phrase2 = phrase2;
+        this.phrases = phrases;
     }
 
     @Override
     public String toString() {
-        return getPrintId() + Extraction.TAB + type + Extraction.SPACE + type.getKp1Prefix() + phrase1.getPrintId()
-                + Extraction.SPACE + type.getKp2Prefix() + phrase2.getPrintId();
+        String toString = getPrintId() + Extraction.TAB + type;
+
+        if (type.equals(RelationType.HYPONYM_OF)) {
+            toString += Extraction.SPACE + "Arg1:" + phrases[0].getPrintId() + Extraction.SPACE + "Arg2:"
+                    + phrases[1].getPrintId();
+        } else {
+            for (int i = 0; i < phrases.length; i++) {
+                toString += Extraction.SPACE + phrases[i];
+            }
+        }
+
+        return toString;
     }
 
     @Override
@@ -41,21 +49,12 @@ public class Relationship extends Extraction {
     }
 
     /**
-     * Gets the first phrase
+     * Gets the phrases
      * 
-     * @return The first phrase
+     * @return The phrases
      */
-    public KeyPhrase getPhrase1() {
-        return phrase1;
-    }
-
-    /**
-     * Gets the second phrase
-     * 
-     * @return The second phrase
-     */
-    public KeyPhrase getPhrase2() {
-        return phrase2;
+    public KeyPhrase[] getPhrases() {
+        return phrases;
     }
 
 }

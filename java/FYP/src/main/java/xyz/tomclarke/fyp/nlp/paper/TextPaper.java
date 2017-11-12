@@ -19,7 +19,7 @@ public class TextPaper extends Paper {
     private static final Logger log = LogManager.getLogger(Paper.class);
 
     public TextPaper(String textLocation) {
-        super(textLocation);
+        super(textLocation, true);
 
         // Text may have been loaded in.
         if (getText() == null) {

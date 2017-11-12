@@ -51,9 +51,8 @@ public abstract class Extraction implements Serializable {
      * 
      * @param extraction
      *            The string holding the extraction information
-     * @param paper
-     *            The paper the key phrases are associated with, as they may need to
-     *            be retrieved to create relationships
+     * @param keyPhrasesExtractions
+     *            Already found key phrases (so they can be linked in relationships)
      * @return The extraction object, or null if reading in the line was not
      *         successful.
      */
@@ -76,10 +75,12 @@ public abstract class Extraction implements Serializable {
             case 2:
                 // Relationship
                 String[] relationParts = parts[1].split(SPACE);
-                if (relationParts.length != 3) {
-                    // Should have 3 parts
+                if (relationParts.length < 3) {
+                    // Should have at least 3 parts
                     break;
                 }
+
+                KeyPhrase[] phrases;
 
                 // Get the type of ID, that'll help a lot
                 int id;
@@ -88,43 +89,60 @@ public abstract class Extraction implements Serializable {
                     // Going to be a synonym
                     id = 0;
                     type = RelationType.SYNONYM_OF;
+                    // There could be 2 or more...
+                    phrases = new KeyPhrase[relationParts.length - 1];
+                    for (int i = 0; i < phrases.length; i++) {
+                        phrases[i] = findKeyPhraseObject("", relationParts[i + 1], keyPhrasesExtractions);
+                    }
                 } else {
                     // Going to be a hyponym
                     id = Integer.valueOf(parts[0].substring(1));
                     type = RelationType.HYPONYM_OF;
+                    phrases = new KeyPhrase[2];
+                    phrases[0] = findKeyPhraseObject("Arg1:", relationParts[1], keyPhrasesExtractions);
+                    phrases[1] = findKeyPhraseObject("Arg2:", relationParts[2], keyPhrasesExtractions);
                 }
 
-                // Find the key phrases
-                KeyPhrase phrase1 = null;
-                KeyPhrase phrase2 = null;
-                for (Extraction ext : keyPhrasesExtractions) {
-                    // Ensure it is a KeyPhrase
-                    KeyPhrase phrase;
-                    if (ext instanceof KeyPhrase) {
-                        phrase = (KeyPhrase) ext;
-                    } else {
-                        continue;
-                    }
-
-                    if ((type.getKp1Prefix() + phrase.getPrintId()).equals(relationParts[1])) {
-                        phrase1 = phrase;
-                        continue;
-                    }
-                    if ((type.getKp2Prefix() + phrase.getPrintId()).equals(relationParts[2])) {
-                        phrase2 = phrase;
-                    }
-                }
-
-                // Make sure we got phrases
-                if (phrase1 == null || phrase2 == null) {
+                // Make sure we got phrases (or at least we have 2 - the minimum for a
+                // relationship)
+                if (phrases[0] == null || phrases[1] == null) {
                     break;
                 }
 
-                return new Relationship(id, type, phrase1, phrase2);
+                return new Relationship(id, type, phrases);
             }
         }
 
-        log.warn("Unable to parse extraction: " + extraction);
+        log.error("Unable to parse extraction: " + extraction);
+        return null;
+    }
+
+    /**
+     * Finds the key phrase associated with the string ID given
+     * 
+     * @param idPrefix
+     *            The prefix of the ID
+     * @param ref
+     *            The ID reference to check (for a match)
+     * @param keyPhrasesExtractions
+     *            Already found key phrases (so they can be linked in relationships)
+     * @return The key phrase, or null if one cannot be found
+     */
+    private static KeyPhrase findKeyPhraseObject(String idPrefix, String ref, List<Extraction> keyPhrasesExtractions) {
+        // Find the key phrases
+        for (Extraction ext : keyPhrasesExtractions) {
+            // Ensure it is a KeyPhrase
+            KeyPhrase phrase;
+            if (ext instanceof KeyPhrase) {
+                phrase = (KeyPhrase) ext;
+            } else {
+                continue;
+            }
+
+            if ((idPrefix + phrase.getPrintId()).equals(ref)) {
+                return phrase;
+            }
+        }
         return null;
     }
 }

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-  <Appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout
-        pattern="%d{HH:mm:ss.SSS} [%t] %-4level %l - %msg%n" />
-    </Console>
-  </Appenders>
-  <Loggers>
-    <Root level="debug">
-      <AppenderRef ref="Console" level="info" />
-    </Root>
-  </Loggers>
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-4level %l - %msg%n" />
+		</Console>
+		<File name="LogFile" fileName="~/Desktop/fyp.log" immediateFlush="true">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-4level %l - %msg%n" />
+		</File>
+	</Appenders>
+	<Loggers>
+		<Root level="debug">
+			<AppenderRef ref="Console" level="info" />
+		</Root>
+	</Loggers>
 </Configuration>

@@ -11,20 +11,16 @@ import org.apache.logging.log4j.Logger;
  */
 public enum RelationType {
 
-    HYPONYM_OF("Hyponym-of", "R%s", "Arg1:", "Arg2:"), SYNONYM_OF("Synonym-of", "*", "", "");
+    HYPONYM_OF("Hyponym-of", "R%"), SYNONYM_OF("Synonym-of", "*");
 
     private static final Logger log = LogManager.getLogger(RelationType.class);
 
     private final String description;
     private final String idFormat;
-    private final String kp1Prefix;
-    private final String kp2Prefix;
 
-    private RelationType(String description, String idFormat, String kp1Prefix, String kp2Prefix) {
+    private RelationType(String description, String idFormat) {
         this.description = description;
         this.idFormat = idFormat;
-        this.kp1Prefix = kp1Prefix;
-        this.kp2Prefix = kp2Prefix;
     }
 
     @Override
@@ -41,24 +37,6 @@ public enum RelationType {
      */
     public String getId(int id) {
         return String.format(idFormat, id);
-    }
-
-    /**
-     * Gets the prefix used when outputting key phrase 1 of this relation
-     * 
-     * @return The prefix
-     */
-    public String getKp1Prefix() {
-        return kp1Prefix;
-    }
-
-    /**
-     * Gets the prefix used when outputting key phrase 1 of this relation
-     * 
-     * @return The prefix
-     */
-    public String getKp2Prefix() {
-        return kp2Prefix;
     }
 
     /**

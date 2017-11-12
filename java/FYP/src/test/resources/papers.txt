@@ -1,0 +1,2 @@
+/home/tom/FYP/tbc452/resources/data/ScienceIE/scienceie2017_train/train2/
+#/home/tom/FYP/tbc452/resources/data/ScienceIE/scienceie2017_dev/dev/

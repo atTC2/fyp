@@ -20,7 +20,7 @@ public class PDFPaper extends Paper {
     private static final Logger log = LogManager.getLogger(PDFPaper.class);
 
     public PDFPaper(String fileLocation) {
-        super(fileLocation);
+        super(fileLocation, false);
 
         // Text may have been loaded in.
         if (getText() == null) {

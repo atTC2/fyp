@@ -23,6 +23,7 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import xyz.tomclarke.fyp.nlp.keyphrase.Classification;
 import xyz.tomclarke.fyp.nlp.keyphrase.Extraction;
 import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.keyphrase.Position;
@@ -46,12 +47,12 @@ public abstract class Paper implements Serializable {
     private final String serLocation;
     private String text;
     private List<CoreMap> coreNLPAnnotations;
-    private List<Extraction> keyPhrasesExtractions;
+    private List<Extraction> extractions;
     private Map<String, Integer> tokenCounts;
 
-    public Paper(String location) {
+    public Paper(String location, boolean canAttemptAnnRead) {
         this.location = location;
-        keyPhrasesExtractions = new ArrayList<Extraction>();
+        extractions = new ArrayList<Extraction>();
         tokenCounts = new HashMap<String, Integer>();
 
         // Set up the serialise file location
@@ -68,7 +69,7 @@ public abstract class Paper implements Serializable {
                 // Set the necessary parameters
                 text = loadedPaper.getText();
                 coreNLPAnnotations = loadedPaper.getCoreNLPAnnotations();
-                keyPhrasesExtractions = loadedPaper.getKeyPhrasesExtractions();
+                extractions = loadedPaper.getExtractions();
                 tokenCounts = loadedPaper.getTokenCounts();
             } catch (IOException | ClassNotFoundException e) {
                 log.error("Error reading serialisation", e);
@@ -80,47 +81,58 @@ public abstract class Paper implements Serializable {
         }
 
         // Attempt to file existing annotation data
-        // TODO support web pages (will come much later in development)
-        int beginningOfFileExtension = location.lastIndexOf('.');
-        if (beginningOfFileExtension >= 0) {
-            String fileExtension = location.substring(beginningOfFileExtension);
-            switch (fileExtension) {
-            case ".txt":
-            case ".pdf":
-                // Try and read in same name .ann
-                String annLocation = location.replace(".txt", ANN_FILE_EXT);
-                File annFile = new File(annLocation);
-                if (annFile.exists()) {
-                    try (Scanner scanner = new Scanner(annFile)) {
-                        while (scanner.hasNextLine()) {
-                            Extraction newExt = Extraction.createExtractionFromString(scanner.nextLine(),
-                                    keyPhrasesExtractions);
-                            addKeyPhraseExtraction(newExt);
-                        }
-                    } catch (IOException e) {
-                        log.error("Problem reading papers.txt", e);
-                    }
+        if (canAttemptAnnRead) {
+            // Try and read in same name .ann
+            String annLocation = location.replace(".txt", ANN_FILE_EXT);
+            loadAnnFile(annLocation);
+        }
+    }
+
+    /**
+     * Use an annotation file to add already extracted key phrase information to the
+     * file.
+     * 
+     * @param annLocation
+     *            The location of the annotation file.
+     */
+    public void loadAnnFile(String annLocation) {
+        File annFile = new File(annLocation);
+        if (annFile.exists()) {
+            try (Scanner scanner = new Scanner(annFile)) {
+                while (scanner.hasNextLine()) {
+                    Extraction newExt = Extraction.createExtractionFromString(scanner.nextLine(), extractions);
+                    addExtraction(newExt);
                 }
+            } catch (IOException e) {
+                log.error("Problem reading papers.txt", e);
             }
         }
     }
 
-    @Override
-    public String toString() {
-        int keyPhraseCount = 0;
-        int relationshipCount = 0;
+    /**
+     * Generates a new key phrase. The phrase is what is inbetween the two indexes
+     * given, blank space trimmed
+     * 
+     * @param start
+     *            The start of the key phrase
+     * @param end
+     *            The end of the key phrase
+     * @return The new key phrase object (with set ID and unknown classification)
+     */
+    public KeyPhrase makeKeyPhrase(int start, int end) {
+        int lowestAvailableId = 0;
 
-        for (Extraction extraction : keyPhrasesExtractions) {
-            if (extraction instanceof KeyPhrase) {
-                keyPhraseCount++;
-            } else {
-                relationshipCount++;
+        // Find the highest ID and add one
+        for (Extraction ext : extractions) {
+            if (lowestAvailableId <= ext.getId()) {
+                lowestAvailableId = ext.getId() + 1;
             }
         }
 
-        return location + " (" + keyPhraseCount + " keyphrases found, " + relationshipCount + " relationships found, "
-                + tokenCounts.size() + " different tokens, " + tokenCounts.values().stream().reduce(0, Integer::sum)
-                + " total tokens)";
+        String phrase = text.substring(start, end).trim();
+
+        return new KeyPhrase(lowestAvailableId, phrase, new Position(start, start += phrase.length()),
+                Classification.UNKNOWN);
     }
 
     /**
@@ -140,84 +152,6 @@ public abstract class Paper implements Serializable {
             oos.close();
         } catch (IOException e) {
             log.error("Error writing serialisation", e);
-        }
-    }
-
-    /**
-     * Gets the sentence containing the key phrase
-     * 
-     * @param phrase
-     * @return
-     */
-    public CoreMap getSentenceOfKeyword(KeyPhrase phrase) {
-        int position = 0;
-        for (CoreMap sentence : coreNLPAnnotations) {
-            // Increment the position counter (sentence length + 1 for separating space).
-            position += sentence.get(TextAnnotation.class).length() + 1;
-            if (phrase.getPosition().getStart() < position) {
-                // It (should be) is in this sentence
-                if (phrase.getPosition().getEnd() > position) {
-                    // End of phrase goes past end of sentence...
-                    return null;
-                }
-
-                return sentence;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the position of a key phrase in the text document
-     * 
-     * @param token
-     *            The token to get the start/end position of
-     * @param targetToken
-     *            The sentence containing the token
-     * @return The position of the token in the overall text
-     */
-    public Position getPositionOfWord(CoreLabel targetToken, CoreMap targetSentence) {
-        int position = 0;
-        for (CoreMap sentence : coreNLPAnnotations) {
-            if (sentence != targetSentence) {
-                position += sentence.get(TextAnnotation.class).length() + 1;
-            } else {
-                // It's in this sentence
-                for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
-                    if (token != targetToken) {
-                        position += token.get(TextAnnotation.class).length() + 1;
-                    } else {
-                        return new Position(position, position + token.get(TextAnnotation.class).length());
-                    }
-                }
-            }
-        }
-
-        // Couldn't find the token
-        return null;
-    }
-
-    /**
-     * Gets the length of a phrase
-     * 
-     * @param startToken
-     *            The token at the beginning of the phrase
-     * @param endToken
-     *            The token at the end of the phrase
-     * @param targetSentence
-     *            The sentence containing the phrase
-     * @return The position of the overall phrase
-     */
-    public Position getPositionOfPhrase(CoreLabel startToken, CoreLabel endToken, CoreMap targetSentence) {
-        Position startPosition = getPositionOfWord(startToken, targetSentence);
-        Position endPosition = getPositionOfWord(endToken, targetSentence);
-
-        if (startPosition != null && endPosition != null) {
-            return new Position(startPosition.getStart(), endPosition.getEnd());
-        } else {
-            // There was a problem with one of the phrases
-            return null;
         }
     }
 
@@ -311,8 +245,8 @@ public abstract class Paper implements Serializable {
      * 
      * @return The key phrase information
      */
-    public List<Extraction> getKeyPhrasesExtractions() {
-        return keyPhrasesExtractions;
+    public List<Extraction> getExtractions() {
+        return extractions;
     }
 
     /**
@@ -321,8 +255,8 @@ public abstract class Paper implements Serializable {
      * @param keyPhrasesExtractions
      *            The new key phrase information
      */
-    public void setKeyPhrasesExtractions(List<Extraction> keyPhrasesExtractions) {
-        this.keyPhrasesExtractions = keyPhrasesExtractions;
+    public void setExtractions(List<Extraction> keyPhrasesExtractions) {
+        this.extractions = keyPhrasesExtractions;
     }
 
     /**
@@ -331,8 +265,8 @@ public abstract class Paper implements Serializable {
      * @param keyPhraseExtraction
      *            The phrase to add
      */
-    public void addKeyPhraseExtraction(Extraction keyPhraseExtraction) {
-        keyPhrasesExtractions.add(keyPhraseExtraction);
+    public void addExtraction(Extraction keyPhraseExtraction) {
+        extractions.add(keyPhraseExtraction);
     }
 
     /**
@@ -387,14 +321,48 @@ public abstract class Paper implements Serializable {
      * Prints key phrase information
      */
     public void printKeyPhraseInformation() {
-        if (!keyPhrasesExtractions.isEmpty()) {
+        if (!extractions.isEmpty()) {
             log.debug("Key phrase information for " + location + ":");
-            for (Extraction extraction : keyPhrasesExtractions) {
-                log.debug(extraction);
-            }
+            log.debug(getExtractionString());
         } else {
             log.warn("No key phrase information for " + location);
         }
+    }
+
+    /**
+     * Creates printable extraction information for this paper.
+     * 
+     * @return Extraction information
+     */
+    public String getExtractionString() {
+        String returnString = "";
+
+        if (!extractions.isEmpty()) {
+            for (Extraction extraction : extractions) {
+                returnString += extraction.toString();
+                returnString += System.lineSeparator();
+            }
+        }
+
+        return returnString;
+    }
+
+    @Override
+    public String toString() {
+        int keyPhraseCount = 0;
+        int relationshipCount = 0;
+
+        for (Extraction extraction : extractions) {
+            if (extraction instanceof KeyPhrase) {
+                keyPhraseCount++;
+            } else {
+                relationshipCount++;
+            }
+        }
+
+        return location + " (" + keyPhraseCount + " keyphrases found, " + relationshipCount + " relationships found, "
+                + tokenCounts.size() + " different tokens, " + tokenCounts.values().stream().reduce(0, Integer::sum)
+                + " total tokens)";
     }
 
 }

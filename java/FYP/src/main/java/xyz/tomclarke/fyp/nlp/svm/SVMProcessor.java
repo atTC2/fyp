@@ -1,6 +1,7 @@
 package xyz.tomclarke.fyp.nlp.svm;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class SVMProcessor {
     private svm_parameter param;
     private svm_model model;
     private svm_problem problem;
+    private boolean probModelOk;
 
     // Used when constructive SVs
     private List<Paper> trainingPapers;
@@ -141,7 +143,7 @@ public class SVMProcessor {
 
                     // Key phrase (label)
                     double keyPhrase = 0.0;
-                    for (Extraction phrase : paper.getKeyPhrasesExtractions()) {
+                    for (Extraction phrase : paper.getExtractions()) {
                         if (phrase instanceof KeyPhrase
                                 && ((KeyPhrase) phrase).getPhrase().toLowerCase().contains(word)) {
                             keyPhrase = 1.0;
@@ -149,7 +151,7 @@ public class SVMProcessor {
                         }
                     }
 
-                    svm_node[] nodes = generateSupportVectors(paper, token);
+                    svm_node[] nodes = generateSupportVectors(token, paper);
 
                     log.debug(String.format("%f 1:%.8f 2:%f 3:%.8f 4:%.8f 5:%f 6:%f", keyPhrase, nodes[0].value,
                             nodes[1].value, nodes[2].value, nodes[3].value, nodes[4].value, nodes[5].value));
@@ -183,6 +185,8 @@ public class SVMProcessor {
             // Something is wrong...
             throw new Exception(paramCheck);
         }
+        probModelOk = svm.svm_check_probability_model(model) == 1;
+        log.info("Prob Model Check: " + probModelOk);
     }
 
     /**
@@ -195,19 +199,24 @@ public class SVMProcessor {
     public boolean predictIsKeyword(svm_node[] nodes) {
         double prediction = svm.svm_predict(model, nodes);
         log.debug("Prediction: " + prediction);
+        if (prediction > 0.0) {
+            if (probModelOk) {
+                log.info(svm.svm_predict_probability(model, nodes, null));
+            }
+        }
         return prediction > 0.0;
     }
 
     /**
      * Generates support vectors for a given token for a given paper
      * 
-     * @param paper
-     *            The paper (the token is from)
      * @param token
      *            The token to generate SVs for
+     * @param paper
+     *            The paper (the token is from)
      * @return The array of generated SVs
      */
-    public svm_node[] generateSupportVectors(Paper paper, CoreLabel token) {
+    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper) {
         String word = token.get(TextAnnotation.class).toLowerCase();
         double numOfTermsInPaper = (double) paper.getTokenCounts().values().stream().reduce(0, Integer::sum);
 
@@ -311,6 +320,64 @@ public class SVMProcessor {
      */
     public svm_problem getProblem() {
         return problem;
+    }
+
+    /**
+     * Predicts key phrases for a paper
+     * 
+     * @param paper
+     *            The paper to predict papers for
+     * @return The key phrases found
+     */
+    public List<KeyPhrase> predictKeyPhrases(Paper paper) {
+        List<KeyPhrase> phrases = new ArrayList<KeyPhrase>();
+
+        String text = paper.getText();
+        // Position in text
+        int counter = 0;
+        // Position of word in next block of text
+        int pos = 0;
+
+        // For when building a new KP
+        int kpStart = 0;
+        int kpEnd = 0;
+        boolean previousWordKP = false;
+
+        // So key phrases can be created, ensure to keep a count as we go
+        for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
+            for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
+                String word = token.get(TextAnnotation.class);
+
+                svm_node[] nodes = generateSupportVectors(token, paper);
+                boolean isPredictedKeyPhrase = predictIsKeyword(nodes);
+
+                // Get the position
+                pos = text.indexOf(word);
+                if (pos > -1) {
+                    counter += pos;
+                    text = text.substring(pos);
+
+                    // If is a key phrase and previous is not, make sure they next loop knows this
+                    // is a key phrase
+                    if (isPredictedKeyPhrase && !previousWordKP) {
+                        previousWordKP = true;
+                        kpStart = counter;
+                    }
+
+                    // Is not a key phrase, but it has just finished a key phrase area, save this.
+                    // TODO what if random characters, then a no key word - this'll include the
+                    // random characters
+                    if (!isPredictedKeyPhrase && previousWordKP) {
+                        previousWordKP = false;
+                        kpEnd = counter;
+
+                        phrases.add(paper.makeKeyPhrase(kpStart, kpEnd));
+                    }
+                }
+            }
+        }
+
+        return phrases;
     }
 
 }
