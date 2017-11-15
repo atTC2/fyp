@@ -1,6 +1,7 @@
 package xyz.tomclarke.fyp.nlp.svm;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,14 +10,13 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
 import libsvm.svm_node;
 import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistics;
-import xyz.tomclarke.fyp.nlp.keyphrase.Extraction;
+import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
 import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.PaperUtil;
@@ -91,22 +91,14 @@ public class TestSVMProcessor {
         double fn = 0;
 
         for (Paper paper : testPapers) {
+            boolean previousWordKeyPhrase = false;
             for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
                 for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
-                    String word = token.get(TextAnnotation.class).toLowerCase();
-
                     // Key phrase (answer)
-                    double keyPhrase = 0.0;
-                    for (Extraction phrase : paper.getExtractions()) {
-                        if (phrase instanceof KeyPhrase
-                                && ((KeyPhrase) phrase).getPhrase().toLowerCase().contains(word)) {
-                            keyPhrase = 1.0;
-                            break;
-                        }
-                    }
+                    double keyPhrase = paper.isTokenPartOfKeyPhrase(token) ? 1.0 : 0.0;
 
                     // SV Nodes (question)
-                    svm_node[] nodes = svm.generateSupportVectors(token, paper);
+                    svm_node[] nodes = svm.generateSupportVectors(token, paper, previousWordKeyPhrase ? 1.0 : 0.0);
 
                     // Ask the question and compare the answer to the expected answer
                     boolean isPredictedKeyPhrase = svm.predictIsKeyword(nodes);
@@ -119,6 +111,9 @@ public class TestSVMProcessor {
                     } else if (keyPhrase == 1.0 && !isPredictedKeyPhrase) {
                         fn++;
                     }
+
+                    // Save previous word information (for next word in same paper only)
+                    previousWordKeyPhrase = isPredictedKeyPhrase;
                 }
             }
         }
@@ -134,15 +129,31 @@ public class TestSVMProcessor {
         List<Paper> testPapers = PaperUtil.annotatePapers(LoadPapers
                 .loadNewPapers(new File(getClass().getClassLoader().getResource("papers_test.txt").getFile())));
 
+        List<ConfusionStatistics> overallStats = new ArrayList<ConfusionStatistics>();
         for (Paper paper : testPapers) {
             List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
-            System.out.println(paper);
-            for(KeyPhrase phrase : phrases) {
-                System.out.println(phrase);
-            }
-            break;
+            // log.info(paper);
+            // for (KeyPhrase phrase : phrases) {
+            // System.out.println(phrase);
+            // }
+
+            overallStats
+                    .add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(), false, false));
+            log.info(overallStats.get(overallStats.size() - 1));
         }
 
+        double tp = 0;
+        double fp = 0;
+        double tn = 0;
+        double fn = 0;
+        for (ConfusionStatistics stat : overallStats) {
+            tp += stat.getTp();
+            fp += stat.getFp();
+            tn += stat.getTn();
+            fn += stat.getFn();
+        }
+
+        log.info("Overall statistics: " + ConfusionStatistics.calculateScore(tp, fp, tn, fn));
     }
 
 }

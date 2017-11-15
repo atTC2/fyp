@@ -23,58 +23,58 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
  */
 public class Word2VecProcessor {
 
-    /**
-     * Takes pre-processed papers and gets all sentences.
-     * 
-     * @param papers
-     *            The papers to get sentences from
-     * @return A list of sentences
-     */
-    private static List<String> createSentencesFile(List<Paper> papers) {
-        List<String> sentences = new ArrayList<String>();
+	/**
+	 * Takes pre-processed papers and gets all sentences.
+	 * 
+	 * @param papers
+	 *            The papers to get sentences from
+	 * @return A list of sentences
+	 */
+	private static List<String> createSentencesFile(List<Paper> papers) {
+		List<String> sentences = new ArrayList<String>();
 
-        for (Paper paper : papers) {
-            if (paper.getCoreNLPAnnotations() != null && !paper.getCoreNLPAnnotations().isEmpty()) {
-                for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
-                    // Any extra pre-processing, do here
-                    sentences.add(sentence.get(TextAnnotation.class).toLowerCase());
-                }
-            }
-        }
+		for (Paper paper : papers) {
+			if (paper.getCoreNLPAnnotations() != null && !paper.getCoreNLPAnnotations().isEmpty()) {
+				for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
+					// Any extra pre-processing, do here
+					sentences.add(sentence.get(TextAnnotation.class).toLowerCase());
+				}
+			}
+		}
 
-        return sentences;
-    }
+		return sentences;
+	}
 
-    /**
-     * Processes papers with word2vec
-     * 
-     * @param papers
-     *            The papers to process
-     * @return The trained Word2Vec instance
-     */
-    @SuppressWarnings("serial")
-    public static Word2Vec process(List<Paper> papers) {
-        System.setProperty("java.library.path", "");
-        
-        // Setup the iterator holding the data
-        SentenceIterator iter = new CollectionSentenceIterator(createSentencesFile(papers));
-        iter.setPreProcessor(new SentencePreProcessor() {
-            @Override
-            public String preProcess(String sentence) {
-                return sentence.toLowerCase();
-            }
-        });
+	/**
+	 * Processes papers with word2vec
+	 * 
+	 * @param papers
+	 *            The papers to process
+	 * @return The trained Word2Vec instance
+	 */
+	@SuppressWarnings("serial")
+	public static Word2Vec process(List<Paper> papers) {
+		// System.setProperty("java.library.path", "");
 
-        // Setup the tokenizer
-        TokenizerFactory t = new DefaultTokenizerFactory();
-        t.setTokenPreProcessor(new CommonPreprocessor());
+		// Setup the iterator holding the data
+		SentenceIterator iter = new CollectionSentenceIterator(createSentencesFile(papers));
+		iter.setPreProcessor(new SentencePreProcessor() {
+			@Override
+			public String preProcess(String sentence) {
+				return sentence.toLowerCase();
+			}
+		});
 
-        // Setup the word2vec instance
-        Word2Vec vec = new Word2Vec.Builder().minWordFrequency(5).iterations(1).layerSize(100).seed(42).windowSize(5)
-                .iterate(iter).tokenizerFactory(t).build();
+		// Setup the tokenizer
+		TokenizerFactory t = new DefaultTokenizerFactory();
+		t.setTokenPreProcessor(new CommonPreprocessor());
 
-        vec.fit();
+		// Setup the word2vec instance
+		Word2Vec vec = new Word2Vec.Builder().minWordFrequency(5).iterations(1).layerSize(100).seed(42).windowSize(5)
+				.iterate(iter).tokenizerFactory(t).build();
 
-        return vec;
-    }
+		vec.fit();
+
+		return vec;
+	}
 }

@@ -110,7 +110,7 @@ public abstract class Paper implements Serializable {
     }
 
     /**
-     * Generates a new key phrase. The phrase is what is inbetween the two indexes
+     * Generates a new key phrase. The phrase is what is in between the two indexes
      * given, blank space trimmed
      * 
      * @param start
@@ -118,8 +118,10 @@ public abstract class Paper implements Serializable {
      * @param end
      *            The end of the key phrase
      * @return The new key phrase object (with set ID and unknown classification)
+     * @throws Exception
+     *             If the phrase is empty
      */
-    public KeyPhrase makeKeyPhrase(int start, int end) {
+    public KeyPhrase makeKeyPhrase(int start, int end) throws Exception {
         int lowestAvailableId = 0;
 
         // Find the highest ID and add one
@@ -131,8 +133,40 @@ public abstract class Paper implements Serializable {
 
         String phrase = text.substring(start, end).trim();
 
+        // If it's a mistake, it could be a blank line...
+        if (phrase.isEmpty()) {
+            throw new Exception("Generated Key Phrase is empty");
+        }
+
+        // Cater for shortening at the start of the phrase
+        start = start + text.substring(start).indexOf(phrase.charAt(0));
+
         return new KeyPhrase(lowestAvailableId, phrase, new Position(start, start += phrase.length()),
                 Classification.UNKNOWN);
+    }
+
+    /**
+     * Tests whether the token selected is part of a key phrase
+     * 
+     * TODO import this
+     * 
+     * @param token
+     *            The token to check
+     * @return Whether the token is part of a key phrase
+     */
+    public boolean isTokenPartOfKeyPhrase(CoreLabel token) {
+        String word = token.get(TextAnnotation.class).toLowerCase();
+        for (Extraction phrase : getExtractions()) {
+            if (phrase instanceof KeyPhrase) {
+                String phraseWord = ((KeyPhrase) phrase).getPhrase().toLowerCase();
+                // Word must be start, end, equal or token of key phrase
+                if (phraseWord.startsWith(word) || phraseWord.endsWith(word) || phraseWord.equals(word)
+                        || phraseWord.contains(" " + word + " ")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

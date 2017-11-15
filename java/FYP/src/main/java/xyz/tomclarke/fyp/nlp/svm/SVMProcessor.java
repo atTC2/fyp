@@ -20,7 +20,6 @@ import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_print_interface;
 import libsvm.svm_problem;
-import xyz.tomclarke.fyp.nlp.keyphrase.Extraction;
 import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 
@@ -34,7 +33,7 @@ public class SVMProcessor {
 
     private static final Logger log = LogManager.getLogger(SVMProcessor.class);
 
-    private static final int numOfSVs = 6;
+    private static final int numOfSVs = 8;
 
     private svm_parameter param;
     private svm_model model;
@@ -137,30 +136,25 @@ public class SVMProcessor {
         int index = 0;
         for (Paper paper : papers) {
             for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
+                double previousWordKeyPhrase = 0.0;
                 for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
-
-                    String word = token.get(TextAnnotation.class).toLowerCase();
-
                     // Key phrase (label)
-                    double keyPhrase = 0.0;
-                    for (Extraction phrase : paper.getExtractions()) {
-                        if (phrase instanceof KeyPhrase
-                                && ((KeyPhrase) phrase).getPhrase().toLowerCase().contains(word)) {
-                            keyPhrase = 1.0;
-                            break;
-                        }
-                    }
+                    double keyPhrase = paper.isTokenPartOfKeyPhrase(token) ? 1.0 : 0.0;
 
-                    svm_node[] nodes = generateSupportVectors(token, paper);
+                    svm_node[] nodes = generateSupportVectors(token, paper, previousWordKeyPhrase);
 
-                    log.debug(String.format("%f 1:%.8f 2:%f 3:%.8f 4:%.8f 5:%f 6:%f", keyPhrase, nodes[0].value,
-                            nodes[1].value, nodes[2].value, nodes[3].value, nodes[4].value, nodes[5].value));
+                    log.debug(String.format("%f 1:%.8f 2:%f 3:%.8f 4:%.8f 5:%f 6:%f 7:%f 8:%.8f", keyPhrase,
+                            nodes[0].value, nodes[1].value, nodes[2].value, nodes[3].value, nodes[4].value,
+                            nodes[5].value, nodes[6].value, nodes[7].value));
 
                     // Add the information
                     problem.y[index] = keyPhrase;
                     problem.x[index] = nodes;
 
                     index++;
+
+                    // Save previous word information (for next word in same paper only)
+                    previousWordKeyPhrase = keyPhrase;
                 }
             }
         }
@@ -214,9 +208,11 @@ public class SVMProcessor {
      *            The token to generate SVs for
      * @param paper
      *            The paper (the token is from)
+     * @param previousWordKeyPhrase
+     *            Whether the previous word was a key phrase
      * @return The array of generated SVs
      */
-    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper) {
+    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper, double previousWordKeyPhrase) {
         String word = token.get(TextAnnotation.class).toLowerCase();
         double numOfTermsInPaper = (double) paper.getTokenCounts().values().stream().reduce(0, Integer::sum);
 
@@ -268,6 +264,12 @@ public class SVMProcessor {
         }
         svm_node svFS = makeNewNode(5, inFirstSentence);
         svm_node svLS = makeNewNode(6, inLastSentence);
+        // Was the previous word a key phrase (7)
+        svm_node svLWKP = makeNewNode(7, previousWordKeyPhrase);
+        // Depth in sentence
+        CoreMap sentence = paper.getSentenceWithToken(token);
+        svm_node svDepthSentence = makeNewNode(8, (double) sentence.get(TokensAnnotation.class).indexOf(token)
+                / (double) sentence.get(TokensAnnotation.class).size());
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -277,6 +279,8 @@ public class SVMProcessor {
         nodes[3] = svDepth;
         nodes[4] = svFS;
         nodes[5] = svLS;
+        nodes[6] = svLWKP;
+        nodes[7] = svDepthSentence;
         return nodes;
     }
 
@@ -348,7 +352,7 @@ public class SVMProcessor {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
 
-                svm_node[] nodes = generateSupportVectors(token, paper);
+                svm_node[] nodes = generateSupportVectors(token, paper, previousWordKP ? 1.0 : 0.0);
                 boolean isPredictedKeyPhrase = predictIsKeyword(nodes);
 
                 // Get the position
@@ -371,7 +375,12 @@ public class SVMProcessor {
                         previousWordKP = false;
                         kpEnd = counter;
 
-                        phrases.add(paper.makeKeyPhrase(kpStart, kpEnd));
+                        try {
+                            phrases.add(paper.makeKeyPhrase(kpStart, kpEnd));
+                        } catch (Exception e) {
+                            // Making a new key phrase went wrong somehow...
+                            log.error(e.getMessage());
+                        }
                     }
                 }
             }

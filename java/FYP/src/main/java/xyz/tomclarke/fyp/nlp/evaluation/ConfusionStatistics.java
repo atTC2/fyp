@@ -8,16 +8,41 @@ package xyz.tomclarke.fyp.nlp.evaluation;
  */
 public class ConfusionStatistics {
 
+    private final double tp;
+    private final double fp;
+    private final double tn;
+    private final double fn;
     private final double accuracy;
     private final double precision;
     private final double recall;
     private final double fone;
 
-    public ConfusionStatistics(double accuracy, double precision, double recall, double fone) {
+    public ConfusionStatistics(double tp, double fp, double tn, double fn, double accuracy, double precision,
+            double recall, double fone) {
+        this.tp = tp;
+        this.fp = fp;
+        this.tn = tn;
+        this.fn = fn;
         this.accuracy = accuracy;
         this.precision = precision;
         this.recall = recall;
         this.fone = fone;
+    }
+
+    public double getTp() {
+        return tp;
+    }
+
+    public double getFp() {
+        return fp;
+    }
+
+    public double getTn() {
+        return tn;
+    }
+
+    public double getFn() {
+        return fn;
     }
 
     public double getAccuracy() {
@@ -32,7 +57,7 @@ public class ConfusionStatistics {
         return recall;
     }
 
-    public double getFOne() {
+    public double getFone() {
         return fone;
     }
 
@@ -61,7 +86,7 @@ public class ConfusionStatistics {
         double recall = tp / (tp + fn);
         double fone = 2.0 * precision * recall / (precision + recall);
 
-        return new ConfusionStatistics(accuracy, precision, recall, fone);
+        return new ConfusionStatistics(tp, fp, tn, fn, accuracy, precision, recall, fone);
     }
 
 }
