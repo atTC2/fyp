@@ -1,5 +1,7 @@
 package xyz.tomclarke.fyp.nlp.evaluation;
 
+import java.util.List;
+
 /**
  * A class to hold information about F scoring (and accuracy)
  * 
@@ -87,6 +89,27 @@ public class ConfusionStatistics {
         double fone = 2.0 * precision * recall / (precision + recall);
 
         return new ConfusionStatistics(tp, fp, tn, fn, accuracy, precision, recall, fone);
+    }
+
+    /**
+     * Calculates statistics over a range of items
+     * 
+     * @param overallStats
+     *            Statistics for a range of items
+     * @return The overall statistic
+     */
+    public static ConfusionStatistics calculateScoreSum(List<ConfusionStatistics> overallStats) {
+        double tp = 0;
+        double fp = 0;
+        double tn = 0;
+        double fn = 0;
+        for (ConfusionStatistics stat : overallStats) {
+            tp += stat.getTp();
+            fp += stat.getFp();
+            tn += stat.getTn();
+            fn += stat.getFn();
+        }
+        return ConfusionStatistics.calculateScore(tp, fp, tn, fn);
     }
 
 }

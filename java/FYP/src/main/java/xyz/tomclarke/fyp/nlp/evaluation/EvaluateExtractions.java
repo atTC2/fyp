@@ -36,7 +36,7 @@ public class EvaluateExtractions {
      * @return Statistics based off of a confusion matrix
      */
     public static ConfusionStatistics evaluateKeyPhrases(List<KeyPhrase> pred, Paper paper, List<Extraction> act,
-            boolean strict, boolean includeClazz) {
+            Strictness strictness, boolean includeClazz) {
         double tp = 0;
         double fp = 0;
         double tn = 0;
@@ -60,11 +60,17 @@ public class EvaluateExtractions {
                 boolean matchingPhrase = false;
                 boolean matchingClazz = false;
                 // Check key phrase
-                if (strict) {
-                    matchingPhrase = predKP.getPhrase().equals(actKP.getPhrase());
-                } else {
+                switch (strictness) {
+                case GENEROUS:
                     matchingPhrase = predKP.getPhrase().contains(actKP.getPhrase())
                             || actKP.getPhrase().contains(predKP.getPhrase());
+                    break;
+                case INCLUSIVE:
+                    matchingPhrase = predKP.getPhrase().contains(actKP.getPhrase());
+                    break;
+                case STRICT:
+                    matchingPhrase = predKP.getPhrase().equals(actKP.getPhrase());
+                    break;
                 }
 
                 // Check classification of key phrase
@@ -114,8 +120,8 @@ public class EvaluateExtractions {
                     }
                 }
 
-                // If it's not a positive or if it's not a true negative
-                if (!inPredKP || !inActKP) {
+                // If it's not a positive and if it's not a false negative
+                if (!inPredKP && !inActKP) {
                     tn++;
                 }
             }

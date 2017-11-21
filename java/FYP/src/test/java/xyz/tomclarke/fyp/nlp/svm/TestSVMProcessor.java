@@ -1,6 +1,9 @@
 package xyz.tomclarke.fyp.nlp.svm;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +20,7 @@ import libsvm.svm_node;
 import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistics;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
+import xyz.tomclarke.fyp.nlp.evaluation.Strictness;
 import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.PaperUtil;
@@ -129,31 +133,44 @@ public class TestSVMProcessor {
         List<Paper> testPapers = PaperUtil.annotatePapers(LoadPapers
                 .loadNewPapers(new File(getClass().getClassLoader().getResource("papers_test.txt").getFile())));
 
-        List<ConfusionStatistics> overallStats = new ArrayList<ConfusionStatistics>();
+        List<ConfusionStatistics> overallStatsGen = new ArrayList<ConfusionStatistics>();
+        List<ConfusionStatistics> overallStatsInc = new ArrayList<ConfusionStatistics>();
+        List<ConfusionStatistics> overallStatsStr = new ArrayList<ConfusionStatistics>();
         for (Paper paper : testPapers) {
             List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
-            // log.info(paper);
-            // for (KeyPhrase phrase : phrases) {
-            // System.out.println(phrase);
-            // }
 
-            overallStats
-                    .add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(), false, false));
-            log.info(overallStats.get(overallStats.size() - 1));
+            // Save statistics
+            overallStatsGen.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+                    Strictness.GENEROUS, false));
+            overallStatsInc.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+                    Strictness.INCLUSIVE, false));
+            overallStatsStr.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+                    Strictness.STRICT, false));
         }
 
-        double tp = 0;
-        double fp = 0;
-        double tn = 0;
-        double fn = 0;
-        for (ConfusionStatistics stat : overallStats) {
-            tp += stat.getTp();
-            fp += stat.getFp();
-            tn += stat.getTn();
-            fn += stat.getFn();
-        }
+        log.info("Overall statistics (gen): " + ConfusionStatistics.calculateScoreSum(overallStatsGen));
+        log.info("Overall statistics (inc): " + ConfusionStatistics.calculateScoreSum(overallStatsInc));
+        log.info("Overall statistics (str): " + ConfusionStatistics.calculateScoreSum(overallStatsStr));
+    }
 
-        log.info("Overall statistics: " + ConfusionStatistics.calculateScore(tp, fp, tn, fn));
+    @Ignore
+    @Test
+    public void testSvmPredictSaveToFile() throws IOException {
+        String saveLocation = System.getenv("FYP_HOME") + "../testing/pred/";
+
+        List<Paper> testPapers = PaperUtil.annotatePapers(LoadPapers
+                .loadNewPapers(new File(getClass().getClassLoader().getResource("papers_test.txt").getFile())));
+
+        for (Paper paper : testPapers) {
+            List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
+
+            // Write extractions to file
+            try (PrintWriter pw = new PrintWriter(new FileWriter(saveLocation))) {
+                for (KeyPhrase phrase : phrases) {
+                    pw.write(phrase.toString());
+                }
+            }
+        }
     }
 
 }
