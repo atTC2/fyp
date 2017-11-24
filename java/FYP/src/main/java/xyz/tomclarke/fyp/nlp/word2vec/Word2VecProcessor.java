@@ -1,8 +1,10 @@
 package xyz.tomclarke.fyp.nlp.word2vec;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.CollectionSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
@@ -23,58 +25,67 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
  */
 public class Word2VecProcessor {
 
-	/**
-	 * Takes pre-processed papers and gets all sentences.
-	 * 
-	 * @param papers
-	 *            The papers to get sentences from
-	 * @return A list of sentences
-	 */
-	private static List<String> createSentencesFile(List<Paper> papers) {
-		List<String> sentences = new ArrayList<String>();
+    /**
+     * Loads the Word2Vec Google News pre-processed data
+     * 
+     * @return Word2Vec The loaded Google News object
+     */
+    public static Word2Vec loadGoogleNewsVectors() {
+        return WordVectorSerializer.readWord2VecModel(new File("/home/tom/FYP/GoogleNews-vectors-negative300.bin.gz"));
+    }
 
-		for (Paper paper : papers) {
-			if (paper.getCoreNLPAnnotations() != null && !paper.getCoreNLPAnnotations().isEmpty()) {
-				for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
-					// Any extra pre-processing, do here
-					sentences.add(sentence.get(TextAnnotation.class).toLowerCase());
-				}
-			}
-		}
+    /**
+     * Takes pre-processed papers and gets all sentences.
+     * 
+     * @param papers
+     *            The papers to get sentences from
+     * @return A list of sentences
+     */
+    private static List<String> createSentencesFile(List<Paper> papers) {
+        List<String> sentences = new ArrayList<String>();
 
-		return sentences;
-	}
+        for (Paper paper : papers) {
+            if (paper.getAnnotations() != null && !paper.getAnnotations().isEmpty()) {
+                for (CoreMap sentence : paper.getAnnotations()) {
+                    // Any extra pre-processing, do here
+                    sentences.add(sentence.get(TextAnnotation.class).toLowerCase());
+                }
+            }
+        }
 
-	/**
-	 * Processes papers with word2vec
-	 * 
-	 * @param papers
-	 *            The papers to process
-	 * @return The trained Word2Vec instance
-	 */
-	@SuppressWarnings("serial")
-	public static Word2Vec process(List<Paper> papers) {
-		// System.setProperty("java.library.path", "");
+        return sentences;
+    }
 
-		// Setup the iterator holding the data
-		SentenceIterator iter = new CollectionSentenceIterator(createSentencesFile(papers));
-		iter.setPreProcessor(new SentencePreProcessor() {
-			@Override
-			public String preProcess(String sentence) {
-				return sentence.toLowerCase();
-			}
-		});
+    /**
+     * Processes papers with word2vec
+     * 
+     * @param papers
+     *            The papers to process
+     * @return The trained Word2Vec instance
+     */
+    @SuppressWarnings("serial")
+    public static Word2Vec process(List<Paper> papers) {
+        // System.setProperty("java.library.path", "");
 
-		// Setup the tokenizer
-		TokenizerFactory t = new DefaultTokenizerFactory();
-		t.setTokenPreProcessor(new CommonPreprocessor());
+        // Setup the iterator holding the data
+        SentenceIterator iter = new CollectionSentenceIterator(createSentencesFile(papers));
+        iter.setPreProcessor(new SentencePreProcessor() {
+            @Override
+            public String preProcess(String sentence) {
+                return sentence.toLowerCase();
+            }
+        });
 
-		// Setup the word2vec instance
-		Word2Vec vec = new Word2Vec.Builder().minWordFrequency(5).iterations(1).layerSize(100).seed(42).windowSize(5)
-				.iterate(iter).tokenizerFactory(t).build();
+        // Setup the tokenizer
+        TokenizerFactory t = new DefaultTokenizerFactory();
+        t.setTokenPreProcessor(new CommonPreprocessor());
 
-		vec.fit();
+        // Setup the word2vec instance
+        Word2Vec vec = new Word2Vec.Builder().minWordFrequency(5).iterations(1).layerSize(100).seed(42).windowSize(5)
+                .iterate(iter).tokenizerFactory(t).build();
 
-		return vec;
-	}
+        vec.fit();
+
+        return vec;
+    }
 }

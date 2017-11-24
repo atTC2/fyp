@@ -1,6 +1,5 @@
 package xyz.tomclarke.fyp.nlp.svm;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,13 +17,12 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
 import libsvm.svm_node;
 import libsvm.svm_problem;
-import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistics;
+import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
 import xyz.tomclarke.fyp.nlp.evaluation.Strictness;
 import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
-import xyz.tomclarke.fyp.nlp.paper.PaperUtil;
-import xyz.tomclarke.fyp.nlp.preprocessing.LoadPapers;
+import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Test to evaluate the SVM Processor
@@ -37,12 +35,13 @@ public class TestSVMProcessor {
     private static final Logger log = LogManager.getLogger(TestSVMProcessor.class);
 
     private static SVMProcessor svm;
+    private static List<Paper> testPapers;
 
     @BeforeClass
     public static void initalise() throws Exception {
-        log.info("Loading training data...");
-        List<Paper> papers = PaperUtil.annotatePapers(LoadPapers
-                .loadNewPapers(new File(TestSVMProcessor.class.getClassLoader().getResource("papers.txt").getFile())));
+        log.info("Loading training and test data...");
+        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestSVMProcessor.class);
+        testPapers = NlpUtil.loadAndAnnotateTestPapers(TestSVMProcessor.class);
 
         // Setup the SVM
         log.info("Building SVM...");
@@ -79,24 +78,20 @@ public class TestSVMProcessor {
         }
 
         log.info(String.format("tp: %.8f fp: %.8f tn: %.8f fn: %.8f", tp, fp, tn, fn));
-        log.info(ConfusionStatistics.calculateScore(tp, fp, tn, fn));
+        log.info(ConfusionStatistic.calculateScore(tp, fp, tn, fn));
     }
 
     @Ignore
     @Test
     public void testSvmProcessorTestData() throws Exception {
         log.info("Testing with test data");
-        // Get test data parsed...
-        List<Paper> testPapers = PaperUtil.annotatePapers(LoadPapers
-                .loadNewPapers(new File(getClass().getClassLoader().getResource("papers_test.txt").getFile())));
         double tp = 0;
         double fp = 0;
         double tn = 0;
         double fn = 0;
-
         for (Paper paper : testPapers) {
             boolean previousWordKeyPhrase = false;
-            for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
+            for (CoreMap sentence : paper.getAnnotations()) {
                 for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                     // Key phrase (answer)
                     double keyPhrase = paper.isTokenPartOfKeyPhrase(token) ? 1.0 : 0.0;
@@ -123,19 +118,15 @@ public class TestSVMProcessor {
         }
 
         log.info(String.format("tp: %.8f fp: %.8f tn: %.8f fn: %.8f", tp, fp, tn, fn));
-        log.info(ConfusionStatistics.calculateScore(tp, fp, tn, fn));
+        log.info(ConfusionStatistic.calculateScore(tp, fp, tn, fn));
     }
 
     @Test
     public void testSvmPredictKeyPhrases() {
         log.info("Testing with test data, getting key phrase objects");
-        // Get test data parsed...
-        List<Paper> testPapers = PaperUtil.annotatePapers(LoadPapers
-                .loadNewPapers(new File(getClass().getClassLoader().getResource("papers_test.txt").getFile())));
-
-        List<ConfusionStatistics> overallStatsGen = new ArrayList<ConfusionStatistics>();
-        List<ConfusionStatistics> overallStatsInc = new ArrayList<ConfusionStatistics>();
-        List<ConfusionStatistics> overallStatsStr = new ArrayList<ConfusionStatistics>();
+        List<ConfusionStatistic> overallStatsGen = new ArrayList<ConfusionStatistic>();
+        List<ConfusionStatistic> overallStatsInc = new ArrayList<ConfusionStatistic>();
+        List<ConfusionStatistic> overallStatsStr = new ArrayList<ConfusionStatistic>();
         for (Paper paper : testPapers) {
             List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
 
@@ -148,19 +139,25 @@ public class TestSVMProcessor {
                     Strictness.STRICT, false));
         }
 
-        log.info("Overall statistics (gen): " + ConfusionStatistics.calculateScoreSum(overallStatsGen));
-        log.info("Overall statistics (inc): " + ConfusionStatistics.calculateScoreSum(overallStatsInc));
-        log.info("Overall statistics (str): " + ConfusionStatistics.calculateScoreSum(overallStatsStr));
+        ConfusionStatistic gen = ConfusionStatistic.calculateScoreSum(overallStatsGen);
+        ConfusionStatistic inc = ConfusionStatistic.calculateScoreSum(overallStatsInc);
+        ConfusionStatistic str = ConfusionStatistic.calculateScoreSum(overallStatsStr);
+
+        log.info("Overall statistics (gen): " + gen);
+        log.debug("Specific results were: tp: " + gen.getTp() + " fp: " + gen.getFp() + " tn: " + gen.getTn() + " fn: "
+                + gen.getFn());
+        log.info("Overall statistics (inc): " + inc);
+        log.debug("Specific results were: tp: " + inc.getTp() + " fp: " + inc.getFp() + " tn: " + inc.getTn() + " fn: "
+                + inc.getFn());
+        log.info("Overall statistics (str): " + str);
+        log.debug("Specific results were: tp: " + str.getTp() + " fp: " + str.getFp() + " tn: " + str.getTn() + " fn: "
+                + str.getFn());
     }
 
     @Ignore
     @Test
     public void testSvmPredictSaveToFile() throws IOException {
         String saveLocation = System.getenv("FYP_HOME") + "../testing/pred/";
-
-        List<Paper> testPapers = PaperUtil.annotatePapers(LoadPapers
-                .loadNewPapers(new File(getClass().getClassLoader().getResource("papers_test.txt").getFile())));
-
         for (Paper paper : testPapers) {
             List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
 

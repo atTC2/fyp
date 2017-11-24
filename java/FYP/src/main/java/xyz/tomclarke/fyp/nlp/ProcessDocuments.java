@@ -31,7 +31,7 @@ public class ProcessDocuments {
         for (Paper paper : papers) {
             log.info(paper);
             paper.printKeyPhraseInformation();
-            if (paper.getCoreNLPAnnotations() == null) {
+            if (paper.getAnnotations() == null) {
                 if (pp == null) {
                     pp = new PreProcessor();
                 }

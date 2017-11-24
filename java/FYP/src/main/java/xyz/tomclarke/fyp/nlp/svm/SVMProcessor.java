@@ -22,6 +22,7 @@ import libsvm.svm_print_interface;
 import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Uses libsvm to analyse text
@@ -95,13 +96,6 @@ public class SVMProcessor {
      *            The papers that shall be used as training data
      */
     public void generateTrainingData(List<Paper> papers) throws IOException {
-        /*
-         * Format: <label> <index1>:<value1> <index2>:<value2> ... Format: <label>
-         * len:len/max_len POS POS:(n=1) TF*IDF:http://www.tfidf.com/,
-         * dep:word/sum(word), first_sen:in first sentence?, last_sen:in last sentence?
-         * len:1, pos:2, tfidf:3, dep:4, first_sen:5, last_sen:6
-         */
-
         // Save for later use
         trainingPapers = papers;
 
@@ -135,7 +129,7 @@ public class SVMProcessor {
         // Go through each word.
         int index = 0;
         for (Paper paper : papers) {
-            for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
+            for (CoreMap sentence : paper.getAnnotations()) {
                 double previousWordKeyPhrase = 0.0;
                 for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                     // Key phrase (label)
@@ -158,10 +152,6 @@ public class SVMProcessor {
                 }
             }
         }
-
-        // When building SVs for testing, there will be an extra paper to count (the
-        // paper in question)
-        maxWordLength++;
     }
 
     /**
@@ -180,7 +170,7 @@ public class SVMProcessor {
             throw new Exception(paramCheck);
         }
         probModelOk = svm.svm_check_probability_model(model) == 1;
-        log.info("Prob Model Check: " + probModelOk);
+        log.info("Probability Model Check: " + probModelOk);
     }
 
     /**
@@ -214,7 +204,6 @@ public class SVMProcessor {
      */
     public svm_node[] generateSupportVectors(CoreLabel token, Paper paper, double previousWordKeyPhrase) {
         String word = token.get(TextAnnotation.class).toLowerCase();
-        double numOfTermsInPaper = (double) paper.getTokenCounts().values().stream().reduce(0, Integer::sum);
 
         // Length (1)
         double len = (double) word.length() / (double) maxWordLength;
@@ -223,20 +212,11 @@ public class SVMProcessor {
         int pos = token.get(PartOfSpeechAnnotation.class).toLowerCase().contains("n") ? 1 : 0;
         svm_node svPos = makeNewNode(2, pos);
         // TF-IDF (3)
-        double tf = (double) paper.getTokenCounts().get(word) / (double) numOfTermsInPaper;
-        int numOfPapersWithTerm = 0;
-        for (Paper paperIdf : trainingPapers) {
-            if (paperIdf.getTokenCounts().containsKey(word)) {
-                numOfPapersWithTerm++;
-            }
-        }
-        double idf = Math.log((double) trainingPapers.size() / (double) numOfPapersWithTerm);
-        double tfIdf = tf * idf;
-        svm_node svTfIdf = makeNewNode(3, tfIdf);
+        svm_node svTfIdf = makeNewNode(3, NlpUtil.calculateTfIdf(word, paper, trainingPapers));
         // Depth (4)
         boolean foundWord = false;
         int wordDepth = 0;
-        for (CoreMap sentenceD : paper.getCoreNLPAnnotations()) {
+        for (CoreMap sentenceD : paper.getAnnotations()) {
             for (CoreLabel tokenD : sentenceD.get(TokensAnnotation.class)) {
                 String wordD = tokenD.get(TextAnnotation.class).toLowerCase();
                 wordDepth++;
@@ -249,7 +229,7 @@ public class SVMProcessor {
                 break;
             }
         }
-        double depth = (double) wordDepth / numOfTermsInPaper;
+        double depth = (double) wordDepth / (double) paper.getTokenCounts().values().stream().reduce(0, Integer::sum);
         svm_node svDepth = makeNewNode(4, depth);
         // In first (5) or last (6) sentence?
         int inFirstSentence = 0;
@@ -257,9 +237,9 @@ public class SVMProcessor {
         CoreMap sentenceFL = paper.getSentenceWithToken(token);
         // TODO consider if this is right (a key word could be in the middle of the text
         // and at the start/end...)
-        if (paper.getCoreNLPAnnotations().get(0) == sentenceFL) {
+        if (paper.getAnnotations().get(0) == sentenceFL) {
             inFirstSentence = 1;
-        } else if (paper.getCoreNLPAnnotations().get(paper.getCoreNLPAnnotations().size() - 1) == sentenceFL) {
+        } else if (paper.getAnnotations().get(paper.getAnnotations().size() - 1) == sentenceFL) {
             inLastSentence = 1;
         }
         svm_node svFS = makeNewNode(5, inFirstSentence);
@@ -348,7 +328,7 @@ public class SVMProcessor {
         boolean previousWordKP = false;
 
         // So key phrases can be created, ensure to keep a count as we go
-        for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
+        for (CoreMap sentence : paper.getAnnotations()) {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
 
@@ -356,7 +336,7 @@ public class SVMProcessor {
                 boolean isPredictedKeyPhrase = predictIsKeyword(nodes);
 
                 // Get the position
-                pos = text.indexOf(word);
+                pos = text.toLowerCase().indexOf(word.toLowerCase());
                 if (pos > -1) {
                     counter += pos;
                     text = text.substring(pos);

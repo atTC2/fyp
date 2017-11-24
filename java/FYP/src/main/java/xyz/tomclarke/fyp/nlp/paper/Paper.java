@@ -46,7 +46,7 @@ public abstract class Paper implements Serializable {
     private final String location;
     private final String serLocation;
     private String text;
-    private List<CoreMap> coreNLPAnnotations;
+    private List<CoreMap> annotations;
     private List<Extraction> extractions;
     private Map<String, Integer> tokenCounts;
 
@@ -68,7 +68,7 @@ public abstract class Paper implements Serializable {
 
                 // Set the necessary parameters
                 text = loadedPaper.getText();
-                coreNLPAnnotations = loadedPaper.getCoreNLPAnnotations();
+                annotations = loadedPaper.getAnnotations();
                 extractions = loadedPaper.getExtractions();
                 tokenCounts = loadedPaper.getTokenCounts();
             } catch (IOException | ClassNotFoundException e) {
@@ -197,7 +197,7 @@ public abstract class Paper implements Serializable {
      * @return The parent sentence.
      */
     public CoreMap getSentenceWithToken(CoreLabel targetToken) {
-        for (CoreMap sentence : coreNLPAnnotations) {
+        for (CoreMap sentence : annotations) {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 if (token == targetToken) {
                     return sentence;
@@ -243,21 +243,21 @@ public abstract class Paper implements Serializable {
      * 
      * @return The annotation information
      */
-    public List<CoreMap> getCoreNLPAnnotations() {
-        return coreNLPAnnotations;
+    public List<CoreMap> getAnnotations() {
+        return annotations;
     }
 
     /**
      * Sets the annotation information
      * 
-     * @param coreNLPAnnotations
+     * @param annotations
      *            The calculated annotations
      */
-    public void setCoreNLPAnnotations(List<CoreMap> coreNLPAnnotations) {
-        this.coreNLPAnnotations = coreNLPAnnotations;
+    public void setAnnotations(List<CoreMap> annotations) {
+        this.annotations = annotations;
 
         // Calculate token counts
-        for (CoreMap sentence : coreNLPAnnotations) {
+        for (CoreMap sentence : annotations) {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class).toLowerCase();
 
@@ -327,9 +327,9 @@ public abstract class Paper implements Serializable {
      * Prints the annotations
      */
     public void printAnnotations() {
-        if (coreNLPAnnotations != null && !coreNLPAnnotations.isEmpty()) {
+        if (annotations != null && !annotations.isEmpty()) {
             log.debug("Annotation information for " + location + ":");
-            for (CoreMap sentence : coreNLPAnnotations) {
+            for (CoreMap sentence : annotations) {
                 // Print out the original sentence
                 String originalSentence = sentence.get(TextAnnotation.class);
                 log.debug("original sentence: " + originalSentence);

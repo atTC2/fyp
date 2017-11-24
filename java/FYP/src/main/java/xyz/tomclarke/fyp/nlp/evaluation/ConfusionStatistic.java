@@ -8,7 +8,7 @@ import java.util.List;
  * @author tbc452
  *
  */
-public class ConfusionStatistics {
+public class ConfusionStatistic {
 
     private final double tp;
     private final double fp;
@@ -19,7 +19,7 @@ public class ConfusionStatistics {
     private final double recall;
     private final double fone;
 
-    public ConfusionStatistics(double tp, double fp, double tn, double fn, double accuracy, double precision,
+    public ConfusionStatistic(double tp, double fp, double tn, double fn, double accuracy, double precision,
             double recall, double fone) {
         this.tp = tp;
         this.fp = fp;
@@ -82,13 +82,13 @@ public class ConfusionStatistics {
      *            False negatives
      * @return The calculated confusion statistics
      */
-    public static ConfusionStatistics calculateScore(double tp, double fp, double tn, double fn) {
+    public static ConfusionStatistic calculateScore(double tp, double fp, double tn, double fn) {
         double accuracy = (tp + tn) / (tp + fp + fn + tn);
         double precision = tp / (tp + fp);
         double recall = tp / (tp + fn);
         double fone = 2.0 * precision * recall / (precision + recall);
 
-        return new ConfusionStatistics(tp, fp, tn, fn, accuracy, precision, recall, fone);
+        return new ConfusionStatistic(tp, fp, tn, fn, accuracy, precision, recall, fone);
     }
 
     /**
@@ -98,18 +98,18 @@ public class ConfusionStatistics {
      *            Statistics for a range of items
      * @return The overall statistic
      */
-    public static ConfusionStatistics calculateScoreSum(List<ConfusionStatistics> overallStats) {
+    public static ConfusionStatistic calculateScoreSum(List<ConfusionStatistic> overallStats) {
         double tp = 0;
         double fp = 0;
         double tn = 0;
         double fn = 0;
-        for (ConfusionStatistics stat : overallStats) {
+        for (ConfusionStatistic stat : overallStats) {
             tp += stat.getTp();
             fp += stat.getFp();
             tn += stat.getTn();
             fn += stat.getFn();
         }
-        return ConfusionStatistics.calculateScore(tp, fp, tn, fn);
+        return ConfusionStatistic.calculateScore(tp, fp, tn, fn);
     }
 
 }

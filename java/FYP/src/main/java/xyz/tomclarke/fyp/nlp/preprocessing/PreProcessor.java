@@ -40,7 +40,7 @@ public class PreProcessor {
         log.info("Processing " + paper.getLocation());
         Annotation document = new Annotation(paper.getText());
         pipeline.annotate(document);
-        paper.setCoreNLPAnnotations(document.get(SentencesAnnotation.class));
+        paper.setAnnotations(document.get(SentencesAnnotation.class));
         log.info("Finsihed processing " + paper.getLocation());
     }
 

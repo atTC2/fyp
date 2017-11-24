@@ -17,7 +17,7 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
  * @author tbc452
  *
  */
-public class EvaluateExtractions {
+public abstract class EvaluateExtractions {
 
     /**
      * Evaluates key phrases (for now we ignore ID and text position)
@@ -35,7 +35,7 @@ public class EvaluateExtractions {
      *            Whether or not to consider classification of the key phrase
      * @return Statistics based off of a confusion matrix
      */
-    public static ConfusionStatistics evaluateKeyPhrases(List<KeyPhrase> pred, Paper paper, List<Extraction> act,
+    public static ConfusionStatistic evaluateKeyPhrases(List<KeyPhrase> pred, Paper paper, List<Extraction> act,
             Strictness strictness, boolean includeClazz) {
         double tp = 0;
         double fp = 0;
@@ -59,17 +59,19 @@ public class EvaluateExtractions {
 
                 boolean matchingPhrase = false;
                 boolean matchingClazz = false;
+
+                String predKPWord = predKP.getPhrase().toLowerCase();
+                String actKPWord = actKP.getPhrase().toLowerCase();
                 // Check key phrase
                 switch (strictness) {
                 case GENEROUS:
-                    matchingPhrase = predKP.getPhrase().contains(actKP.getPhrase())
-                            || actKP.getPhrase().contains(predKP.getPhrase());
+                    matchingPhrase = predKPWord.contains(actKPWord) || actKPWord.contains(predKPWord);
                     break;
                 case INCLUSIVE:
-                    matchingPhrase = predKP.getPhrase().contains(actKP.getPhrase());
+                    matchingPhrase = predKPWord.contains(actKPWord);
                     break;
                 case STRICT:
-                    matchingPhrase = predKP.getPhrase().equals(actKP.getPhrase());
+                    matchingPhrase = predKPWord.equals(actKPWord);
                     break;
                 }
 
@@ -100,7 +102,7 @@ public class EvaluateExtractions {
         fn = act.size() - foundKP.size();
 
         // Get count of true negatives...
-        for (CoreMap sentence : paper.getCoreNLPAnnotations()) {
+        for (CoreMap sentence : paper.getAnnotations()) {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
                 // Don't recount positives
@@ -127,6 +129,6 @@ public class EvaluateExtractions {
             }
         }
 
-        return ConfusionStatistics.calculateScore(tp, fp, tn, fn);
+        return ConfusionStatistic.calculateScore(tp, fp, tn, fn);
     }
 }
