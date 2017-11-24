@@ -10,6 +10,7 @@ Taking on the [ScienceIE](https://scienceie.github.io/) task.
 ### What to run
 * To evaluate the current SVM performance, run test class `xyz.tomclarke.fyp.nlp.svm.TestSVMProcessor`
 * To evaluate current clustering performance with Word2Vec, run test class `xyz.tomclarke.fyp.nlp.cluster.TestW2VCluster`
+	* To run using the Google News corpus, you may need to set the following JVM arguments: `-Xms1024m -Xmx10g`
 
 ## Results
 The current SVM performance evaluated by this system is:

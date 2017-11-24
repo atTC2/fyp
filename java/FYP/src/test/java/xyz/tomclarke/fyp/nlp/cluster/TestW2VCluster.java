@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
+import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
  * Tests clustering using Word2Vec
@@ -19,23 +20,26 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 public class TestW2VCluster {
 
     private static final Logger log = LogManager.getLogger(TestW2VCluster.class);
-    private static List<Paper> papers;
+    private static List<Paper> trainingPapers;
     private static List<Paper> testPapers;
 
     @BeforeClass
     public static void initalise() {
         log.info("Loading training and test data...");
-        papers = NlpUtil.loadAndAnnotatePapers(TestW2VCluster.class);
+        trainingPapers = NlpUtil.loadAndAnnotatePapers(TestW2VCluster.class);
         testPapers = NlpUtil.loadAndAnnotateTestPapers(TestW2VCluster.class);
     }
 
     @Test
-    public void testSomething() {
+    public void testSomething() throws Exception {
         log.info("Testing");
-        W2VClusterProcessor cluster = new W2VClusterProcessor(null, papers);
+        W2VClusterProcessor cluster = new W2VClusterProcessor(Word2VecProcessor.loadGoogleNewsVectors(),
+                trainingPapers);
 
         for (Paper testPaper : testPapers) {
-            cluster.removeCommonTokens(testPaper.getAnnotations(), testPaper);
+            cluster.cluster(testPaper, Linkage.SINGLE);
+            cluster.cluster(testPaper, Linkage.AVERAGE);
+            cluster.cluster(testPaper, Linkage.COMPLETE);
             break;
         }
 

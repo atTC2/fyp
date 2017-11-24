@@ -2,6 +2,7 @@ package xyz.tomclarke.fyp.nlp.cluster;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 import xyz.tomclarke.fyp.nlp.util.Tuple;
 
 /**
- * Clusters to find key words using Word2Vec
+ * Clusters using hierarchical to find key words using Word2Vec
  * 
  * @author tbc452
  *
@@ -29,32 +30,22 @@ public class W2VClusterProcessor {
 
     private final Word2Vec vec;
     private final List<Paper> trainingPapers;
-    private Map<String, Map<String, Double>> distanceMap;
 
     public W2VClusterProcessor(Word2Vec vec, List<Paper> trainingPapers) {
         this.vec = vec;
         this.trainingPapers = trainingPapers;
     }
 
-    public Word2Vec getVec() {
-        return vec;
-    }
-
-    public List<Paper> getTrainingPapers() {
-        return trainingPapers;
-    }
-
     /**
      * Remove common words that shouldn't be key phrases (as they are so common they
      * don't matter that much).
      * 
-     * @param originalTokens
-     *            The token to process
      * @param sourcePaper
-     *            The paper the tokens came from
+     *            The paper containing the tokens to process
      * @return A list of tokens to cluster on
      */
-    public List<String> removeCommonTokens(List<CoreMap> originalTokens, Paper sourcePaper) {
+    private List<String> removeCommonTokens(Paper sourcePaper) {
+        List<CoreMap> originalTokens = sourcePaper.getAnnotations();
         List<Tuple<String, Double>> tfIdfs = new ArrayList<Tuple<String, Double>>();
         for (CoreMap sentence : originalTokens) {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
@@ -106,70 +97,199 @@ public class W2VClusterProcessor {
     }
 
     /**
-     * A representation of a cluster
+     * Generates the distance map from the words given
+     * 
+     * @param tokens
+     *            The tokens to generate a distance map of
+     */
+    private Map<String, Map<String, Double>> generateDistanceMap(List<String> tokens) {
+        Map<String, Map<String, Double>> distanceMap = new HashMap<String, Map<String, Double>>();
+        for (String wordFrom : tokens) {
+            Map<String, Double> distancesFromWord = new HashMap<String, Double>();
+            distanceMap.put(wordFrom, distancesFromWord);
+            for (String wordTo : tokens) {
+                distancesFromWord.put(wordTo, vec.similarity(wordFrom, wordTo));
+            }
+        }
+
+        return distanceMap;
+    }
+
+    /**
+     * Cluster to find key words
+     * 
+     * @param paper
+     *            The paper to cluster the tokens of
+     * @param method
+     *            The method of determining distance between each cluster
+     * @throws Exception
+     *             If there was a problem
+     */
+    public void cluster(Paper paper, Linkage method) throws Exception {
+        // Get the tokens we care about
+        List<String> tokens = removeCommonTokens(paper);
+        // Generate a distance map between each pair of tokens
+        Map<String, Map<String, Double>> distanceMap = generateDistanceMap(tokens);
+
+        // To keep a history of each iteration
+        List<W2VClusterSet> clusterHistory = new ArrayList<W2VClusterSet>();
+
+        // Make the initial clusters (each word is a cluster)
+        W2VClusterSet clusters = new W2VClusterSet();
+        for (String token : tokens) {
+            W2VCluster cluster = new W2VCluster(distanceMap);
+            cluster.add(token);
+            clusters.add(cluster);
+        }
+        // Save the first version of the cluster set
+        clusterHistory.add(clusters.copy());
+
+        // Now iterate, combining the closest clusters until there is just 1 left
+        while (clusters.size() > 1) {
+            double clusterDistance = Double.MAX_VALUE;
+            W2VCluster clusterA = null;
+            W2VCluster clusterB = null;
+
+            for (W2VCluster clusterFrom : clusters) {
+                for (W2VCluster clusterTo : clusters) {
+                    // Don't try and match clusters that are the same
+                    if (clusterFrom.equals(clusterTo)) {
+                        continue;
+                    }
+
+                    double currentClusterDistance = clusterFrom.getDistance(clusterTo, method);
+                    if (currentClusterDistance < clusterDistance) {
+                        // We've found a closer cluster than currently saved, note these down
+                        clusterDistance = currentClusterDistance;
+                        clusterA = clusterFrom;
+                        clusterB = clusterTo;
+                    }
+                }
+            }
+
+            // Ensure we found clusters close together
+            if (clusterA == null || clusterB == null) {
+                log.warn("Could not iterate on W2VCluster any further, end cluster count: " + clusters.size());
+                break;
+            }
+
+            // Combine the closest clusters
+            log.debug("Combining clusters with distance " + clusterDistance);
+            W2VCluster combined = (W2VCluster) clusterA.combine(clusterB);
+            // Remove the clusters from the current cluster set and add the combined version
+            clusters.remove(clusterA);
+            clusters.remove(clusterB);
+            clusters.add(combined);
+
+            // Save the new cluster set
+            clusterHistory.add(clusters.copy());
+        }
+
+        log.info("Generated hierarchical cluster using " + method);
+        log.debug(clusterHistory);
+    }
+
+    /**
+     * A collection of clusters, which support copying (so they can be saved in a
+     * history)
      * 
      * @author tbc452
      *
      */
-    private class Cluster extends ArrayList<String> {
+    private class W2VClusterSet extends ArrayList<W2VCluster> {
+
+        private static final long serialVersionUID = -3215804144763193247L;
 
         /**
-         * Finds the distance from this cluster to another
+         * Generates a copy of the cluser set (so the original set can be saved)
          * 
-         * @param cluster
-         *            The cluster to compare this cluster to
-         * @param method
-         *            The type of method for determining the distance
-         * @return The distance
-         * @throws Exception
-         *             If no valid method has been chosen
+         * @return A copy of this cluster set
          */
-        public double getDistance(Cluster cluster, Linkage method) throws Exception {
-            switch (method) {
-            case SINGLE:
-                return getShortestDistance(cluster);
-            case AVERAGE:
-                getAverageDistance(cluster);
-            case COMPLETE:
-                getLargestDistance(cluster);
-            default:
-                throw new Exception("No cluster linkage method selected.");
+        public W2VClusterSet copy() {
+            W2VClusterSet copy = new W2VClusterSet();
+            for (W2VCluster cluster : this) {
+                copy.add(cluster);
             }
+            return copy;
         }
 
-        /**
-         * Finds the shortest distance from words in this cluster to the given cluster
-         * (single-linkage)
-         * 
-         * @param cluster
-         *            The cluster to compare this cluster to
-         * @return The smallest distance
-         */
-        private double getShortestDistance(Cluster cluster) {
-            return 0;
+    }
+
+    /**
+     * A representation of a Word2Vec cluster
+     * 
+     * @author tbc452
+     *
+     */
+    private class W2VCluster extends Cluster<String> {
+
+        private static final long serialVersionUID = -6694787882359474571L;
+        private final Map<String, Map<String, Double>> distanceMap;
+
+        public W2VCluster(Map<String, Map<String, Double>> distanceMap) {
+            super();
+            this.distanceMap = distanceMap;
         }
 
-        /**
-         * Finds the average distance from words in this cluster to the given cluster
-         * (average-linkage clustering)
-         * 
-         * @param cluster
-         *            The cluster to compare this cluster to
-         * @return The average distance
-         */
-        private double getAverageDistance(Cluster cluster) {
-            return 0;
+        @Override
+        public Cluster<String> combine(Cluster<String> otherCluster) {
+            W2VCluster combinedCluster = new W2VCluster(distanceMap);
+
+            // Get tokens from this cluster
+            for (String token : this) {
+                combinedCluster.add(token);
+            }
+
+            // Get the tokens from the other cluster
+            for (String token : otherCluster) {
+                combinedCluster.add(token);
+            }
+
+            return combinedCluster;
         }
 
-        /**
-         * Finds the largest distance from this cluster to another (complete-linkage)
-         * 
-         * @param cluster
-         *            The cluster to compare this cluster to
-         * @return The largest distance
-         */
-        private double getLargestDistance(Cluster cluster) {
-            return 0;
+        @Override
+        protected double getShortestDistance(Cluster<String> cluster) {
+            double shortestDistance = Double.MAX_VALUE;
+
+            for (String wordFrom : this) {
+                for (String wordTo : cluster) {
+                    if (distanceMap.get(wordFrom).get(wordTo) < shortestDistance) {
+                        shortestDistance = distanceMap.get(wordFrom).get(wordTo);
+                    }
+                }
+            }
+
+            return shortestDistance;
+        }
+
+        @Override
+        protected double getAverageDistance(Cluster<String> cluster) {
+            double acc = 0.0;
+            double counter = 0.0;
+            for (String wordFrom : this) {
+                for (String wordTo : cluster) {
+                    acc += distanceMap.get(wordFrom).get(wordTo);
+                    counter++;
+                }
+            }
+
+            return acc / counter;
+        }
+
+        @Override
+        protected double getLargestDistance(Cluster<String> cluster) {
+            double largestDistance = Double.MIN_VALUE;
+
+            for (String wordFrom : this) {
+                for (String wordTo : cluster) {
+                    if (distanceMap.get(wordFrom).get(wordTo) > largestDistance) {
+                        largestDistance = distanceMap.get(wordFrom).get(wordTo);
+                    }
+                }
+            }
+
+            return largestDistance;
         }
 
     }
