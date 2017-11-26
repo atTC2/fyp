@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,11 +118,13 @@ public abstract class Paper implements Serializable {
      *            The start of the key phrase
      * @param end
      *            The end of the key phrase
+     * @param clazz
+     *            The classification being found
      * @return The new key phrase object (with set ID and unknown classification)
      * @throws Exception
      *             If the phrase is empty
      */
-    public KeyPhrase makeKeyPhrase(int start, int end) throws Exception {
+    public KeyPhrase makeKeyPhrase(int start, int end, Classification clazz) throws Exception {
         int lowestAvailableId = 0;
 
         // Find the highest ID and add one
@@ -141,28 +144,42 @@ public abstract class Paper implements Serializable {
         // Cater for shortening at the start of the phrase
         start = start + text.substring(start).indexOf(phrase.charAt(0));
 
-        return new KeyPhrase(lowestAvailableId, phrase, new Position(start, start += phrase.length()),
-                Classification.UNKNOWN);
+        return new KeyPhrase(lowestAvailableId, phrase, new Position(start, start += phrase.length()), clazz);
     }
 
     /**
      * Tests whether the token selected is part of a key phrase
-     * 
-     * TODO import this
      * 
      * @param token
      *            The token to check
      * @return Whether the token is part of a key phrase
      */
     public boolean isTokenPartOfKeyPhrase(CoreLabel token) {
+        return isTokenPartOfKeyPhrase(token, null);
+    }
+
+    /**
+     * Tests whether the token selected is part of a key phrase of a certain
+     * classification
+     * 
+     * @param token
+     *            The token to check
+     * @param clazz
+     *            The classification to match against (null if searching for general
+     *            key phrase)
+     * @return Whether the token is part of a key phrase
+     */
+    public boolean isTokenPartOfKeyPhrase(CoreLabel token, Classification clazz) {
         String word = token.get(TextAnnotation.class).toLowerCase();
         for (Extraction phrase : getExtractions()) {
             if (phrase instanceof KeyPhrase) {
                 String phraseWord = ((KeyPhrase) phrase).getPhrase().toLowerCase();
-                // Word must be start, end, equal or token of key phrase
-                if (phraseWord.startsWith(word) || phraseWord.endsWith(word) || phraseWord.equals(word)
-                        || phraseWord.contains(" " + word + " ")) {
-                    return true;
+                // Word must be the phrase or a token of the phrase
+                if (phraseWord.equals(word) || Arrays.asList(phraseWord.split(" ")).contains(word)) {
+                    // Check classification
+                    if (clazz == null || ((KeyPhrase) phrase).getClazz().equals(clazz)) {
+                        return true;
+                    }
                 }
             }
         }

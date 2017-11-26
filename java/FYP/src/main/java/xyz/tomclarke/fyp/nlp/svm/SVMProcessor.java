@@ -20,6 +20,7 @@ import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_print_interface;
 import libsvm.svm_problem;
+import xyz.tomclarke.fyp.nlp.keyphrase.Classification;
 import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
@@ -41,9 +42,10 @@ public class SVMProcessor {
     private svm_problem problem;
     private boolean probModelOk;
 
-    // Used when constructive SVs
+    // Used when constructing SVs
     private List<Paper> trainingPapers;
     private int maxWordLength;
+    private Classification clazz;
 
     public SVMProcessor() {
         // Construct the (default) parameter object
@@ -58,8 +60,8 @@ public class SVMProcessor {
         param.nr_weight = 0;
         param.weight_label = new int[0];
         param.weight = new double[0];
-        param.shrinking = 1;
-        param.probability = 0;
+        param.shrinking = 0;
+        param.probability = 1;
 
         // Sort out printing
         class SvmPrinter implements svm_print_interface {
@@ -90,14 +92,29 @@ public class SVMProcessor {
     }
 
     /**
-     * Generates the data (svm_problem) for use in the SVM
+     * Generates the data (svm_problem) for use in the SVM for general key phrase
+     * extraction
      * 
      * @param papers
      *            The papers that shall be used as training data
      */
     public void generateTrainingData(List<Paper> papers) throws IOException {
+        generateTrainingData(papers, null);
+    }
+
+    /**
+     * Generates the data (svm_problem) for use in the SVM
+     * 
+     * @param papers
+     *            The papers that shall be used as training data
+     * @param clazz
+     *            The classification to train for (null if training for general key
+     *            phrase extraction)
+     */
+    public void generateTrainingData(List<Paper> papers, Classification clazz) throws IOException {
         // Save for later use
         trainingPapers = papers;
+        this.clazz = clazz;
 
         // Generate totals of counts first
         Map<String, Integer> totalCounts = new HashMap<String, Integer>();
@@ -133,7 +150,7 @@ public class SVMProcessor {
                 double previousWordKeyPhrase = 0.0;
                 for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                     // Key phrase (label)
-                    double keyPhrase = paper.isTokenPartOfKeyPhrase(token) ? 1.0 : 0.0;
+                    double keyPhrase = paper.isTokenPartOfKeyPhrase(token, clazz) ? 1.0 : 0.0;
 
                     svm_node[] nodes = generateSupportVectors(token, paper, previousWordKeyPhrase);
 
@@ -356,7 +373,10 @@ public class SVMProcessor {
                         kpEnd = counter;
 
                         try {
-                            phrases.add(paper.makeKeyPhrase(kpStart, kpEnd));
+                            // Add key phrase
+                            // Classification is either the one the SVm was trained with, or UNKNOWN
+                            phrases.add(paper.makeKeyPhrase(kpStart, kpEnd,
+                                    clazz == null ? Classification.UNKNOWN : clazz));
                         } catch (Exception e) {
                             // Making a new key phrase went wrong somehow...
                             log.error(e.getMessage());
