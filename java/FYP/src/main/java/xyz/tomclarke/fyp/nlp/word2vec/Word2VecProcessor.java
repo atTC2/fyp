@@ -35,6 +35,15 @@ public class Word2VecProcessor {
     }
 
     /**
+     * Loads the Word2Vec Google News pre-processed data
+     * 
+     * @return Word2Vec The loaded Google News object
+     */
+    public static Word2Vec loadWiki2Vec() {
+        return WordVectorSerializer.readWord2VecModel(new File("/home/tom/FYP/en_1000_no_stem.tar.gz"));
+    }
+
+    /**
      * Takes pre-processed papers and gets all sentences.
      * 
      * @param papers
@@ -57,19 +66,21 @@ public class Word2VecProcessor {
     }
 
     /**
-     * Processes papers with word2vec
+     * Processes papers with word2vec TODO consider saving this automatically? Maybe
+     * a hash of the papers given
      * 
      * @param papers
      *            The papers to process
      * @return The trained Word2Vec instance
      */
-    @SuppressWarnings("serial")
-    public static Word2Vec process(List<Paper> papers) {
+    public static Word2Vec generateFromPapers(List<Paper> papers) {
         // System.setProperty("java.library.path", "");
 
         // Setup the iterator holding the data
         SentenceIterator iter = new CollectionSentenceIterator(createSentencesFile(papers));
         iter.setPreProcessor(new SentencePreProcessor() {
+            private static final long serialVersionUID = 8231301166140848124L;
+
             @Override
             public String preProcess(String sentence) {
                 return sentence.toLowerCase();
@@ -81,7 +92,7 @@ public class Word2VecProcessor {
         t.setTokenPreProcessor(new CommonPreprocessor());
 
         // Setup the word2vec instance
-        Word2Vec vec = new Word2Vec.Builder().minWordFrequency(5).iterations(1).layerSize(100).seed(42).windowSize(5)
+        Word2Vec vec = new Word2Vec.Builder().minWordFrequency(1).iterations(1).layerSize(100).seed(42).windowSize(5)
                 .iterate(iter).tokenizerFactory(t).build();
 
         vec.fit();
