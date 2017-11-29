@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -17,10 +18,11 @@ import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
 import xyz.tomclarke.fyp.nlp.evaluation.Strictness;
-import xyz.tomclarke.fyp.nlp.keyphrase.Classification;
-import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
+import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
  * Test to evaluate the SVM Processor
@@ -35,20 +37,30 @@ public class TestSVMProcessor {
     private static SVMProcessor svmGeneral;
     private static List<Paper> trainingPapers;
     private static List<Paper> testPapers;
+    private static Word2Vec vec;
 
     @BeforeClass
     public static void initalise() {
         log.info("Loading training and test data...");
         trainingPapers = NlpUtil.loadAndAnnotatePapers(TestSVMProcessor.class);
         testPapers = NlpUtil.loadAndAnnotateTestPapers(TestSVMProcessor.class);
+
+        // Load Word2Vec
+        log.info("Loading Word2Vec");
+        vec = Word2VecProcessor.loadGoogleNewsVectors();
     }
 
+    /**
+     * Builds the general purpose key phrase extractor SVM
+     * 
+     * @throws Exception
+     */
     private static void loadGeneralSvm() throws Exception {
         if (svmGeneral == null) {
             // Setup the SVM
             log.info("Building general key phrase SVM...");
-            svmGeneral = new SVMProcessor();
-            svmGeneral.generateTrainingData(trainingPapers);
+            svmGeneral = new SVMProcessor(vec);
+            svmGeneral.generateTrainingData(trainingPapers, null);
             svmGeneral.train();
 
             log.info("SVM trained, now to test...");
@@ -102,8 +114,7 @@ public class TestSVMProcessor {
                     double keyPhrase = paper.isTokenPartOfKeyPhrase(token) ? 1.0 : 0.0;
 
                     // SV Nodes (question)
-                    svm_node[] nodes = svmGeneral.generateSupportVectors(token, paper,
-                            previousWordKeyPhrase ? 1.0 : 0.0);
+                    svm_node[] nodes = svmGeneral.generateSupportVectors(token, paper, previousWordKeyPhrase);
 
                     // Ask the question and compare the answer to the expected answer
                     boolean isPredictedKeyPhrase = svmGeneral.predictIsKeyword(nodes);
@@ -164,16 +175,19 @@ public class TestSVMProcessor {
                 + str.getFn());
     }
 
+    @Ignore
     @Test
     public void testSvmKeyPhraseClassifications() throws Exception {
-        log.info("Building key phrase classification SVMs...");
-        SVMProcessor svmTask = new SVMProcessor();
+        log.info("Building task key phrase SVM...");
+        SVMProcessor svmTask = new SVMProcessor(vec);
         svmTask.generateTrainingData(trainingPapers, Classification.TASK);
         svmTask.train();
-        SVMProcessor svmProcess = new SVMProcessor();
+        log.info("Building process key phrase SVM...");
+        SVMProcessor svmProcess = new SVMProcessor(vec);
         svmProcess.generateTrainingData(trainingPapers, Classification.PROCESS);
         svmProcess.train();
-        SVMProcessor svmMaterial = new SVMProcessor();
+        log.info("Building material key phrase SVM...");
+        SVMProcessor svmMaterial = new SVMProcessor(vec);
         svmMaterial.generateTrainingData(trainingPapers, Classification.MATERIAL);
         svmMaterial.train();
         log.info("SVMs trained, now to test key phrase extraction and classification...");
@@ -222,7 +236,7 @@ public class TestSVMProcessor {
      * Debug log extractions
      * 
      * @param paper
-     *            The assocaited paper
+     *            The associated paper
      * @param phrases
      *            The phrases found
      */

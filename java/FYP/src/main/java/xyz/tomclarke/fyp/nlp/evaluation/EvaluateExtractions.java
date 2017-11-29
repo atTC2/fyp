@@ -7,9 +7,9 @@ import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
-import xyz.tomclarke.fyp.nlp.keyphrase.Extraction;
-import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 
 /**
  * Used to evaluate extractions

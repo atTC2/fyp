@@ -1,4 +1,4 @@
-package xyz.tomclarke.fyp.nlp.keyphrase;
+package xyz.tomclarke.fyp.nlp.paper.extraction;
 
 import java.io.Serializable;
 import java.util.List;

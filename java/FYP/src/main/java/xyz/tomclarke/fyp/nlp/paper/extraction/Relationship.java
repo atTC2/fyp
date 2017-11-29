@@ -1,4 +1,4 @@
-package xyz.tomclarke.fyp.nlp.keyphrase;
+package xyz.tomclarke.fyp.nlp.paper.extraction;
 
 /**
  * Represents relationships between key phrases

@@ -1,8 +1,8 @@
 package xyz.tomclarke.fyp.nlp.evaluation;
 
-import xyz.tomclarke.fyp.nlp.keyphrase.Extraction;
-import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 
 /**
  * Analyse a paper.

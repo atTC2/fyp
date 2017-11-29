@@ -1,4 +1,4 @@
-package xyz.tomclarke.fyp.nlp.keyphrase;
+package xyz.tomclarke.fyp.nlp.paper.extraction;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

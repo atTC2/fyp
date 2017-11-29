@@ -1,4 +1,4 @@
-package xyz.tomclarke.fyp.nlp.keyphrase;
+package xyz.tomclarke.fyp.nlp.paper.extraction;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
  */
 public enum Classification {
 
-    PROCESS("Process"), TASK("Task"), MATERIAL("Material"), UNKNOWN("Unknown");
+    UNKNOWN("Unknown"), PROCESS("Process"), TASK("Task"), MATERIAL("Material");
 
     private static final Logger log = LogManager.getLogger(Classification.class);
     private String description;

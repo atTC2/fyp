@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
@@ -20,9 +21,9 @@ import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_print_interface;
 import libsvm.svm_problem;
-import xyz.tomclarke.fyp.nlp.keyphrase.Classification;
-import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -35,25 +36,25 @@ public class SVMProcessor {
 
     private static final Logger log = LogManager.getLogger(SVMProcessor.class);
 
-    private static final int numOfSVs = 8;
+    private static final int numOfSVs = 11;
 
     private svm_parameter param;
     private svm_model model;
     private svm_problem problem;
-    private boolean probModelOk;
+    private Word2Vec vec;
 
     // Used when constructing SVs
     private List<Paper> trainingPapers;
     private int maxWordLength;
     private Classification clazz;
 
-    public SVMProcessor() {
+    public SVMProcessor(Word2Vec vec) {
         // Construct the (default) parameter object
         param = new svm_parameter();
         param.svm_type = svm_parameter.C_SVC;
         param.kernel_type = svm_parameter.RBF;
         // 1 / number of features
-        param.gamma = 1.0 / 2.0;
+        param.gamma = 1 / 2.0;
         param.cache_size = 1024;
         param.eps = 0.001;
         param.C = 100.0;
@@ -61,7 +62,7 @@ public class SVMProcessor {
         param.weight_label = new int[0];
         param.weight = new double[0];
         param.shrinking = 0;
-        param.probability = 1;
+        param.probability = 0;
 
         // Sort out printing
         class SvmPrinter implements svm_print_interface {
@@ -88,18 +89,8 @@ public class SVMProcessor {
 
         svm.svm_set_print_string_function(new SvmPrinter());
 
+        this.vec = vec;
         maxWordLength = 0;
-    }
-
-    /**
-     * Generates the data (svm_problem) for use in the SVM for general key phrase
-     * extraction
-     * 
-     * @param papers
-     *            The papers that shall be used as training data
-     */
-    public void generateTrainingData(List<Paper> papers) throws IOException {
-        generateTrainingData(papers, null);
     }
 
     /**
@@ -108,8 +99,7 @@ public class SVMProcessor {
      * @param papers
      *            The papers that shall be used as training data
      * @param clazz
-     *            The classification to train for (null if training for general key
-     *            phrase extraction)
+     *            The classification this SVM is being built for
      */
     public void generateTrainingData(List<Paper> papers, Classification clazz) throws IOException {
         // Save for later use
@@ -147,9 +137,11 @@ public class SVMProcessor {
         int index = 0;
         for (Paper paper : papers) {
             for (CoreMap sentence : paper.getAnnotations()) {
-                double previousWordKeyPhrase = 0.0;
+                boolean previousWordKeyPhrase = false;
                 for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                     // Key phrase (label)
+                    // TODO what if a token is repeated in another key phrase but is a different
+                    // type
                     double keyPhrase = paper.isTokenPartOfKeyPhrase(token, clazz) ? 1.0 : 0.0;
 
                     svm_node[] nodes = generateSupportVectors(token, paper, previousWordKeyPhrase);
@@ -165,10 +157,25 @@ public class SVMProcessor {
                     index++;
 
                     // Save previous word information (for next word in same paper only)
-                    previousWordKeyPhrase = keyPhrase;
+                    previousWordKeyPhrase = keyPhrase > 0.0;
                 }
             }
         }
+
+        // // Do cross validation to find the best parameters
+        // log.info("C: " + param.C + " gamma: " + param.gamma);
+        // double[] target = new double[problem.l];
+        // svm.svm_cross_validation(problem, param, 5, target);
+        // log.info("C: " + param.C + " gamma: " + param.gamma);
+        // int total_correct = 0;
+        // for (int i = 0; i < problem.l; i++) {
+        // if (target[i] == problem.y[i]) {
+        // ++total_correct;
+        // }
+        // }
+        // // Currently 69.67793310918421%
+        // log.info("Cross Validation Accuracy = " + 100.0 * total_correct / problem.l +
+        // "%\n");
     }
 
     /**
@@ -178,16 +185,16 @@ public class SVMProcessor {
      *             If the training data isn't suitable for use
      */
     public void train() throws Exception {
+        log.info("Training SVM (classification " + clazz + ")");
         String paramCheck = svm.svm_check_parameter(problem, param);
         if (paramCheck == null) {
             // Fine to train on
             model = svm.svm_train(problem, param);
+            log.info("Finished training");
         } else {
             // Something is wrong...
             throw new Exception(paramCheck);
         }
-        probModelOk = svm.svm_check_probability_model(model) == 1;
-        log.info("Probability Model Check: " + probModelOk);
     }
 
     /**
@@ -195,16 +202,11 @@ public class SVMProcessor {
      * 
      * @param nodes
      *            The processed token information
-     * @return True if the SVM predicts it is a keyword.
+     * @return Whether the token is a key phrase
      */
     public boolean predictIsKeyword(svm_node[] nodes) {
         double prediction = svm.svm_predict(model, nodes);
         log.debug("Prediction: " + prediction);
-        if (prediction > 0.0) {
-            if (probModelOk) {
-                log.info(svm.svm_predict_probability(model, nodes, null));
-            }
-        }
         return prediction > 0.0;
     }
 
@@ -219,7 +221,7 @@ public class SVMProcessor {
      *            Whether the previous word was a key phrase
      * @return The array of generated SVs
      */
-    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper, double previousWordKeyPhrase) {
+    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper, boolean previousWordKeyPhrase) {
         String word = token.get(TextAnnotation.class).toLowerCase();
 
         // Length (1)
@@ -262,11 +264,17 @@ public class SVMProcessor {
         svm_node svFS = makeNewNode(5, inFirstSentence);
         svm_node svLS = makeNewNode(6, inLastSentence);
         // Was the previous word a key phrase (7)
-        svm_node svLWKP = makeNewNode(7, previousWordKeyPhrase);
+        svm_node svLWKP = makeNewNode(7, previousWordKeyPhrase ? 1.0 : 0.0);
         // Depth in sentence
         CoreMap sentence = paper.getSentenceWithToken(token);
         svm_node svDepthSentence = makeNewNode(8, (double) sentence.get(TokensAnnotation.class).indexOf(token)
                 / (double) sentence.get(TokensAnnotation.class).size());
+        // Similarity to task
+        svm_node svTask = makeNewNode(9, vec.similarity(word, "task"));
+        // Similarity to process
+        svm_node svProcess = makeNewNode(10, vec.similarity(word, "process"));
+        // Similarity to material
+        svm_node svMaterial = makeNewNode(11, vec.similarity(word, "material"));
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -278,6 +286,9 @@ public class SVMProcessor {
         nodes[5] = svLS;
         nodes[6] = svLWKP;
         nodes[7] = svDepthSentence;
+        nodes[8] = svTask;
+        nodes[9] = svProcess;
+        nodes[10] = svMaterial;
         return nodes;
     }
 
@@ -292,26 +303,10 @@ public class SVMProcessor {
         svm_node node = new svm_node();
         node.index = index;
         node.value = value;
+        if (!Double.isFinite(value)) {
+            node.value = 0.0;
+        }
         return node;
-    }
-
-    /**
-     * Gets the current parameters used in training
-     * 
-     * @return The current parameters of the SVM
-     */
-    public svm_parameter getParam() {
-        return param;
-    }
-
-    /**
-     * Sets the parameters of the SVM (requires re-training)
-     * 
-     * @param param
-     *            The new parameters
-     */
-    public void setParam(svm_parameter param) {
-        this.param = param;
     }
 
     /**
@@ -349,7 +344,7 @@ public class SVMProcessor {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
 
-                svm_node[] nodes = generateSupportVectors(token, paper, previousWordKP ? 1.0 : 0.0);
+                svm_node[] nodes = generateSupportVectors(token, paper, previousWordKP);
                 boolean isPredictedKeyPhrase = predictIsKeyword(nodes);
 
                 // Get the position

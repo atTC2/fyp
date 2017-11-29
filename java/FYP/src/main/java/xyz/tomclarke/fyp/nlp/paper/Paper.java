@@ -24,10 +24,10 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-import xyz.tomclarke.fyp.nlp.keyphrase.Classification;
-import xyz.tomclarke.fyp.nlp.keyphrase.Extraction;
-import xyz.tomclarke.fyp.nlp.keyphrase.KeyPhrase;
-import xyz.tomclarke.fyp.nlp.keyphrase.Position;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Position;
 
 /**
  * Holds useful information about getting text from scientific papers and where
@@ -308,6 +308,7 @@ public abstract class Paper implements Serializable {
      */
     public void setExtractions(List<Extraction> keyPhrasesExtractions) {
         this.extractions = keyPhrasesExtractions;
+        save();
     }
 
     /**
@@ -318,6 +319,7 @@ public abstract class Paper implements Serializable {
      */
     public void addExtraction(Extraction keyPhraseExtraction) {
         extractions.add(keyPhraseExtraction);
+        save();
     }
 
     /**
