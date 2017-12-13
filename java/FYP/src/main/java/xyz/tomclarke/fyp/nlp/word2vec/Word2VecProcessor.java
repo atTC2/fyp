@@ -74,8 +74,6 @@ public class Word2VecProcessor {
      * @return The trained Word2Vec instance
      */
     public static Word2Vec generateFromPapers(List<Paper> papers) {
-        // System.setProperty("java.library.path", "");
-
         // Setup the iterator holding the data
         SentenceIterator iter = new CollectionSentenceIterator(createSentencesFile(papers));
         iter.setPreProcessor(new SentencePreProcessor() {

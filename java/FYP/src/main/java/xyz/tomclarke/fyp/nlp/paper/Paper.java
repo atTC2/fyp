@@ -28,6 +28,7 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Position;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
 
 /**
  * Holds useful information about getting text from scientific papers and where
@@ -171,15 +172,13 @@ public abstract class Paper implements Serializable {
      */
     public boolean isTokenPartOfKeyPhrase(CoreLabel token, Classification clazz) {
         String word = token.get(TextAnnotation.class).toLowerCase();
-        for (Extraction phrase : getExtractions()) {
-            if (phrase instanceof KeyPhrase) {
-                String phraseWord = ((KeyPhrase) phrase).getPhrase().toLowerCase();
-                // Word must be the phrase or a token of the phrase
-                if (phraseWord.equals(word) || Arrays.asList(phraseWord.split(" ")).contains(word)) {
-                    // Check classification
-                    if (clazz == null || ((KeyPhrase) phrase).getClazz().equals(clazz)) {
-                        return true;
-                    }
+        for (KeyPhrase phrase : getKeyPhrases()) {
+            String phraseWord = ((KeyPhrase) phrase).getPhrase().toLowerCase();
+            // Word must be the phrase or a token of the phrase
+            if (phraseWord.equals(word) || Arrays.asList(phraseWord.split(" ")).contains(word)) {
+                // Check classification
+                if (clazz == null || ((KeyPhrase) phrase).getClazz().equals(clazz)) {
+                    return true;
                 }
             }
         }
@@ -298,6 +297,36 @@ public abstract class Paper implements Serializable {
      */
     public List<Extraction> getExtractions() {
         return extractions;
+    }
+
+    /**
+     * Gets specifically key phrase extractions
+     * 
+     * @return Key phrase extractions
+     */
+    public List<KeyPhrase> getKeyPhrases() {
+        List<KeyPhrase> kps = new ArrayList<KeyPhrase>();
+        for (Extraction ext : extractions) {
+            if (ext instanceof KeyPhrase) {
+                kps.add((KeyPhrase) ext);
+            }
+        }
+        return kps;
+    }
+
+    /**
+     * Gets specifically relation extractions
+     * 
+     * @return Relation extractions
+     */
+    public List<Relationship> getRelationships() {
+        List<Relationship> rels = new ArrayList<Relationship>();
+        for (Extraction ext : extractions) {
+            if (ext instanceof Relationship) {
+                rels.add((Relationship) ext);
+            }
+        }
+        return rels;
     }
 
     /**

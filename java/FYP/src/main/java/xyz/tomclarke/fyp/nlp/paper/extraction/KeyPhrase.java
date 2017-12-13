@@ -74,4 +74,15 @@ public class KeyPhrase extends Extraction {
     public void setClazz(Classification clazz) {
         this.clazz = clazz;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof KeyPhrase)) {
+            return false;
+        }
+
+        KeyPhrase otherKP = (KeyPhrase) o;
+
+        return phrase.equals(otherKP.getPhrase()) && clazz.equals(otherKP.clazz);
+    }
 }

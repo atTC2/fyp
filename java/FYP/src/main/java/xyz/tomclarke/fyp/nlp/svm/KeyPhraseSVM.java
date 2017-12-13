@@ -15,11 +15,8 @@ import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
-import libsvm.svm;
-import libsvm.svm_model;
 import libsvm.svm_node;
 import libsvm.svm_parameter;
-import libsvm.svm_print_interface;
 import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
@@ -27,20 +24,17 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
- * Uses libsvm to analyse text
+ * Uses libsvm to analyse text and extract key phrases
  * 
  * @author tbc452
  *
  */
-public class SVMProcessor {
+public class KeyPhraseSVM extends BaseSvm {
 
-    private static final Logger log = LogManager.getLogger(SVMProcessor.class);
+    private static final Logger log = LogManager.getLogger(KeyPhraseSVM.class);
 
     private static final int numOfSVs = 11;
 
-    private svm_parameter param;
-    private svm_model model;
-    private svm_problem problem;
     private Word2Vec vec;
 
     // Used when constructing SVs
@@ -48,7 +42,8 @@ public class SVMProcessor {
     private int maxWordLength;
     private Classification clazz;
 
-    public SVMProcessor(Word2Vec vec) {
+    public KeyPhraseSVM(Word2Vec vec) {
+        super();
         // Construct the (default) parameter object
         param = new svm_parameter();
         param.svm_type = svm_parameter.C_SVC;
@@ -63,31 +58,6 @@ public class SVMProcessor {
         param.weight = new double[0];
         param.shrinking = 0;
         param.probability = 0;
-
-        // Sort out printing
-        class SvmPrinter implements svm_print_interface {
-            @Override
-            public void print(String message) {
-                message = message.trim();
-                String formatedMessage = "(libsvm) " + message;
-                if (message.isEmpty()) {
-                    // An empty message... hmm
-                    return;
-                } else if (message.length() < 2) {
-                    // Message is a character long, so we probably don't care about it
-                    log.debug(message);
-                } else if (message.contains("WARNING")) {
-                    // It's a warning
-                    log.warn(formatedMessage);
-                } else {
-                    // No other special cases seen yet
-                    // log everything else
-                    log.info(formatedMessage);
-                }
-            }
-        }
-
-        svm.svm_set_print_string_function(new SvmPrinter());
 
         this.vec = vec;
         maxWordLength = 0;
@@ -126,7 +96,7 @@ public class SVMProcessor {
             }
         }
 
-        // The problem to return
+        // The problem
         problem = new svm_problem();
         // Will have 1 entry for each token/word
         problem.l = totalCounts.values().stream().reduce(0, Integer::sum);
@@ -161,53 +131,6 @@ public class SVMProcessor {
                 }
             }
         }
-
-        // // Do cross validation to find the best parameters
-        // log.info("C: " + param.C + " gamma: " + param.gamma);
-        // double[] target = new double[problem.l];
-        // svm.svm_cross_validation(problem, param, 5, target);
-        // log.info("C: " + param.C + " gamma: " + param.gamma);
-        // int total_correct = 0;
-        // for (int i = 0; i < problem.l; i++) {
-        // if (target[i] == problem.y[i]) {
-        // ++total_correct;
-        // }
-        // }
-        // // Currently 69.67793310918421%
-        // log.info("Cross Validation Accuracy = " + 100.0 * total_correct / problem.l +
-        // "%\n");
-    }
-
-    /**
-     * Train the SVM on loaded data
-     * 
-     * @throws Exception
-     *             If the training data isn't suitable for use
-     */
-    public void train() throws Exception {
-        log.info("Training SVM (classification " + clazz + ")");
-        String paramCheck = svm.svm_check_parameter(problem, param);
-        if (paramCheck == null) {
-            // Fine to train on
-            model = svm.svm_train(problem, param);
-            log.info("Finished training");
-        } else {
-            // Something is wrong...
-            throw new Exception(paramCheck);
-        }
-    }
-
-    /**
-     * Predict if a word (translated to a set of nodes) is a keyword.
-     * 
-     * @param nodes
-     *            The processed token information
-     * @return Whether the token is a key phrase
-     */
-    public boolean predictIsKeyword(svm_node[] nodes) {
-        double prediction = svm.svm_predict(model, nodes);
-        log.debug("Prediction: " + prediction);
-        return prediction > 0.0;
     }
 
     /**
@@ -293,23 +216,6 @@ public class SVMProcessor {
     }
 
     /**
-     * Creates a new SVM node
-     * 
-     * @param index
-     * @param value
-     * @return
-     */
-    private svm_node makeNewNode(int index, double value) {
-        svm_node node = new svm_node();
-        node.index = index;
-        node.value = value;
-        if (!Double.isFinite(value)) {
-            node.value = 0.0;
-        }
-        return node;
-    }
-
-    /**
      * Gets the model (mainly for testing use)
      * 
      * @return The currently generated model.
@@ -345,7 +251,7 @@ public class SVMProcessor {
                 String word = token.get(TextAnnotation.class);
 
                 svm_node[] nodes = generateSupportVectors(token, paper, previousWordKP);
-                boolean isPredictedKeyPhrase = predictIsKeyword(nodes);
+                boolean isPredictedKeyPhrase = predict(nodes);
 
                 // Get the position
                 pos = text.toLowerCase().indexOf(word.toLowerCase());

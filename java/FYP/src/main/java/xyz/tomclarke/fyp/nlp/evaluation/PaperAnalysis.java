@@ -62,25 +62,22 @@ public class PaperAnalysis {
 
         minKPLength = Integer.MAX_VALUE;
         minKPWords = Integer.MAX_VALUE;
-        for (Extraction ext : paper.getExtractions()) {
-            if (ext instanceof KeyPhrase) {
-                KeyPhrase kp = (KeyPhrase) ext;
-                if (minKPLength > kp.getPhrase().length()) {
-                    minKPLength = kp.getPhrase().length();
-                }
-                if (minKPWords > kp.getPhrase().split(SPACE).length) {
-                    minKPWords = kp.getPhrase().split(SPACE).length;
-                }
-                if (maxKPLength < kp.getPhrase().length()) {
-                    maxKPLength = kp.getPhrase().length();
-                }
-                if (maxKPWords < kp.getPhrase().split(SPACE).length) {
-                    maxKPWords = kp.getPhrase().split(SPACE).length;
-                }
-
-                avgKPLength += kp.getPhrase().length();
-                avgKPWords += kp.getPhrase().split(SPACE).length;
+        for (KeyPhrase kp : paper.getKeyPhrases()) {
+            if (minKPLength > kp.getPhrase().length()) {
+                minKPLength = kp.getPhrase().length();
             }
+            if (minKPWords > kp.getPhrase().split(SPACE).length) {
+                minKPWords = kp.getPhrase().split(SPACE).length;
+            }
+            if (maxKPLength < kp.getPhrase().length()) {
+                maxKPLength = kp.getPhrase().length();
+            }
+            if (maxKPWords < kp.getPhrase().split(SPACE).length) {
+                maxKPWords = kp.getPhrase().split(SPACE).length;
+            }
+
+            avgKPLength += kp.getPhrase().length();
+            avgKPWords += kp.getPhrase().split(SPACE).length;
         }
 
         avgKPLength /= numberOfKeyPhrases;

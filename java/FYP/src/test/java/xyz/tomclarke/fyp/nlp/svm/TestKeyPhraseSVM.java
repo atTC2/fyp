@@ -30,11 +30,11 @@ import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
  * @author tbc452
  *
  */
-public class TestSVMProcessor {
+public class TestKeyPhraseSVM {
 
-    private static final Logger log = LogManager.getLogger(TestSVMProcessor.class);
+    private static final Logger log = LogManager.getLogger(TestKeyPhraseSVM.class);
 
-    private static SVMProcessor svmGeneral;
+    private static KeyPhraseSVM svmGeneral;
     private static List<Paper> trainingPapers;
     private static List<Paper> testPapers;
     private static Word2Vec vec;
@@ -42,8 +42,8 @@ public class TestSVMProcessor {
     @BeforeClass
     public static void initalise() {
         log.info("Loading training and test data...");
-        trainingPapers = NlpUtil.loadAndAnnotatePapers(TestSVMProcessor.class);
-        testPapers = NlpUtil.loadAndAnnotateTestPapers(TestSVMProcessor.class);
+        trainingPapers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
+        testPapers = NlpUtil.loadAndAnnotateTestPapers(TestKeyPhraseSVM.class);
 
         // Load Word2Vec
         log.info("Loading Word2Vec");
@@ -59,7 +59,7 @@ public class TestSVMProcessor {
         if (svmGeneral == null) {
             // Setup the SVM
             log.info("Building general key phrase SVM...");
-            svmGeneral = new SVMProcessor(vec);
+            svmGeneral = new KeyPhraseSVM(vec);
             svmGeneral.generateTrainingData(trainingPapers, null);
             svmGeneral.train();
 
@@ -79,7 +79,7 @@ public class TestSVMProcessor {
         double fn = 0;
         svm_problem problem = svmGeneral.getProblem();
         for (int i = 0; i < problem.l; i++) {
-            boolean isPredictedKeyPhrase = svmGeneral.predictIsKeyword(problem.x[i]);
+            boolean isPredictedKeyPhrase = svmGeneral.predict(problem.x[i]);
             if (problem.y[i] == 0.0 && isPredictedKeyPhrase) {
                 fp++;
             } else if (problem.y[i] == 0.0 && !isPredictedKeyPhrase) {
@@ -117,7 +117,7 @@ public class TestSVMProcessor {
                     svm_node[] nodes = svmGeneral.generateSupportVectors(token, paper, previousWordKeyPhrase);
 
                     // Ask the question and compare the answer to the expected answer
-                    boolean isPredictedKeyPhrase = svmGeneral.predictIsKeyword(nodes);
+                    boolean isPredictedKeyPhrase = svmGeneral.predict(nodes);
                     if (keyPhrase == 0.0 && isPredictedKeyPhrase) {
                         fp++;
                     } else if (keyPhrase == 0.0 && !isPredictedKeyPhrase) {
@@ -152,11 +152,11 @@ public class TestSVMProcessor {
             printKP(paper, phrases);
 
             // Save statistics
-            overallStatsGen.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+            overallStatsGen.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getKeyPhrases(),
                     Strictness.GENEROUS, false));
-            overallStatsInc.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+            overallStatsInc.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getKeyPhrases(),
                     Strictness.INCLUSIVE, false));
-            overallStatsStr.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+            overallStatsStr.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getKeyPhrases(),
                     Strictness.STRICT, false));
         }
 
@@ -179,15 +179,15 @@ public class TestSVMProcessor {
     @Test
     public void testSvmKeyPhraseClassifications() throws Exception {
         log.info("Building task key phrase SVM...");
-        SVMProcessor svmTask = new SVMProcessor(vec);
+        KeyPhraseSVM svmTask = new KeyPhraseSVM(vec);
         svmTask.generateTrainingData(trainingPapers, Classification.TASK);
         svmTask.train();
         log.info("Building process key phrase SVM...");
-        SVMProcessor svmProcess = new SVMProcessor(vec);
+        KeyPhraseSVM svmProcess = new KeyPhraseSVM(vec);
         svmProcess.generateTrainingData(trainingPapers, Classification.PROCESS);
         svmProcess.train();
         log.info("Building material key phrase SVM...");
-        SVMProcessor svmMaterial = new SVMProcessor(vec);
+        KeyPhraseSVM svmMaterial = new KeyPhraseSVM(vec);
         svmMaterial.generateTrainingData(trainingPapers, Classification.MATERIAL);
         svmMaterial.train();
         log.info("SVMs trained, now to test key phrase extraction and classification...");
@@ -209,11 +209,11 @@ public class TestSVMProcessor {
             phrases.addAll(materials);
 
             // Save statistics
-            overallStatsGen.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+            overallStatsGen.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getKeyPhrases(),
                     Strictness.GENEROUS, true));
-            overallStatsInc.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+            overallStatsInc.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getKeyPhrases(),
                     Strictness.INCLUSIVE, true));
-            overallStatsStr.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getExtractions(),
+            overallStatsStr.add(EvaluateExtractions.evaluateKeyPhrases(phrases, paper, paper.getKeyPhrases(),
                     Strictness.STRICT, true));
         }
 
