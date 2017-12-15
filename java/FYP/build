@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Cleans old compiled information and compiles all code
+mvn clean package
+
