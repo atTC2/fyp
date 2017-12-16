@@ -12,7 +12,7 @@
 
   <properties>
     <log4j>2.9.1</log4j>
-    <dl4j>0.8.0</dl4j>
+    <dl4j>0.9.1</dl4j>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
