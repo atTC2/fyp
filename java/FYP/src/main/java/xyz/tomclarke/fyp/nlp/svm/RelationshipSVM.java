@@ -238,7 +238,7 @@ public class RelationshipSVM extends BaseSvm {
             deepestNoun = kp.getPhrase();
         }
         deepestNoun = deepestNoun.replaceAll("\\p{Punct}", "").replaceAll(" ", "_");
-        log.info("NOUN SELECTED: " + kp.getPhrase() + " -> " + deepestNoun + " in vec: " + vec.hasWord(deepestNoun));
+        log.debug("NOUN SELECTED: " + kp.getPhrase() + " -> " + deepestNoun + " in vec: " + vec.hasWord(deepestNoun));
 
         int expectedVectorLength = numOfSVs;
         double[] vector = new double[expectedVectorLength];
