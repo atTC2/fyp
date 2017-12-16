@@ -35,6 +35,25 @@ public class Word2VecProcessor {
     }
 
     /**
+     * Loads the Word2Vec freebase ID
+     * 
+     * @return Word2Vec The loaded Google News object
+     */
+    public static Word2Vec loadFreebaseIDVectors() {
+        return WordVectorSerializer.readWord2VecModel(new File("/home/tom/FYP/freebase-vectors-skipgram1000.bin.gz"));
+    }
+
+    /**
+     * Loads the Word2Vec freebase name
+     * 
+     * @return Word2Vec The loaded Google News object
+     */
+    public static Word2Vec loadFreebaseNameVectors() {
+        return WordVectorSerializer
+                .readWord2VecModel(new File("/home/tom/FYP/freebase-vectors-skipgram1000-en.bin.gz"));
+    }
+
+    /**
      * Loads the Word2Vec Google News pre-processed data
      * 
      * @return Word2Vec The loaded Google News object
