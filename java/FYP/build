@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Cleans old compiled information and compiles all code
-mvn clean package
+clear; mvn clean package -Dmaven.test.skip=true
 
