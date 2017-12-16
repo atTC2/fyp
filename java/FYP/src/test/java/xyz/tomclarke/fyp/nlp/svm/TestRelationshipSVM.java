@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
@@ -33,6 +34,7 @@ public class TestRelationshipSVM {
     private static List<Paper> trainingPapers;
     private static List<Paper> testPapers;
     private static Word2Vec vec;
+    private static Annotator ann;
 
     @BeforeClass
     public static void initalise() {
@@ -41,8 +43,10 @@ public class TestRelationshipSVM {
         testPapers = NlpUtil.loadAndAnnotateTestPapers(TestRelationshipSVM.class);
 
         // Load Word2Vec
-        log.info("Loading Word2Vec");
+        log.info("Loading Word2Vec and Annotator");
         vec = Word2VecProcessor.loadGoogleNewsVectors();
+        ann = new Annotator();
+        log.info("Test initialised");
     }
 
     /**
@@ -54,7 +58,7 @@ public class TestRelationshipSVM {
         if (hypSvm == null) {
             // Setup the SVM
             log.info("Building hyponym SVM...");
-            hypSvm = new RelationshipSVM(vec);
+            hypSvm = new RelationshipSVM(vec, ann);
             hypSvm.generateTrainingData(trainingPapers, RelationType.HYPONYM_OF);
             hypSvm.train();
         }
@@ -69,7 +73,7 @@ public class TestRelationshipSVM {
         if (synSvm == null) {
             // Setup the SVM
             log.info("Building synonym SVM...");
-            synSvm = new RelationshipSVM(vec);
+            synSvm = new RelationshipSVM(vec, ann);
             synSvm.generateTrainingData(trainingPapers, RelationType.SYNONYM_OF);
             synSvm.train();
         }
@@ -116,7 +120,7 @@ public class TestRelationshipSVM {
 
         ConfusionStatistic stats = ConfusionStatistic.calculateScoreSum(overallStats);
 
-        log.info("Overall statistics (gen): " + stats);
+        log.info("Overall statistics: " + stats);
         log.info("Specific results were: tp: " + stats.getTp() + " fp: " + stats.getFp() + " tn: " + stats.getTn()
                 + " fn: " + stats.getFn());
     }

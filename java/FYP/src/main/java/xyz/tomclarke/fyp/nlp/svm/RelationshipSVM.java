@@ -7,9 +7,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 
+import edu.stanford.nlp.trees.TreeCoreAnnotations;
+import edu.stanford.nlp.util.CoreMap;
 import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
+import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
@@ -28,12 +31,13 @@ public class RelationshipSVM extends BaseSvm {
     private static final int numOfSVs = 300;
 
     private Word2Vec vec;
+    private Annotator ann;
     private double largest;
     private double smallest;
     private double scale;
     private RelationType type;
 
-    public RelationshipSVM(Word2Vec vec) {
+    public RelationshipSVM(Word2Vec vec, Annotator ann) {
         super();
         // Construct the (default) parameter object
         param = new svm_parameter();
@@ -51,6 +55,7 @@ public class RelationshipSVM extends BaseSvm {
         param.probability = 0;
 
         this.vec = vec;
+        this.ann = ann;
 
         // Used for scaling
         smallest = 0.0;
@@ -151,8 +156,8 @@ public class RelationshipSVM extends BaseSvm {
      */
     public svm_node[] generateSupportVectors(KeyPhrase kp1, KeyPhrase kp2) throws Exception {
         // Get phrase vectors
-        double[] vector1 = getPhraseVector(kp1);
-        double[] vector2 = getPhraseVector(kp2);
+        double[] vector1 = getPhraseVectorOfNoun(kp1);
+        double[] vector2 = getPhraseVectorOfNoun(kp2);
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -186,6 +191,7 @@ public class RelationshipSVM extends BaseSvm {
      * @throws Exception
      *             If a word vector isn't the expected length.
      */
+    @SuppressWarnings("unused")
     private double[] getPhraseVector(KeyPhrase kp) throws Exception {
         // Remove punctuation and get each word
         String[] tokens = kp.getPhrase().replaceAll("\\p{Punct}", "").split(" ");
@@ -202,6 +208,54 @@ public class RelationshipSVM extends BaseSvm {
                 }
                 for (int i = 0; i < wordVector.length; i++) {
                     vector[i] += wordVector[i];
+                }
+            }
+        }
+
+        return vector;
+    }
+
+    /**
+     * Calculates a phrase vector from searching the base noun in Word2Vec
+     * 
+     * @param kp
+     *            The key phrase
+     * @return The phrase vector
+     * @throws Exception
+     *             If a word vector isn't the expected length.
+     */
+    private double[] getPhraseVectorOfNoun(KeyPhrase kp) throws Exception {
+        // Remove punctuation and get each word
+        List<CoreMap> sentences = ann.annotate(kp.getPhrase());
+        if (sentences.size() > 1) {
+            log.warn("Key Phrase '" + kp.getPhrase() + "' annotated to " + sentences.size() + " sentences!");
+        }
+        CoreMap sentence = sentences.get(0);
+        String deepestNoun = ann.getDeepestNoun(sentence.get(TreeCoreAnnotations.TreeAnnotation.class), 0).getKey();
+
+        if (deepestNoun == null) {
+            // No deepest noun.. so try the whole thing?
+            deepestNoun = kp.getPhrase();
+        }
+        deepestNoun = deepestNoun.replaceAll("\\p{Punct}", "").replaceAll(" ", "_");
+        log.info("NOUN SELECTED: " + kp.getPhrase() + " -> " + deepestNoun + " in vec: " + vec.hasWord(deepestNoun));
+
+        int expectedVectorLength = numOfSVs;
+        double[] vector = new double[expectedVectorLength];
+
+        if (vec.hasWord(deepestNoun)) {
+            vector = vec.getWordVector(deepestNoun);
+        } else {
+            // Sum token vectors, ignoring words that are not in Word2Vec
+            for (String token : deepestNoun.split("_")) {
+                if (vec.hasWord(token)) {
+                    double[] wordVector = vec.getWordVector(token);
+                    if (expectedVectorLength != wordVector.length) {
+                        throw new Exception("Word Vector length not " + expectedVectorLength);
+                    }
+                    for (int i = 0; i < wordVector.length; i++) {
+                        vector[i] += wordVector[i];
+                    }
                 }
             }
         }

@@ -1,13 +1,9 @@
 package xyz.tomclarke.fyp.nlp.preprocessing;
 
-import java.util.Properties;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 
 /**
@@ -17,18 +13,9 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
  * @author tbc452
  *
  */
-public class PreProcessor {
+public class PreProcessor extends Annotator {
 
     private static final Logger log = LogManager.getLogger(PreProcessor.class);
-
-    private StanfordCoreNLP pipeline;
-
-    public PreProcessor() {
-        // Create the CoreNLP pipeline for processing
-        Properties props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-        pipeline = new StanfordCoreNLP(props);
-    }
 
     /**
      * Run the Stanford NLP annotator on the given paper
@@ -38,9 +25,7 @@ public class PreProcessor {
      */
     public void annotate(Paper paper) {
         log.info("Processing " + paper.getLocation());
-        Annotation document = new Annotation(paper.getText());
-        pipeline.annotate(document);
-        paper.setAnnotations(document.get(SentencesAnnotation.class));
+        paper.setAnnotations(annotate(paper.getText()));
         log.info("Finsihed processing " + paper.getLocation());
     }
 
