@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>FYP</name>
-  <url>http://tomclarke.xyz</url>
+  <url>http://tombclarke.co.uk</url>
 
   <properties>
     <log4j>2.9.1</log4j>

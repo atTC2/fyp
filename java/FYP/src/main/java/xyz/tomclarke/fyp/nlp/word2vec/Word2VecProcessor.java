@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.CollectionSentenceIterator;
@@ -25,6 +27,8 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
  */
 public class Word2VecProcessor {
 
+    private static final Logger log = LogManager.getLogger(Word2VecProcessor.class);
+
     /**
      * Loads pre-calculated Word2Vec information
      * 
@@ -33,6 +37,7 @@ public class Word2VecProcessor {
      * @return Word2Vec The loaded pretrained data
      */
     public static Word2Vec loadPreTrainedData(Word2VecPretrained set) {
+        log.info("Loading Word2Vec " + set);
         return WordVectorSerializer.readWord2VecModel(new File(set.getLocation()));
     }
 

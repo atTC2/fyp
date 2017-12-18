@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -15,13 +14,13 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
 import libsvm.svm_node;
 import libsvm.svm_problem;
+import xyz.tomclarke.fyp.nlp.TestOnPapers;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
 import xyz.tomclarke.fyp.nlp.evaluation.Strictness;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
-import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
@@ -31,21 +30,12 @@ import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
  * @author tbc452
  *
  */
-public class TestKeyPhraseSVM {
+public class TestKeyPhraseSVM extends TestOnPapers {
 
     private static final Logger log = LogManager.getLogger(TestKeyPhraseSVM.class);
 
     private static KeyPhraseSVM svmGeneral;
-    private static List<Paper> trainingPapers;
-    private static List<Paper> testPapers;
     private static Word2Vec vec;
-
-    @BeforeClass
-    public static void initalise() {
-        log.info("Loading training and test data...");
-        trainingPapers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
-        testPapers = NlpUtil.loadAndAnnotateTestPapers(TestKeyPhraseSVM.class);
-    }
 
     /**
      * Builds the general purpose key phrase extractor SVM
@@ -55,7 +45,6 @@ public class TestKeyPhraseSVM {
     private static void loadGeneralTools() throws Exception {
         if (svmGeneral == null) {
             // Load Word2Vec
-            log.info("Loading Word2Vec");
             vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
 
             // Setup the SVM
@@ -171,8 +160,6 @@ public class TestKeyPhraseSVM {
      */
     private void testSvmPredictKeyPhrases(Word2VecPretrained set) throws Exception {
         // Load Word2Vec
-        log.info("Loading Word2Vec " + set);
-        // TODO, try different ones
         Word2Vec vecForSvm = Word2VecProcessor.loadPreTrainedData(set);
 
         // Setup the SVM

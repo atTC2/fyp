@@ -6,18 +6,17 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import libsvm.svm_node;
+import xyz.tomclarke.fyp.nlp.TestOnPapers;
 import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
-import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
@@ -27,19 +26,9 @@ import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
  * @author tbc452
  *
  */
-public class TestRelationshipSVM {
+public class TestRelationshipSVM extends TestOnPapers {
 
     private static final Logger log = LogManager.getLogger(TestRelationshipSVM.class);
-
-    private static List<Paper> trainingPapers;
-    private static List<Paper> testPapers;
-
-    @BeforeClass
-    public static void initalise() {
-        log.info("Loading training and test data...");
-        trainingPapers = NlpUtil.loadAndAnnotatePapers(TestRelationshipSVM.class);
-        testPapers = NlpUtil.loadAndAnnotateTestPapers(TestRelationshipSVM.class);
-    }
 
     @Test
     public void testRelationSvmGN() throws Exception {
@@ -112,7 +101,6 @@ public class TestRelationshipSVM {
         RelationshipSVM svm = new RelationshipSVM();
 
         // Generate the SVM training data
-        log.info("Loading Word2Vec " + set);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
         Annotator ann = new Annotator();
         svm.generateTrainingData(trainingPapers, type, vec, ann);

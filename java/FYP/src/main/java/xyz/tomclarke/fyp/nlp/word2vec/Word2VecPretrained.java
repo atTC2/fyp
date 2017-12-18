@@ -11,7 +11,7 @@ public enum Word2VecPretrained {
     GOOGLE_NEWS("/home/tom/FYP/GoogleNews-vectors-negative300.bin.gz"), FREEBASE_IDS(
             "/home/tom/FYP/freebase-vectors-skipgram1000.bin.gz"), FREEBASE_NAMES(
                     "/home/tom/FYP/freebase-vectors-skipgram1000-en.bin.gz"), WIKI2VEC(
-                            "/home/tom/FYP/en_1000_no_stem.tar.gz");
+                            "/home/tom/FYP/en_1000_no_stem/en.model");
 
     private String location;
 

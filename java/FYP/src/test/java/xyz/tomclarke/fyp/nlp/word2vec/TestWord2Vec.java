@@ -161,6 +161,7 @@ public class TestWord2Vec {
         log.info("Smallest: " + String.valueOf(smallest) + " Largest: " + String.valueOf(largest));
     }
 
+    @Ignore
     @Test
     public void testLoadGoogleNews() throws Exception {
         Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
@@ -171,11 +172,13 @@ public class TestWord2Vec {
         Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.WIKI2VEC);
     }
 
+    @Ignore
     @Test
     public void testLoadFreebaseIDs() throws Exception {
         Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.FREEBASE_IDS);
     }
 
+    @Ignore
     @Test
     public void testLoadFreebaseNames() throws Exception {
         Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.FREEBASE_NAMES);
