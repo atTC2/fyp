@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -29,19 +28,11 @@ public class TestWord2Vec {
 
     private static final Logger log = LogManager.getLogger(TestWord2Vec.class);
 
-    private static Word2Vec vec;
-
-    @BeforeClass
-    public static void loadW2V() {
-        log.info("Loading Word2Vec...");
-        vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-        log.info("Loaded");
-    }
-
     @Ignore
     @Test
     public void trySimilarity() throws Exception {
         log.info("Testing similarity - accepting cli input...");
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         boolean exit = false;
         Scanner scanner = new Scanner(System.in);
         while (!exit) {
@@ -64,6 +55,7 @@ public class TestWord2Vec {
     @Test
     public void calculateKeyPhraseValues() {
         List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         for (Paper paper : papers) {
             for (Extraction ext : paper.getExtractions()) {
                 if (!(ext instanceof KeyPhrase)) {
@@ -88,6 +80,7 @@ public class TestWord2Vec {
     @Test
     public void calculateKeyPhraseCombinedValues() {
         List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         for (Paper paper : papers) {
             for (Extraction ext : paper.getExtractions()) {
                 if (!(ext instanceof KeyPhrase)) {
@@ -118,9 +111,11 @@ public class TestWord2Vec {
         }
     }
 
+    @Ignore
     @Test
     public void calculateKeyPhraseVector() {
         List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         double largest = 0.0;
         double smallest = 0.0;
         for (Paper paper : papers) {
@@ -164,6 +159,26 @@ public class TestWord2Vec {
             log.info("Processed paper");
         }
         log.info("Smallest: " + String.valueOf(smallest) + " Largest: " + String.valueOf(largest));
+    }
+
+    @Test
+    public void testLoadGoogleNews() throws Exception {
+        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
+    }
+
+    @Test
+    public void testLoadWiki2Vec() throws Exception {
+        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.WIKI2VEC);
+    }
+
+    @Test
+    public void testLoadFreebaseIDs() throws Exception {
+        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.FREEBASE_IDS);
+    }
+
+    @Test
+    public void testLoadFreebaseNames() throws Exception {
+        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.FREEBASE_NAMES);
     }
 
     /**

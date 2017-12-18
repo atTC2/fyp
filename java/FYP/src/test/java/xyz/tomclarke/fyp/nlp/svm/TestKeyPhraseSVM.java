@@ -45,11 +45,6 @@ public class TestKeyPhraseSVM {
         log.info("Loading training and test data...");
         trainingPapers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
         testPapers = NlpUtil.loadAndAnnotateTestPapers(TestKeyPhraseSVM.class);
-
-        // Load Word2Vec
-        log.info("Loading Word2Vec");
-        // TODO, try different ones
-        vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
     }
 
     /**
@@ -57,8 +52,12 @@ public class TestKeyPhraseSVM {
      * 
      * @throws Exception
      */
-    private static void loadGeneralSvm() throws Exception {
+    private static void loadGeneralTools() throws Exception {
         if (svmGeneral == null) {
+            // Load Word2Vec
+            log.info("Loading Word2Vec");
+            vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
+
             // Setup the SVM
             log.info("Building general key phrase SVM...");
             svmGeneral = new KeyPhraseSVM(vec);
@@ -72,7 +71,7 @@ public class TestKeyPhraseSVM {
     @Ignore
     @Test
     public void testSvmProcessorSameData() throws Exception {
-        loadGeneralSvm();
+        loadGeneralTools();
         log.info("Testing with training data");
         // Test on input data...
         double tp = 0;
@@ -102,7 +101,7 @@ public class TestKeyPhraseSVM {
     @Ignore
     @Test
     public void testSvmProcessorTestData() throws Exception {
-        loadGeneralSvm();
+        loadGeneralTools();
         log.info("Testing with test data");
         double tp = 0;
         double fp = 0;
@@ -141,14 +140,54 @@ public class TestKeyPhraseSVM {
     }
 
     @Test
-    public void testSvmPredictKeyPhrases() throws Exception {
-        loadGeneralSvm();
-        log.info("Testing with test data, getting key phrase key phrase extraction objects");
+    public void testSvmPredictKeyPhrasesGN() throws Exception {
+        testSvmPredictKeyPhrases(Word2VecPretrained.GOOGLE_NEWS);
+    }
+
+    @Ignore
+    @Test
+    public void testSvmPredictKeyPhrasesW2V() throws Exception {
+        // Wiki2Vec doesn't seem to work right now
+        testSvmPredictKeyPhrases(Word2VecPretrained.WIKI2VEC);
+    }
+
+    @Ignore
+    @Test
+    public void testSvmPredictKeyPhrasesFN() throws Exception {
+        testSvmPredictKeyPhrases(Word2VecPretrained.FREEBASE_NAMES);
+    }
+
+    @Test
+    public void testSvmPredictKeyPhrasesFI() throws Exception {
+        testSvmPredictKeyPhrases(Word2VecPretrained.FREEBASE_IDS);
+    }
+
+    /**
+     * Runs the SVM with a set W2V
+     * 
+     * @param set
+     *            The W2V set to load
+     * @throws Exception
+     */
+    private void testSvmPredictKeyPhrases(Word2VecPretrained set) throws Exception {
+        // Load Word2Vec
+        log.info("Loading Word2Vec " + set);
+        // TODO, try different ones
+        Word2Vec vecForSvm = Word2VecProcessor.loadPreTrainedData(set);
+
+        // Setup the SVM
+        log.info("Building general key phrase SVM...");
+        KeyPhraseSVM svm = new KeyPhraseSVM(vecForSvm);
+        svm.generateTrainingData(trainingPapers, null);
+        svm.train();
+
+        log.info("SVM trained, now to test...");
+
         List<ConfusionStatistic> overallStatsGen = new ArrayList<ConfusionStatistic>();
         List<ConfusionStatistic> overallStatsInc = new ArrayList<ConfusionStatistic>();
         List<ConfusionStatistic> overallStatsStr = new ArrayList<ConfusionStatistic>();
         for (Paper paper : testPapers) {
-            List<KeyPhrase> phrases = svmGeneral.predictKeyPhrases(paper);
+            List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
 
             // Log them
             printKP(paper, phrases);
@@ -180,6 +219,10 @@ public class TestKeyPhraseSVM {
     @Ignore
     @Test
     public void testSvmKeyPhraseClassifications() throws Exception {
+        if (vec == null) {
+            vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
+        }
+
         log.info("Building task key phrase SVM...");
         KeyPhraseSVM svmTask = new KeyPhraseSVM(vec);
         svmTask.generateTrainingData(trainingPapers, Classification.TASK);
