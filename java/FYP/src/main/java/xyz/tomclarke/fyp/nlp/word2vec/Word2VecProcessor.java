@@ -26,40 +26,14 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 public class Word2VecProcessor {
 
     /**
-     * Loads the Word2Vec Google News pre-processed data
+     * Loads pre-calculated Word2Vec information
      * 
-     * @return Word2Vec The loaded Google News object
+     * @param set
+     *            The data set to load
+     * @return Word2Vec The loaded pretrained data
      */
-    public static Word2Vec loadGoogleNewsVectors() {
-        return WordVectorSerializer.readWord2VecModel(new File("/home/tom/FYP/GoogleNews-vectors-negative300.bin.gz"));
-    }
-
-    /**
-     * Loads the Word2Vec freebase ID
-     * 
-     * @return Word2Vec The loaded Google News object
-     */
-    public static Word2Vec loadFreebaseIDVectors() {
-        return WordVectorSerializer.readWord2VecModel(new File("/home/tom/FYP/freebase-vectors-skipgram1000.bin.gz"));
-    }
-
-    /**
-     * Loads the Word2Vec freebase name
-     * 
-     * @return Word2Vec The loaded Google News object
-     */
-    public static Word2Vec loadFreebaseNameVectors() {
-        return WordVectorSerializer
-                .readWord2VecModel(new File("/home/tom/FYP/freebase-vectors-skipgram1000-en.bin.gz"));
-    }
-
-    /**
-     * Loads the Word2Vec Google News pre-processed data
-     * 
-     * @return Word2Vec The loaded Google News object
-     */
-    public static Word2Vec loadWiki2Vec() {
-        return WordVectorSerializer.readWord2VecModel(new File("/home/tom/FYP/en_1000_no_stem.tar.gz"));
+    public static Word2Vec loadPreTrainedData(Word2VecPretrained set) {
+        return WordVectorSerializer.readWord2VecModel(new File(set.getLocation()));
     }
 
     /**

@@ -30,14 +30,12 @@ public class RelationshipSVM extends BaseSvm {
 
     private static final int numOfSVs = 300;
 
-    private Word2Vec vec;
-    private Annotator ann;
     private double largest;
     private double smallest;
     private double scale;
     private RelationType type;
 
-    public RelationshipSVM(Word2Vec vec, Annotator ann) {
+    public RelationshipSVM() {
         super();
         // Construct the (default) parameter object
         param = new svm_parameter();
@@ -54,9 +52,6 @@ public class RelationshipSVM extends BaseSvm {
         param.shrinking = 0;
         param.probability = 0;
 
-        this.vec = vec;
-        this.ann = ann;
-
         // Used for scaling
         smallest = 0.0;
         largest = 0.0;
@@ -70,10 +65,15 @@ public class RelationshipSVM extends BaseSvm {
      *            The training papers
      * @param type
      *            The relation type
+     * @param vec
+     *            The Word2Vec data to use
+     * @param ann
+     *            The annotator to use
      * @throws Exception
      *             If generating the support vectors fail
      */
-    public void generateTrainingData(List<Paper> papers, RelationType type) throws Exception {
+    public void generateTrainingData(List<Paper> papers, RelationType type, Word2Vec vec, Annotator ann)
+            throws Exception {
         log.info("Generating data for SVM for " + type.toString() + " extraction");
         this.type = type;
         // The problem to return
@@ -104,7 +104,7 @@ public class RelationshipSVM extends BaseSvm {
                 for (KeyPhrase ext2 : paper.getKeyPhrases()) {
                     if (!ext1.equals(ext2)) {
                         // Calculate a sv set, and see if it fits the type
-                        svm_node[] nodes = generateSupportVectors(ext1, ext2);
+                        svm_node[] nodes = generateSupportVectors(ext1, ext2, vec, ann);
                         double isRel = 0.0;
                         for (Relationship rel : paper.getRelationships()) {
                             // TODO add support for >2 KP for synonyms.
@@ -150,14 +150,19 @@ public class RelationshipSVM extends BaseSvm {
      *            The key phrase from
      * @param kp2
      *            The key phrase to
+     * @param vec
+     *            The Word2Vec data to use
+     * @param ann
+     *            The annotator to use
      * @return The support vector set representing the key phrase distances
      * @throws Exception
      *             If a word vector isn't the expected length.
      */
-    public svm_node[] generateSupportVectors(KeyPhrase kp1, KeyPhrase kp2) throws Exception {
+    public svm_node[] generateSupportVectors(KeyPhrase kp1, KeyPhrase kp2, Word2Vec vec, Annotator ann)
+            throws Exception {
         // Get phrase vectors
-        double[] vector1 = getPhraseVectorOfNoun(kp1);
-        double[] vector2 = getPhraseVectorOfNoun(kp2);
+        double[] vector1 = getPhraseVectorOfNoun(kp1, vec, ann);
+        double[] vector2 = getPhraseVectorOfNoun(kp2, vec, ann);
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -185,14 +190,20 @@ public class RelationshipSVM extends BaseSvm {
     /**
      * Calculates a phrase vector from combining word vectors
      * 
+     * Base results (14/12/2017): ``` Overall statistics: Accuracy: 0.99417070
+     * Precision: 0.13402062 Recall: 0.06341463 F1: 0.08609272 Specific results
+     * were: tp: 13.0 fp: 84.0 tn: 47058.0 fn: 192.0 ```
+     * 
      * @param kp
      *            The key phrase
+     * @param vec
+     *            The Word2Vec data to use
      * @return The phrase vector
      * @throws Exception
      *             If a word vector isn't the expected length.
      */
     @SuppressWarnings("unused")
-    private double[] getPhraseVector(KeyPhrase kp) throws Exception {
+    private double[] getPhraseVector(KeyPhrase kp, Word2Vec vec) throws Exception {
         // Remove punctuation and get each word
         String[] tokens = kp.getPhrase().replaceAll("\\p{Punct}", "").split(" ");
 
@@ -218,13 +229,21 @@ public class RelationshipSVM extends BaseSvm {
     /**
      * Calculates a phrase vector from searching the base noun in Word2Vec
      * 
+     * Base results (14/12/2017): ``` Overall statistics: Accuracy: 0.99507961
+     * Precision: 0.06666667 Recall: 0.00966184 F1: 0.01687764 Specific results
+     * were: tp: 2.0 fp: 28.0 tn: 47119.0 fn: 205.0 ```
+     * 
      * @param kp
      *            The key phrase
+     * @param vec
+     *            The Word2Vec data to use
+     * @param ann
+     *            The annotator to use
      * @return The phrase vector
      * @throws Exception
      *             If a word vector isn't the expected length.
      */
-    private double[] getPhraseVectorOfNoun(KeyPhrase kp) throws Exception {
+    private double[] getPhraseVectorOfNoun(KeyPhrase kp, Word2Vec vec, Annotator ann) throws Exception {
         // Remove punctuation and get each word
         List<CoreMap> sentences = ann.annotate(kp.getPhrase());
         if (sentences.size() > 1) {
@@ -264,22 +283,87 @@ public class RelationshipSVM extends BaseSvm {
     }
 
     /**
-     * Predict relationships in a paper
+     * Generate SVs of the data
      * 
      * @param paper
      *            The paper to analyse
+     * @param vec
+     *            The Word2Vec data to use
+     * @param ann
+     *            The annotator to use
      * @return A list of relationships between key words
      * @throws Exception
      *             If generating support vectors went wrong
      */
-    public List<Relationship> predictRelationships(Paper paper) throws Exception {
+    public List<svm_node[]> generateTestingVectors(Paper paper, Word2Vec vec, Annotator ann) throws Exception {
+        List<svm_node[]> svs = new ArrayList<svm_node[]>();
+
+        for (KeyPhrase ext1 : paper.getKeyPhrases()) {
+            for (KeyPhrase ext2 : paper.getKeyPhrases()) {
+                if (!ext1.equals(ext2)) {
+                    // Calculate a sv set
+                    svs.add(generateSupportVectors(ext1, ext2, vec, ann));
+                }
+            }
+        }
+
+        return svs;
+    }
+
+    /**
+     * Predict relationships in a paper
+     * 
+     * @param paper
+     *            The paper to analyse
+     * @param svs
+     *            Pre-calculated support vectors for this test set
+     * @return A list of relationships between key words
+     * @throws Exception
+     *             If generating support vectors went wrong
+     */
+    public List<Relationship> predictRelationshipsFromSvs(Paper paper, List<svm_node[]> svs) throws Exception {
+        List<Relationship> rels = new ArrayList<Relationship>();
+
+        for (int i = 0; i < paper.getKeyPhrases().size(); i++) {
+            KeyPhrase ext1 = paper.getKeyPhrases().get(i);
+            for (int j = 0; j < paper.getKeyPhrases().size(); j++) {
+                KeyPhrase ext2 = paper.getKeyPhrases().get(j);
+                if (!ext1.equals(ext2)) {
+                    // Calculate a sv set, and see if it fits the type
+                    svm_node[] nodes = svs.get(i + j);
+                    if (predict(nodes)) {
+                        // TODO sort out relationship IDs
+                        Relationship newRel = new Relationship(0, type, new KeyPhrase[] { ext1, ext2 });
+                        rels.add(newRel);
+                    }
+                }
+            }
+        }
+
+        return rels;
+    }
+
+    /**
+     * Predict relationships in a paper
+     * 
+     * @param paper
+     *            The paper to analyse
+     * @param vec
+     *            The Word2Vec data to use
+     * @param ann
+     *            The annotator to use
+     * @return A list of relationships between key words
+     * @throws Exception
+     *             If generating support vectors went wrong
+     */
+    public List<Relationship> predictRelationships(Paper paper, Word2Vec vec, Annotator ann) throws Exception {
         List<Relationship> rels = new ArrayList<Relationship>();
 
         for (KeyPhrase ext1 : paper.getKeyPhrases()) {
             for (KeyPhrase ext2 : paper.getKeyPhrases()) {
                 if (!ext1.equals(ext2)) {
                     // Calculate a sv set, and see if it fits the type
-                    svm_node[] nodes = generateSupportVectors(ext1, ext2);
+                    svm_node[] nodes = generateSupportVectors(ext1, ext2, vec, ann);
                     if (predict(nodes)) {
                         // TODO sort out relationship IDs
                         Relationship newRel = new Relationship(0, type, new KeyPhrase[] { ext1, ext2 });

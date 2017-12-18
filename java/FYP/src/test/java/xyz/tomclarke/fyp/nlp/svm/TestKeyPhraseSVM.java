@@ -22,6 +22,7 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
+import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
@@ -47,7 +48,8 @@ public class TestKeyPhraseSVM {
 
         // Load Word2Vec
         log.info("Loading Word2Vec");
-        vec = Word2VecProcessor.loadGoogleNewsVectors();
+        // TODO, try different ones
+        vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
     }
 
     /**

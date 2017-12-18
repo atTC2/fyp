@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
+import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
@@ -35,8 +36,8 @@ public class TestW2VCluster {
     @Test
     public void testClusteringWithGoogleNews() throws Exception {
         log.info("Testing");
-        W2VClusterProcessor cluster = new W2VClusterProcessor(Word2VecProcessor.loadGoogleNewsVectors(),
-                trainingPapers);
+        W2VClusterProcessor cluster = new W2VClusterProcessor(
+                Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS), trainingPapers);
 
         // There isn't really a relation between Google News and these training papers
         for (Paper testPaper : testPapers) {
@@ -48,10 +49,12 @@ public class TestW2VCluster {
 
     }
 
+    @Ignore
     @Test
     public void testClusteringWithWiki2Vec() throws Exception {
         log.info("Testing");
-        W2VClusterProcessor cluster = new W2VClusterProcessor(Word2VecProcessor.loadWiki2Vec(), trainingPapers);
+        W2VClusterProcessor cluster = new W2VClusterProcessor(
+                Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.WIKI2VEC), trainingPapers);
 
         for (Paper testPaper : testPapers) {
             cluster.cluster(testPaper, Linkage.SINGLE);
@@ -62,6 +65,7 @@ public class TestW2VCluster {
 
     }
 
+    @Ignore
     @Test
     public void testClusteringWithScienceIE() throws Exception {
         log.info("Testing");
@@ -74,7 +78,6 @@ public class TestW2VCluster {
             cluster.cluster(testPaper, Linkage.COMPLETE);
             break;
         }
-
     }
 
 }

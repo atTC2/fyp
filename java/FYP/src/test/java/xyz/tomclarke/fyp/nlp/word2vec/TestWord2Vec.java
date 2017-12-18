@@ -34,7 +34,7 @@ public class TestWord2Vec {
     @BeforeClass
     public static void loadW2V() {
         log.info("Loading Word2Vec...");
-        vec = Word2VecProcessor.loadGoogleNewsVectors();
+        vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         log.info("Loaded");
     }
 
