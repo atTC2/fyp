@@ -6,4 +6,4 @@ if [ -z "$1" ]
     echo "No test supplied"
 fi
 
-clear; mvn test -Dorg.bytedeco.javacpp.maxphysicalbytes=10737418240 -Dtest=$1
+clear; mvn test -Dorg.bytedeco.javacpp.maxphysicalbytes=12000000000 -Dtest=$1
