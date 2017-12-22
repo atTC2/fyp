@@ -164,24 +164,35 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void testLoadGoogleNews() throws Exception {
-        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
+        simpleVecTest(Word2VecPretrained.GOOGLE_NEWS);
     }
 
     @Test
     public void testLoadWiki2Vec() throws Exception {
-        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.WIKI2VEC);
+        simpleVecTest(Word2VecPretrained.WIKI2VEC);
     }
 
     @Ignore
     @Test
     public void testLoadFreebaseIDs() throws Exception {
-        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.FREEBASE_IDS);
+        simpleVecTest(Word2VecPretrained.FREEBASE_IDS);
     }
 
     @Ignore
     @Test
     public void testLoadFreebaseNames() throws Exception {
-        Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.FREEBASE_NAMES);
+        simpleVecTest(Word2VecPretrained.FREEBASE_NAMES);
+    }
+
+    /**
+     * Loads and simply tests a model
+     * 
+     * @param set
+     *            The pre-trained Word2Vec model to test
+     */
+    private void simpleVecTest(Word2VecPretrained set) {
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
+        log.info(vec.similarity("hello", "goodbye"));
     }
 
     /**
