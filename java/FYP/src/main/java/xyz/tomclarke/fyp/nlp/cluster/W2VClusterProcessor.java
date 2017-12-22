@@ -122,10 +122,11 @@ public class W2VClusterProcessor {
      *            The paper to cluster the tokens of
      * @param method
      *            The method of determining distance between each cluster
+     * @return The history of hierarchical clustering
      * @throws Exception
      *             If there was a problem
      */
-    public void cluster(Paper paper, Linkage method) throws Exception {
+    public List<W2VClusterSet> cluster(Paper paper, Linkage method) throws Exception {
         // Get the tokens we care about
         List<String> tokens = removeCommonTokens(paper);
         // Generate a distance map between each pair of tokens
@@ -187,6 +188,8 @@ public class W2VClusterProcessor {
 
         log.info("Generated hierarchical cluster using " + method);
         log.debug(clusterHistory);
+
+        return clusterHistory;
     }
 
     /**
@@ -196,7 +199,7 @@ public class W2VClusterProcessor {
      * @author tbc452
      *
      */
-    private class W2VClusterSet extends ArrayList<W2VCluster> {
+    protected class W2VClusterSet extends ArrayList<W2VCluster> {
 
         private static final long serialVersionUID = -3215804144763193247L;
 
@@ -221,7 +224,7 @@ public class W2VClusterProcessor {
      * @author tbc452
      *
      */
-    private class W2VCluster extends Cluster<String> {
+    protected class W2VCluster extends Cluster<String> {
 
         private static final long serialVersionUID = -6694787882359474571L;
         private final Map<String, Map<String, Double>> distanceMap;
