@@ -4,16 +4,7 @@
 <html lang="en">
 <head>
 
-<link rel="stylesheet" type="text/css"
-	href="webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
-
-<spring:url value="/css/main.css" var="springCss" />
-<link href="${springCss}" rel="stylesheet" />
-<spring:url value="/css/main.css" var="jstlCss" />
-<link href="${jstlCss}" rel="stylesheet" />
-
-<script type="text/javascript"
-	src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<jsp:include page="/WEB-INF/jsp/header.jsp"></jsp:include>
 
 <title>TBC452's FYP Home</title>
 
