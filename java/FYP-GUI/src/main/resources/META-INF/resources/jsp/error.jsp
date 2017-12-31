@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 
-<jsp:include page="/WEB-INF/jsp/header.jsp"></jsp:include>
+<jsp:include page="header.jsp"></jsp:include>
 
 <title>${status}</title>
 
