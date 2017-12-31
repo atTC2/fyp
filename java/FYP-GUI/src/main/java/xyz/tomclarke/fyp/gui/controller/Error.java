@@ -1,4 +1,4 @@
-package xyz.tomclarke.fyp.gui;
+package xyz.tomclarke.fyp.gui.controller;
 
 import java.util.Map;
 
@@ -43,6 +43,7 @@ public class Error implements ErrorController {
         RequestAttributes requestAttributes = new ServletRequestAttributes(request);
         Map<String, Object> errorInfo = errorAttributes.getErrorAttributes(requestAttributes, debug);
         mv.addAllObjects(errorInfo);
+        mv.addObject("debug", debug);
         log.error("Spring error: " + errorInfo.get("status") + " - " + errorInfo.get("message"));
         return mv;
     }

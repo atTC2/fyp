@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <html lang="en">
 <head>
 
@@ -16,11 +17,13 @@
 				<div class="error-template">
 					<h1>Oops!</h1>
 					<h2>${status}&nbsp;-&nbsp;${error}</h2>
-					<h2>${message}</h2>
-					<c:if test="${not empty trace}">
-						<pre>
-							<code>${trace}</code>
+					<c:if test="${debug}">
+						<h2>${message}</h2>
+						<c:if test="${not empty trace}">
+							<pre>
+							<code>${fn:trim(trace)}</code>
 						</pre>
+						</c:if>
 					</c:if>
 				</div>
 			</div>
