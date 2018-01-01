@@ -1,11 +1,16 @@
 package xyz.tomclarke.fyp.gui.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import xyz.tomclarke.fyp.gui.dao.KeyPhrase;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
+import xyz.tomclarke.fyp.gui.dao.Paper;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.dao.Synonym;
 import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
@@ -64,7 +70,47 @@ public class View {
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     public void download(@RequestParam("paper") Long paperId, HttpServletResponse response) throws IOException {
         // Get the paper information
-        xyz.tomclarke.fyp.gui.dao.Paper paper = paperRepo.findOne(paperId);
+        Paper paper = paperRepo.findOne(paperId);
+
+        // Check there is a paper
+        if (paper == null) {
+            redirectOnDownloadFail(paperId, response);
+            return;
+        }
+
+        // Send information
+        File paperFile = new File(paper.getLocation());
+        if (paperFile.exists()) {
+            // File exists, send it
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + paper.getTitle() + "."
+                    + FilenameUtils.getExtension(paper.getLocation()) + "\"");
+            IOUtils.copy(new ByteArrayInputStream(FileUtils.readFileToByteArray(paperFile)),
+                    response.getOutputStream());
+        } else if (paper.getText() != null && !paper.getText().isEmpty()) {
+            // Got the text, let's try and send that
+            response.setContentType("text/plain");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + paper.getTitle() + ".txt\"");
+            IOUtils.copy(new ByteArrayInputStream(paper.getText().getBytes()), response.getOutputStream());
+        } else {
+            // Nothing to download
+            redirectOnDownloadFail(paperId, response);
+            return;
+        }
+        response.flushBuffer();
+    }
+
+    @RequestMapping(value = "/extractions", method = RequestMethod.GET)
+    public void extractions(@RequestParam("paper") Long paperId, HttpServletResponse response) throws IOException {
+        // Get the paper information
+        Paper paper = paperRepo.findOne(paperId);
+
+        // Check there is a paper
+        if (paper == null) {
+            redirectOnDownloadFail(paperId, response);
+            return;
+        }
+
         List<KeyPhrase> kps = kpRepo.findByPaper(paper);
         // List<Hyponym> hyps = hypRepo.findByKp(kps);
         List<Synonym> syns = synRepo.findByKp(kps);
@@ -104,6 +150,20 @@ public class View {
         }
 
         out.flush();
+        response.flushBuffer();
+    }
+
+    /**
+     * Redirects the user in the event the download fails
+     * 
+     * @param paperId
+     *            The ID of the paper attempting to be achieved
+     * @param response
+     *            The HTTP response to fill out
+     * @throws IOException
+     */
+    private void redirectOnDownloadFail(Long paperId, HttpServletResponse response) throws IOException {
+        response.sendRedirect("/view?paper=" + paperId);
     }
 
 }

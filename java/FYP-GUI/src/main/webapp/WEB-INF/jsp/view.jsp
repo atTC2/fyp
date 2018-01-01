@@ -21,7 +21,10 @@
 			</pre>
 			<div>
 				<a href="download?paper=${id}"
-					class="btn btn-primary btn-xl rounded-pill mt-5">Download</a>
+					class="btn btn-primary btn-xl rounded-pill mt-5">Download Paper</a>
+				<a href="extractions?paper=${id}"
+					class="btn btn-primary btn-xl rounded-pill mt-5">Download
+					Extractions</a>
 			</div>
 		</c:when>
 		<c:otherwise>
