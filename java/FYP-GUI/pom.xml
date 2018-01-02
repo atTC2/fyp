@@ -3,13 +3,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>xyz.tomclarke.fyp.gui</groupId>
+  <groupId>xyz.tomclarke.fyp</groupId>
   <artifactId>fyp-gui</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
 
   <name>fyp-gui</name>
-  <description>Demo project for Spring Boot</description>
+  <url>http://tomclarke.xyz</url>
+  <description>GUI component of TBC452's FYP.</description>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -69,6 +70,23 @@
       <artifactId>commons-io</artifactId>
       <version>2.6</version>
     </dependency>
+    <!-- Add the NLP project so we can do processing -->
+    <dependency>
+      <groupId>xyz.tomclarke.fyp</groupId>
+      <artifactId>fyp-nlp</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <!-- Stop logging dependency errors -->
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
   <build>
@@ -79,6 +97,5 @@
       </plugin>
     </plugins>
   </build>
-
 
 </project>

@@ -31,6 +31,8 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
  */
 public class KeyPhraseSVM extends BaseSvm {
 
+    private static final long serialVersionUID = -2281784349582583822L;
+
     private static final Logger log = LogManager.getLogger(KeyPhraseSVM.class);
 
     private static final int numOfSVs = 11;

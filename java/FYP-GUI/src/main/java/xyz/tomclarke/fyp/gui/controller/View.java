@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import xyz.tomclarke.fyp.gui.dao.Hyponym;
+import xyz.tomclarke.fyp.gui.dao.HyponymRepository;
 import xyz.tomclarke.fyp.gui.dao.KeyPhrase;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.Paper;
@@ -39,8 +41,8 @@ public class View {
     private PaperRepository paperRepo;
     @Autowired
     private KeyPhraseRepository kpRepo;
-    // @Autowired
-    // private HyponymRepository hypRepo;
+    @Autowired
+    private HyponymRepository hypRepo;
     @Autowired
     private SynonymRepository synRepo;
 
@@ -49,15 +51,16 @@ public class View {
         ModelAndView mv = new ModelAndView("view");
         boolean validPaper = false;
 
-        xyz.tomclarke.fyp.gui.dao.Paper paper = paperRepo.findOne(paperId);
+        // Get the paper information
+        Paper paper = paperRepo.findOne(paperId);
         if (paper != null) {
             validPaper = true;
             mv.addObject("paper", paper);
             List<KeyPhrase> kps = kpRepo.findByPaper(paper);
             mv.addObject("kps", kps);
-            // List<Hyponym> hyps = hypRepo.findByKp(kps);
-            // mv.addObject("hyps", hyps);
-            List<Synonym> syns = synRepo.findByKp(kps);
+            List<Hyponym> hyps = hypRepo.findByKpIn(kps);
+            mv.addObject("hyps", hyps);
+            List<Synonym> syns = synRepo.findByKpIn(kps);
             mv.addObject("syns", syns);
         }
         mv.addObject("id", paperId);
@@ -112,8 +115,8 @@ public class View {
         }
 
         List<KeyPhrase> kps = kpRepo.findByPaper(paper);
-        // List<Hyponym> hyps = hypRepo.findByKp(kps);
-        List<Synonym> syns = synRepo.findByKp(kps);
+        List<Hyponym> hyps = hypRepo.findByKpIn(kps);
+        List<Synonym> syns = synRepo.findByKpIn(kps);
 
         // Send information
         response.setContentType("text/plain");
@@ -124,9 +127,9 @@ public class View {
         for (KeyPhrase kp : kps) {
             out.println(kp.toString());
         }
-        // for (Hyponym hyp : hyps) {
-        // out.println(hyp.toString());
-        // }
+        for (Hyponym hyp : hyps) {
+            out.println(hyp.toString());
+        }
         String synToSend = "";
         Long currentId = 0L;
         for (Synonym syn : syns) {

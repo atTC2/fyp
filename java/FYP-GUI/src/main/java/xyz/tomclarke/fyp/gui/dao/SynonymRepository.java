@@ -22,6 +22,6 @@ public interface SynonymRepository extends CrudRepository<Synonym, Long> {
      *            Key phrases to search by
      * @return A list of related synonyms
      */
-    List<Synonym> findByKp(List<KeyPhrase> kps);
+    List<Synonym> findByKpIn(List<KeyPhrase> kps);
 
 }

@@ -26,6 +26,8 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
  */
 public class RelationshipSVM extends BaseSvm {
 
+    private static final long serialVersionUID = -8495102790485498671L;
+
     private static final Logger log = LogManager.getLogger(RelationshipSVM.class);
 
     private static final int numOfSVs = 300;

@@ -1,5 +1,7 @@
 package xyz.tomclarke.fyp.nlp.svm;
 
+import java.io.Serializable;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,7 +11,15 @@ import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
 
-public abstract class BaseSvm {
+/**
+ * Denotes some requirements of what an SVM needs to do
+ * 
+ * @author tbc452
+ *
+ */
+public abstract class BaseSvm implements Serializable {
+
+    private static final long serialVersionUID = 8718751442830249634L;
 
     private static final Logger log = LogManager.getLogger(BaseSvm.class);
 

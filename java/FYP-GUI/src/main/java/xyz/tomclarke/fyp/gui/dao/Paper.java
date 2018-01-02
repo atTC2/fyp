@@ -1,12 +1,11 @@
 package xyz.tomclarke.fyp.gui.dao;
 
-import java.sql.Blob;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
@@ -25,8 +24,11 @@ public class Paper {
     private String location;
     @Column(name = "text")
     private String text;
+    @Lob
     @Column(name = "parse")
-    private Blob parse;
+    private byte[] parse;
+    @Column(name = "status")
+    private Integer status;
 
     public Long getId() {
         return id;
@@ -68,12 +70,20 @@ public class Paper {
         this.text = text;
     }
 
-    public Blob getParse() {
+    public byte[] getParse() {
         return parse;
     }
 
-    public void setParse(Blob parse) {
+    public void setParse(byte[] parse) {
         this.parse = parse;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
 }

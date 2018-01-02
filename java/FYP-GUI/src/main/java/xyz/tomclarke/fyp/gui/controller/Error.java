@@ -27,12 +27,9 @@ import org.springframework.web.servlet.ModelAndView;
 public class Error implements ErrorController {
 
     private static final Logger log = LogManager.getLogger(Error.class);
-
     private static final String PATH = "/error";
-
     @Value("${debug}")
     private boolean debug;
-
     @Autowired
     private ErrorAttributes errorAttributes;
 

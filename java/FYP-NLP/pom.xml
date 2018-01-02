@@ -2,13 +2,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>xyz.tomclarke.fyp.nlp</groupId>
-  <artifactId>fyp</artifactId>
+  <groupId>xyz.tomclarke.fyp</groupId>
+  <artifactId>fyp-nlp</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>FYP</name>
-  <url>http://tombclarke.co.uk</url>
+  <name>fyp-nlp</name>
+  <url>http://tomclarke.xyz</url>
+  <description>NLP component of TBC452's FYP.</description>
 
   <properties>
     <log4j>2.9.1</log4j>
@@ -47,18 +48,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>${log4j}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
       <version>${log4j}</version>
     </dependency>
     <!-- Send log4j 1 logs to log4j2 -->
@@ -122,17 +113,7 @@
     </dependency>
     <dependency>
       <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-nn</artifactId>
-      <version>${dl4j}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.deeplearning4j</groupId>
       <artifactId>deeplearning4j-ui_2.10</artifactId>
-      <version>${dl4j}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-play_2.10</artifactId>
       <version>${dl4j}</version>
       <exclusions>
         <exclusion>
@@ -140,27 +121,6 @@
           <groupId>ch.qos.logback</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-ui-model</artifactId>
-      <version>${dl4j}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-ui-components</artifactId>
-      <version>${dl4j}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-ui-resources</artifactId>
-      <version>${dl4j}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.deeplearning4j</groupId>
-      <artifactId>deeplearning4j-ui-parent</artifactId>
-      <version>${dl4j}</version>
-      <type>pom</type>
     </dependency>
   </dependencies>
 </project>
