@@ -10,7 +10,6 @@ import org.deeplearning4j.models.word2vec.Word2Vec;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import libsvm.svm_node;
-import libsvm.svm_parameter;
 import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
@@ -39,21 +38,6 @@ public class RelationshipSVM extends BaseSvm {
 
     public RelationshipSVM() {
         super();
-        // Construct the (default) parameter object
-        param = new svm_parameter();
-        param.svm_type = svm_parameter.C_SVC;
-        param.kernel_type = svm_parameter.RBF;
-        // 1 / number of features
-        param.gamma = 1 / 2.0;
-        param.cache_size = 1024;
-        param.eps = 0.001;
-        param.C = 100.0;
-        param.nr_weight = 0;
-        param.weight_label = new int[0];
-        param.weight = new double[0];
-        param.shrinking = 0;
-        param.probability = 0;
-
         // Used for scaling
         smallest = 0.0;
         largest = 0.0;

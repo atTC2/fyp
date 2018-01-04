@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "nlp_object")
-public class NlpObject {
+public class NlpObjectDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

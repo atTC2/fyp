@@ -16,7 +16,6 @@ import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
 import libsvm.svm_node;
-import libsvm.svm_parameter;
 import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
@@ -37,31 +36,13 @@ public class KeyPhraseSVM extends BaseSvm {
 
     private static final int numOfSVs = 11;
 
-    private Word2Vec vec;
-
     // Used when constructing SVs
     private List<Paper> trainingPapers;
     private int maxWordLength;
     private Classification clazz;
 
-    public KeyPhraseSVM(Word2Vec vec) {
+    public KeyPhraseSVM() {
         super();
-        // Construct the (default) parameter object
-        param = new svm_parameter();
-        param.svm_type = svm_parameter.C_SVC;
-        param.kernel_type = svm_parameter.RBF;
-        // 1 / number of features
-        param.gamma = 1 / 2.0;
-        param.cache_size = 1024;
-        param.eps = 0.001;
-        param.C = 100.0;
-        param.nr_weight = 0;
-        param.weight_label = new int[0];
-        param.weight = new double[0];
-        param.shrinking = 0;
-        param.probability = 0;
-
-        this.vec = vec;
         maxWordLength = 0;
     }
 
@@ -72,8 +53,10 @@ public class KeyPhraseSVM extends BaseSvm {
      *            The papers that shall be used as training data
      * @param clazz
      *            The classification this SVM is being built for
+     * @param vec
+     *            The Word2Vec instance to use
      */
-    public void generateTrainingData(List<Paper> papers, Classification clazz) throws IOException {
+    public void generateTrainingData(List<Paper> papers, Classification clazz, Word2Vec vec) throws IOException {
         // Save for later use
         trainingPapers = papers;
         this.clazz = clazz;
@@ -116,7 +99,7 @@ public class KeyPhraseSVM extends BaseSvm {
                     // type
                     double keyPhrase = paper.isTokenPartOfKeyPhrase(token, clazz) ? 1.0 : 0.0;
 
-                    svm_node[] nodes = generateSupportVectors(token, paper, previousWordKeyPhrase);
+                    svm_node[] nodes = generateSupportVectors(token, paper, previousWordKeyPhrase, vec);
 
                     log.debug(String.format("%f 1:%.8f 2:%f 3:%.8f 4:%.8f 5:%f 6:%f 7:%f 8:%.8f", keyPhrase,
                             nodes[0].value, nodes[1].value, nodes[2].value, nodes[3].value, nodes[4].value,
@@ -144,9 +127,12 @@ public class KeyPhraseSVM extends BaseSvm {
      *            The paper (the token is from)
      * @param previousWordKeyPhrase
      *            Whether the previous word was a key phrase
+     * @param vec
+     *            The Word2Vec instance to use
      * @return The array of generated SVs
      */
-    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper, boolean previousWordKeyPhrase) {
+    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper, boolean previousWordKeyPhrase,
+            Word2Vec vec) {
         String word = token.get(TextAnnotation.class).toLowerCase();
 
         // Length (1)
@@ -231,9 +217,11 @@ public class KeyPhraseSVM extends BaseSvm {
      * 
      * @param paper
      *            The paper to predict papers for
+     * @param vec
+     *            The Word2Vec instance to use
      * @return The key phrases found
      */
-    public List<KeyPhrase> predictKeyPhrases(Paper paper) {
+    public List<KeyPhrase> predictKeyPhrases(Paper paper, Word2Vec vec) {
         List<KeyPhrase> phrases = new ArrayList<KeyPhrase>();
 
         String text = paper.getText();
@@ -252,7 +240,7 @@ public class KeyPhraseSVM extends BaseSvm {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
 
-                svm_node[] nodes = generateSupportVectors(token, paper, previousWordKP);
+                svm_node[] nodes = generateSupportVectors(token, paper, previousWordKP, vec);
                 boolean isPredictedKeyPhrase = predict(nodes);
 
                 // Get the position

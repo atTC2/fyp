@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface KeyPhraseRepository extends CrudRepository<KeyPhrase, Long> {
+public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> {
 
     /**
      * Finds key phrases by paper
@@ -13,6 +13,6 @@ public interface KeyPhraseRepository extends CrudRepository<KeyPhrase, Long> {
      *            The paper to find key phrases for
      * @return The key phrases for the given paper
      */
-    List<KeyPhrase> findByPaper(Paper paper);
+    List<KeyPhraseDAO> findByPaper(PaperDAO paper);
 
 }

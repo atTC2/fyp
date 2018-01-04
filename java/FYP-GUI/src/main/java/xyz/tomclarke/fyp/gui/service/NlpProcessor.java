@@ -1,6 +1,6 @@
 package xyz.tomclarke.fyp.gui.service;
 
-import xyz.tomclarke.fyp.gui.dao.Paper;
+import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 
 /**
  * Represents what an NLP processor needs to be able to do
@@ -21,7 +21,7 @@ public interface NlpProcessor {
      * 
      * @param paper
      */
-    public void processPaper(Paper paper) throws Exception;
+    public void processPaper(PaperDAO paper) throws Exception;
 
     /**
      * Unload objects created initially to allow for later stages to be loaded

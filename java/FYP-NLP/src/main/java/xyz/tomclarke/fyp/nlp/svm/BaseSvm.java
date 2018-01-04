@@ -29,6 +29,21 @@ public abstract class BaseSvm implements Serializable {
 
     public BaseSvm() {
         svm.svm_set_print_string_function(new SvmLogger());
+
+        // Construct the (default) parameter object
+        param = new svm_parameter();
+        param.svm_type = svm_parameter.C_SVC;
+        param.kernel_type = svm_parameter.RBF;
+        // 1 / number of features
+        param.gamma = 1 / 2.0;
+        param.cache_size = 1024;
+        param.eps = 0.001;
+        param.C = 100.0;
+        param.nr_weight = 0;
+        param.weight_label = new int[0];
+        param.weight = new double[0];
+        param.shrinking = 0;
+        param.probability = 0;
     }
 
     /**

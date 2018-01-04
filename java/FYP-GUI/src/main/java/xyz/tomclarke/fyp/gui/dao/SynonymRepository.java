@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface SynonymRepository extends CrudRepository<Synonym, Long> {
+public interface SynonymRepository extends CrudRepository<SynonymDAO, Long> {
 
     /**
      * Find by key phrase
@@ -13,7 +13,7 @@ public interface SynonymRepository extends CrudRepository<Synonym, Long> {
      *            The key phrase to search on
      * @return Synonyms for the key phrase
      */
-    List<Synonym> findByKp(KeyPhrase kp);
+    List<SynonymDAO> findByKp(KeyPhraseDAO kp);
 
     /**
      * Finds synonyms by list of key phrases
@@ -22,6 +22,6 @@ public interface SynonymRepository extends CrudRepository<Synonym, Long> {
      *            Key phrases to search by
      * @return A list of related synonyms
      */
-    List<Synonym> findByKpIn(List<KeyPhrase> kps);
+    List<SynonymDAO> findByKpIn(List<KeyPhraseDAO> kps);
 
 }

@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "syn_link")
-public class SynLink {
+public class SynLinkDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

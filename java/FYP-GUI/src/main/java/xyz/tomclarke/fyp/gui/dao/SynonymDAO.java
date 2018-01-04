@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "synonym")
-public class Synonym {
+public class SynonymDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,14 +19,14 @@ public class Synonym {
     private Long id;
     @ManyToOne(optional = false)
     @JoinColumn(name = "syn_link")
-    private SynLink synLink;
+    private SynLinkDAO synLink;
     @ManyToOne(optional = false)
     @JoinColumn(name = "kp")
-    private KeyPhrase kp;
+    private KeyPhraseDAO kp;
 
     @Override
     public String toString() {
-        return "*\tSynonym-of " + kp.getId();
+        return "*\tSynonym-of T" + kp.getRelativeId();
     }
 
     public Long getId() {
@@ -37,19 +37,19 @@ public class Synonym {
         this.id = id;
     }
 
-    public SynLink getSynLink() {
+    public SynLinkDAO getSynLink() {
         return synLink;
     }
 
-    public void setSynLink(SynLink synLink) {
+    public void setSynLink(SynLinkDAO synLink) {
         this.synLink = synLink;
     }
 
-    public KeyPhrase getKp() {
+    public KeyPhraseDAO getKp() {
         return kp;
     }
 
-    public void setKp(KeyPhrase kp) {
+    public void setKp(KeyPhraseDAO kp) {
         this.kp = kp;
     }
 

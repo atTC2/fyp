@@ -11,15 +11,17 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "key_phrase")
-public class KeyPhrase {
+public class KeyPhraseDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
+    @Column(name = "relative_id")
+    private Long relativeId;
     @ManyToOne(optional = false)
-    @JoinColumn(name="paper")
-    private Paper paper;
+    @JoinColumn(name = "paper")
+    private PaperDAO paper;
     @Column(name = "start")
     private Integer start;
     @Column(name = "end")
@@ -31,7 +33,7 @@ public class KeyPhrase {
 
     @Override
     public String toString() {
-        return "T" + id + "\t" + classification + " " + start + " " + end + "\t" + text;
+        return "T" + relativeId + "\t" + classification + " " + start + " " + end + "\t" + text;
     }
 
     public Long getId() {
@@ -42,11 +44,19 @@ public class KeyPhrase {
         this.id = id;
     }
 
-    public Paper getPaper() {
+    public Long getRelativeId() {
+        return relativeId;
+    }
+
+    public void setRelativeId(Long relativeId) {
+        this.relativeId = relativeId;
+    }
+
+    public PaperDAO getPaper() {
         return paper;
     }
 
-    public void setPaper(Paper paper) {
+    public void setPaper(PaperDAO paper) {
         this.paper = paper;
     }
 

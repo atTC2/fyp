@@ -49,8 +49,8 @@ public class TestKeyPhraseSVM extends TestOnPapers {
 
             // Setup the SVM
             log.info("Building general key phrase SVM...");
-            svmGeneral = new KeyPhraseSVM(vec);
-            svmGeneral.generateTrainingData(trainingPapers, null);
+            svmGeneral = new KeyPhraseSVM();
+            svmGeneral.generateTrainingData(trainingPapers, null, vec);
             svmGeneral.train();
 
             log.info("SVM trained, now to test...");
@@ -104,7 +104,7 @@ public class TestKeyPhraseSVM extends TestOnPapers {
                     double keyPhrase = paper.isTokenPartOfKeyPhrase(token) ? 1.0 : 0.0;
 
                     // SV Nodes (question)
-                    svm_node[] nodes = svmGeneral.generateSupportVectors(token, paper, previousWordKeyPhrase);
+                    svm_node[] nodes = svmGeneral.generateSupportVectors(token, paper, previousWordKeyPhrase, vec);
 
                     // Ask the question and compare the answer to the expected answer
                     boolean isPredictedKeyPhrase = svmGeneral.predict(nodes);
@@ -164,8 +164,8 @@ public class TestKeyPhraseSVM extends TestOnPapers {
 
         // Setup the SVM
         log.info("Building general key phrase SVM...");
-        KeyPhraseSVM svm = new KeyPhraseSVM(vecForSvm);
-        svm.generateTrainingData(trainingPapers, null);
+        KeyPhraseSVM svm = new KeyPhraseSVM();
+        svm.generateTrainingData(trainingPapers, null, vecForSvm);
         svm.train();
 
         log.info("SVM trained, now to test...");
@@ -174,7 +174,7 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         List<ConfusionStatistic> overallStatsInc = new ArrayList<ConfusionStatistic>();
         List<ConfusionStatistic> overallStatsStr = new ArrayList<ConfusionStatistic>();
         for (Paper paper : testPapers) {
-            List<KeyPhrase> phrases = svm.predictKeyPhrases(paper);
+            List<KeyPhrase> phrases = svm.predictKeyPhrases(paper, vecForSvm);
 
             // Log them
             printKP(paper, phrases);
@@ -211,16 +211,16 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         }
 
         log.info("Building task key phrase SVM...");
-        KeyPhraseSVM svmTask = new KeyPhraseSVM(vec);
-        svmTask.generateTrainingData(trainingPapers, Classification.TASK);
+        KeyPhraseSVM svmTask = new KeyPhraseSVM();
+        svmTask.generateTrainingData(trainingPapers, Classification.TASK, vec);
         svmTask.train();
         log.info("Building process key phrase SVM...");
-        KeyPhraseSVM svmProcess = new KeyPhraseSVM(vec);
-        svmProcess.generateTrainingData(trainingPapers, Classification.PROCESS);
+        KeyPhraseSVM svmProcess = new KeyPhraseSVM();
+        svmProcess.generateTrainingData(trainingPapers, Classification.PROCESS, vec);
         svmProcess.train();
         log.info("Building material key phrase SVM...");
-        KeyPhraseSVM svmMaterial = new KeyPhraseSVM(vec);
-        svmMaterial.generateTrainingData(trainingPapers, Classification.MATERIAL);
+        KeyPhraseSVM svmMaterial = new KeyPhraseSVM();
+        svmMaterial.generateTrainingData(trainingPapers, Classification.MATERIAL, vec);
         svmMaterial.train();
         log.info("SVMs trained, now to test key phrase extraction and classification...");
 
@@ -228,9 +228,9 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         List<ConfusionStatistic> overallStatsInc = new ArrayList<ConfusionStatistic>();
         List<ConfusionStatistic> overallStatsStr = new ArrayList<ConfusionStatistic>();
         for (Paper paper : testPapers) {
-            List<KeyPhrase> tasks = svmTask.predictKeyPhrases(paper);
-            List<KeyPhrase> processes = svmProcess.predictKeyPhrases(paper);
-            List<KeyPhrase> materials = svmMaterial.predictKeyPhrases(paper);
+            List<KeyPhrase> tasks = svmTask.predictKeyPhrases(paper, vec);
+            List<KeyPhrase> processes = svmProcess.predictKeyPhrases(paper, vec);
+            List<KeyPhrase> materials = svmMaterial.predictKeyPhrases(paper, vec);
             List<KeyPhrase> phrases = new ArrayList<KeyPhrase>();
 
             // Log them

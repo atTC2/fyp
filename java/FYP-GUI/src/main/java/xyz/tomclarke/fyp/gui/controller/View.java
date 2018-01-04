@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import xyz.tomclarke.fyp.gui.dao.Hyponym;
+import xyz.tomclarke.fyp.gui.dao.HyponymDAO;
 import xyz.tomclarke.fyp.gui.dao.HyponymRepository;
-import xyz.tomclarke.fyp.gui.dao.KeyPhrase;
+import xyz.tomclarke.fyp.gui.dao.KeyPhraseDAO;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
-import xyz.tomclarke.fyp.gui.dao.Paper;
+import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
-import xyz.tomclarke.fyp.gui.dao.Synonym;
+import xyz.tomclarke.fyp.gui.dao.SynonymDAO;
 import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
 
 /**
@@ -52,15 +52,15 @@ public class View {
         boolean validPaper = false;
 
         // Get the paper information
-        Paper paper = paperRepo.findOne(paperId);
+        PaperDAO paper = paperRepo.findOne(paperId);
         if (paper != null) {
             validPaper = true;
             mv.addObject("paper", paper);
-            List<KeyPhrase> kps = kpRepo.findByPaper(paper);
+            List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
             mv.addObject("kps", kps);
-            List<Hyponym> hyps = hypRepo.findByKpIn(kps);
+            List<HyponymDAO> hyps = hypRepo.findByKpIn(kps);
             mv.addObject("hyps", hyps);
-            List<Synonym> syns = synRepo.findByKpIn(kps);
+            List<SynonymDAO> syns = synRepo.findByKpIn(kps);
             mv.addObject("syns", syns);
         }
         mv.addObject("id", paperId);
@@ -73,7 +73,7 @@ public class View {
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     public void download(@RequestParam("paper") Long paperId, HttpServletResponse response) throws IOException {
         // Get the paper information
-        Paper paper = paperRepo.findOne(paperId);
+        PaperDAO paper = paperRepo.findOne(paperId);
 
         // Check there is a paper
         if (paper == null) {
@@ -106,7 +106,7 @@ public class View {
     @RequestMapping(value = "/extractions", method = RequestMethod.GET)
     public void extractions(@RequestParam("paper") Long paperId, HttpServletResponse response) throws IOException {
         // Get the paper information
-        Paper paper = paperRepo.findOne(paperId);
+        PaperDAO paper = paperRepo.findOne(paperId);
 
         // Check there is a paper
         if (paper == null) {
@@ -114,9 +114,9 @@ public class View {
             return;
         }
 
-        List<KeyPhrase> kps = kpRepo.findByPaper(paper);
-        List<Hyponym> hyps = hypRepo.findByKpIn(kps);
-        List<Synonym> syns = synRepo.findByKpIn(kps);
+        List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
+        List<HyponymDAO> hyps = hypRepo.findByKpIn(kps);
+        List<SynonymDAO> syns = synRepo.findByKpIn(kps);
 
         // Send information
         response.setContentType("text/plain");
@@ -124,15 +124,15 @@ public class View {
 
         ServletOutputStream out = response.getOutputStream();
 
-        for (KeyPhrase kp : kps) {
+        for (KeyPhraseDAO kp : kps) {
             out.println(kp.toString());
         }
-        for (Hyponym hyp : hyps) {
+        for (HyponymDAO hyp : hyps) {
             out.println(hyp.toString());
         }
         String synToSend = "";
         Long currentId = 0L;
-        for (Synonym syn : syns) {
+        for (SynonymDAO syn : syns) {
             // If a new ID, write info and clear data
             if (currentId != syn.getId() && !synToSend.isEmpty()) {
                 out.println(synToSend);
@@ -143,13 +143,12 @@ public class View {
                 synToSend = syn.toString();
                 currentId = syn.getId();
             } else {
-                synToSend += " " + syn.getId();
+                synToSend += " T" + syn.getKp().getRelativeId();
             }
         }
         // Write any remaining data
         if (!synToSend.isEmpty()) {
             out.println(synToSend);
-            synToSend = "";
         }
 
         out.flush();
