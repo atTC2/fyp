@@ -3,6 +3,7 @@ package xyz.tomclarke.fyp.nlp.preprocessing;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -28,9 +29,11 @@ public class LoadPapers {
      * 
      * @param papersList
      *            A file containing locations of papers
+     * @param canAttemtAnnRead
+     *            Specifies whether the paper object should be saved to disk
      * @return A list of loaded papers
      */
-    public static List<Paper> loadNewPapers(File papersList) {
+    public static List<Paper> loadNewPapers(File papersList, boolean canAttemptAnnRead) {
         ArrayList<Paper> papers = new ArrayList<Paper>();
         // Read through each line and try to load in the file.
         try (Scanner scanner = new Scanner(papersList)) {
@@ -44,21 +47,7 @@ public class LoadPapers {
                 }
 
                 // Try a single file
-                Paper newPaper = loadNewPaper(paperLocation);
-                if (newPaper != null) {
-                    papers.add(newPaper);
-                } else {
-                    // How about if it is a directory (containing many papers)?
-                    File paperDir = new File(paperLocation);
-                    if (paperDir.isDirectory()) {
-                        for (String newLocation : paperDir.list()) {
-                            newPaper = loadNewPaper(paperDir.getAbsolutePath() + File.separator + newLocation);
-                            if (newPaper != null) {
-                                papers.add(newPaper);
-                            }
-                        }
-                    }
-                }
+                papers.addAll(loadNewPapers(paperLocation, canAttemptAnnRead));
             }
         } catch (IOException e) {
             log.error("Problem reading papers.txt", e);
@@ -68,20 +57,53 @@ public class LoadPapers {
     }
 
     /**
+     * Loads papers from a supplied string (plural as string could lead to list of
+     * files)
+     * 
+     * @param paperLocation
+     *            The location of the paper
+     * @param canAttemptAnnRead
+     *            Whether the parse should be written to disk (if possible)
+     * @return A list of papers or null if none can be added
+     */
+    public static List<Paper> loadNewPapers(String paperLocation, boolean canAttemptAnnRead) {
+        Paper newPaper = loadNewPaper(paperLocation, canAttemptAnnRead);
+        List<Paper> papers = new ArrayList<Paper>();
+        if (newPaper != null) {
+            return Arrays.asList(newPaper);
+        } else {
+            // How about if it is a directory (containing many papers)?
+            File paperDir = new File(paperLocation);
+            if (paperDir.isDirectory()) {
+                for (String newLocation : paperDir.list()) {
+                    newPaper = loadNewPaper(paperDir.getAbsolutePath() + File.separator + newLocation,
+                            canAttemptAnnRead);
+                    if (newPaper != null) {
+                        papers.add(newPaper);
+                    }
+                }
+            }
+        }
+        return papers;
+    }
+
+    /**
      * Creates a new paper object, subject to location type
      * 
      * @param location
      *            The location of the file
+     * @param canAttemtAnnRead
+     *            Specifies whether the paper object should be saved to disk
      * @return The new Paper object, or null if the paper is not supported.
      */
-    public static Paper loadNewPaper(String location) {
+    public static Paper loadNewPaper(String location, boolean canAttemptAnnRead) {
         // Try and pick a type of paper on file extension
         int beginningOfFileExtension = location.lastIndexOf('.');
         if (beginningOfFileExtension >= 0) {
             String fileExtension = location.substring(beginningOfFileExtension);
             switch (fileExtension) {
             case ".txt":
-                return new TextPaper(location);
+                return new TextPaper(location, canAttemptAnnRead);
             case ".pdf":
                 return new PDFPaper(location);
             }

@@ -14,6 +14,6 @@ public interface PaperRepository extends CrudRepository<PaperDAO, Long> {
      *            The processing status
      * @return A list of papers with the given status
      */
-    List<PaperDAO> findByStatus(long status);
+    List<PaperDAO> findByStatus(Long status);
 
 }

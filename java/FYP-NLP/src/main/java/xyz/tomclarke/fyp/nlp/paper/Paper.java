@@ -40,19 +40,23 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
  */
 public abstract class Paper implements Serializable {
 
-    private static final long serialVersionUID = 8181333621254995423L;
+    private static final long serialVersionUID = -6589675606604453669L;
     private static final Logger log = LogManager.getLogger(Paper.class);
     protected static final String SER_FILE_EXT = ".ser";
     protected static final String ANN_FILE_EXT = ".ann";
 
+    private final boolean canAttemptAnnRead;
     private final String location;
     private final String serLocation;
     private String text;
     private List<CoreMap> annotations;
     private List<Extraction> extractions;
     private Map<String, Integer> tokenCounts;
+    private String title;
+    private String author;
 
     public Paper(String location, boolean canAttemptAnnRead) {
+        this.canAttemptAnnRead = canAttemptAnnRead;
         this.location = location;
         extractions = new ArrayList<Extraction>();
         tokenCounts = new HashMap<String, Integer>();
@@ -73,6 +77,8 @@ public abstract class Paper implements Serializable {
                 annotations = loadedPaper.getAnnotations();
                 extractions = loadedPaper.getExtractions();
                 tokenCounts = loadedPaper.getTokenCounts();
+                title = loadedPaper.getTitle();
+                author = loadedPaper.getAuthor();
             } catch (IOException | ClassNotFoundException e) {
                 log.error("Error reading serialisation", e);
             }
@@ -186,22 +192,24 @@ public abstract class Paper implements Serializable {
     }
 
     /**
-     * Saves the object to disk
+     * Saves the object to disk (if in ann mode)
      */
     private void save() {
-        try {
-            // Get rid of the old file if it's there
-            File oldSer = new File(serLocation);
-            if (oldSer.exists()) {
-                oldSer.delete();
-            }
+        if (canAttemptAnnRead) {
+            try {
+                // Get rid of the old file if it's there
+                File oldSer = new File(serLocation);
+                if (oldSer.exists()) {
+                    oldSer.delete();
+                }
 
-            // Write new serialisation
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serLocation));
-            oos.writeObject(this);
-            oos.close();
-        } catch (IOException e) {
-            log.error("Error writing serialisation", e);
+                // Write new serialisation
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serLocation));
+                oos.writeObject(this);
+                oos.close();
+            } catch (IOException e) {
+                log.error("Error writing serialisation", e);
+            }
         }
     }
 
@@ -368,6 +376,44 @@ public abstract class Paper implements Serializable {
      */
     public void setTokenCounts(Map<String, Integer> tokenCounts) {
         this.tokenCounts = tokenCounts;
+        save();
+    }
+
+    /**
+     * Gets the title of the paper
+     * 
+     * @return
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the title of the paper
+     * 
+     * @param title
+     */
+    public void setTitle(String title) {
+        this.title = title;
+        save();
+    }
+
+    /**
+     * Gets the author of the paper
+     * 
+     * @return
+     */
+    public String getAuthor() {
+        return author;
+    }
+
+    /**
+     * Sets the author of the paper
+     * 
+     * @param author
+     */
+    public void setAuthor(String author) {
+        this.author = author;
         save();
     }
 

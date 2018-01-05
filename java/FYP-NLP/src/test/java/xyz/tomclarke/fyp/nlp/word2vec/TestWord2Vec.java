@@ -54,7 +54,7 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseValues() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
+        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         for (Paper paper : papers) {
             for (Extraction ext : paper.getExtractions()) {
@@ -79,7 +79,7 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseCombinedValues() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
+        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         for (Paper paper : papers) {
             for (Extraction ext : paper.getExtractions()) {
@@ -114,7 +114,7 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseVector() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class);
+        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         double largest = 0.0;
         double smallest = 0.0;

@@ -66,7 +66,7 @@ public class RelSvm implements NlpProcessor {
 
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
-            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class);
+            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class, true);
             Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
             Annotator ann = new Annotator();
 

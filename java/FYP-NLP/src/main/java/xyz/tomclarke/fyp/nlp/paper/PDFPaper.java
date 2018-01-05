@@ -30,9 +30,9 @@ public class PDFPaper extends Paper {
                 PDFTextStripper textStripper = new PDFTextStripper();
 
                 setText(textStripper.getText(pdd));
-                // TODO make it so it saves the text it produces to a file to help debug
-
                 pdd.close();
+
+                setTitle(pdf.getName());
             } catch (IOException e) {
                 log.error("Problem loading PDF document", e);
             }

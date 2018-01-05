@@ -55,11 +55,13 @@ public abstract class NlpUtil {
      * @param clazz
      *            The class to load them from (if it's a test/ class, it'll load
      *            from test/resources).
+     * @param canAttemtAnnRead
+     *            Specifies whether the paper object should be saved to disk
      * @return Annotated papers
      */
-    public static <T> List<Paper> loadAndAnnotatePapers(Class<T> clazz) {
-        return annotatePapers(
-                LoadPapers.loadNewPapers(new File(clazz.getClassLoader().getResource("papers.txt").getFile())));
+    public static <T> List<Paper> loadAndAnnotatePapers(Class<T> clazz, boolean canAttemptAnnRead) {
+        return annotatePapers(LoadPapers.loadNewPapers(
+                new File(clazz.getClassLoader().getResource("papers.txt").getFile()), canAttemptAnnRead));
     }
 
     /**
@@ -71,8 +73,8 @@ public abstract class NlpUtil {
      * @return Annotated test papers
      */
     public static <T> List<Paper> loadAndAnnotateTestPapers(Class<T> clazz) {
-        return annotatePapers(
-                LoadPapers.loadNewPapers(new File(clazz.getClassLoader().getResource("papers_test.txt").getFile())));
+        return annotatePapers(LoadPapers
+                .loadNewPapers(new File(clazz.getClassLoader().getResource("papers_test.txt").getFile()), true));
     }
 
     /**
