@@ -1,7 +1,6 @@
 package xyz.tomclarke.fyp.gui.model;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -15,7 +14,7 @@ public class PaperLocation {
 
     @NotNull
     @Size(min = 5, max = 200)
-    @Pattern(regexp = "")
+    // @Pattern(regexp = "") // Maybe use this to stop SQL attacks
     private String location;
 
     public PaperLocation() {
