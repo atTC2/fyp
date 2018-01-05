@@ -15,4 +15,15 @@ public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> 
      */
     List<KeyPhraseDAO> findByPaper(PaperDAO paper);
 
+    /**
+     * Selects a single key phrase row by paper and relative ID
+     * 
+     * @param paper
+     *            The paper the key phrase must be linked to
+     * @param relativeId
+     *            The relative ID the key phrase must have
+     * @return The key phrase row
+     */
+    KeyPhraseDAO findByPaperAndRelativeId(PaperDAO paper, Long relativeId);
+
 }

@@ -1,13 +1,18 @@
 package xyz.tomclarke.fyp.gui.service.task1;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import xyz.tomclarke.fyp.gui.dao.PaperDAO;
+import xyz.tomclarke.fyp.gui.dao.KeyPhraseDAO;
+import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.NlpObjectRepository;
+import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
 import xyz.tomclarke.fyp.gui.service.PaperProcessor;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
@@ -26,7 +31,10 @@ import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 @Component
 public class KpSvm implements NlpProcessor {
 
+    private static final Logger log = LogManager.getLogger(KpSvm.class);
     private static final String KP_SVM = "KP_EXTRACTION_SVM";
+    @Autowired
+    private KeyPhraseRepository kpRepo;
     @Autowired
     private NlpObjectRepository nlpObjectRepo;
     private Word2Vec vec;
@@ -38,7 +46,7 @@ public class KpSvm implements NlpProcessor {
 
         // Try and load the SVM
         if (nlpObjectRepo.countByLabel(KP_SVM) == 1) {
-            svm = (KeyPhraseSVM) PaperProcessor.returnNlpObj(nlpObjectRepo.findByLabel(KP_SVM));
+            svm = (KeyPhraseSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(KP_SVM));
         }
 
         if (svm == null) {
@@ -53,8 +61,30 @@ public class KpSvm implements NlpProcessor {
 
     @Override
     public void processPaper(PaperDAO paper) {
-        Paper paperForNlp = null;
-        List<KeyPhrase> phrases = svm.predictKeyPhrases(paperForNlp, vec);
+        Paper paperForNlp = PaperProcessor.loadPaper(paper);
+        if (paperForNlp != null) {
+            // Do some processing
+            List<KeyPhrase> phrases = svm.predictKeyPhrases(paperForNlp, vec);
+            List<KeyPhraseDAO> phrasesDb = new ArrayList<KeyPhraseDAO>();
+            // Convert the phrases into database format
+            for (int i = 0; i < phrases.size(); i++) {
+                KeyPhrase phrase = phrases.get(i);
+                KeyPhraseDAO phraseDb = new KeyPhraseDAO();
+
+                phraseDb.setRelativeId(Long.valueOf(i));
+                phraseDb.setPaper(paper);
+                phraseDb.setText(phrase.getPhrase());
+                phraseDb.setStart(phrase.getPosition().getStart());
+                phraseDb.setEnd(phrase.getPosition().getEnd());
+
+                phrasesDb.add(phraseDb);
+            }
+
+            // Save the key phrases
+            kpRepo.save(phrasesDb);
+
+            log.info("KP extraction complete for Paper ID " + paper.getId() + " found " + phrases.size() + " KPs");
+        }
     }
 
     @Override

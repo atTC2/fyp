@@ -28,7 +28,7 @@ public class PaperDAO {
     @Column(name = "parse")
     private byte[] parse;
     @Column(name = "status")
-    private Integer status;
+    private Long status;
 
     public Long getId() {
         return id;
@@ -78,11 +78,11 @@ public class PaperDAO {
         this.parse = parse;
     }
 
-    public Integer getStatus() {
+    public Long getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(Long status) {
         this.status = status;
     }
 

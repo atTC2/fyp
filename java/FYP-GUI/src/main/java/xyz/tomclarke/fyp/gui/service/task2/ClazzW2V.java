@@ -2,6 +2,8 @@ package xyz.tomclarke.fyp.gui.service.task2;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,7 @@ import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 @Component
 public class ClazzW2V implements NlpProcessor {
 
+    private static final Logger log = LogManager.getLogger(ClazzW2V.class);
     @Autowired
     private KeyPhraseRepository kpRepo;
     private Word2Vec vec;
@@ -42,10 +45,13 @@ public class ClazzW2V implements NlpProcessor {
         for (KeyPhraseDAO kp : kps) {
             Classification clazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getText(), vec);
             kp.setClassification(clazz.toString());
+            log.debug("KP Classification for KP ID " + kp.getId() + " was " + clazz);
         }
 
         // Save all of the changes
         kpRepo.save(kps);
+
+        log.info("KP classification complete for " + kps.size() + " KPs");
     }
 
     @Override

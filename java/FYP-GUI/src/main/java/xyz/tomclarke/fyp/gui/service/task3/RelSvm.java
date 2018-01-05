@@ -1,21 +1,30 @@
 package xyz.tomclarke.fyp.gui.service.task3;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import xyz.tomclarke.fyp.gui.dao.PaperDAO;
+import xyz.tomclarke.fyp.gui.dao.HyponymDAO;
 import xyz.tomclarke.fyp.gui.dao.HyponymRepository;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.NlpObjectRepository;
+import xyz.tomclarke.fyp.gui.dao.PaperDAO;
+import xyz.tomclarke.fyp.gui.dao.SynLinkDAO;
+import xyz.tomclarke.fyp.gui.dao.SynLinkRepository;
+import xyz.tomclarke.fyp.gui.dao.SynonymDAO;
 import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
 import xyz.tomclarke.fyp.gui.service.PaperProcessor;
 import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
 import xyz.tomclarke.fyp.nlp.svm.RelationshipSVM;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
@@ -36,12 +45,15 @@ import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 @Component
 public class RelSvm implements NlpProcessor {
 
+    private static final Logger log = LogManager.getLogger(RelSvm.class);
     private static final String REL_SVM_HYP = "REL_SVM_HYP";
     private static final String REL_SVM_SYN = "REL_SVM_SYN";
     @Autowired
     private KeyPhraseRepository kpRepo;
     @Autowired
     private HyponymRepository hypRepo;
+    @Autowired
+    private SynLinkRepository synLinkRepo;
     @Autowired
     private SynonymRepository synRepo;
     @Autowired
@@ -89,8 +101,64 @@ public class RelSvm implements NlpProcessor {
 
     @Override
     public void processPaper(PaperDAO paper) {
-        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-        Annotator ann = new Annotator();
+        try {
+            Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
+            Annotator ann = new Annotator();
+            // Load the paper
+            Paper paperFromDb = PaperProcessor.loadPaper(paper);
+
+            // One SVM at a time, find the relations
+            RelationshipSVM hyp = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_HYP));
+            List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, vec, ann);
+            hyp = null;
+            System.gc();
+
+            RelationshipSVM syn = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_SYN));
+            List<Relationship> synRels = syn.predictRelationships(paperFromDb, vec, ann);
+            hyp = null;
+            System.gc();
+
+            // Convert the relationships into database entries
+
+            // Hyponyms
+            List<HyponymDAO> hypsToSave = new ArrayList<HyponymDAO>();
+            for (Relationship rel : hypRels) {
+                HyponymDAO hypDb = new HyponymDAO();
+                hypDb.setKp1(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[0].getId())));
+                hypDb.setKp2(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[1].getId())));
+                hypsToSave.add(hypDb);
+            }
+            hypRepo.save(hypsToSave);
+
+            // Synonyms
+            List<SynLinkDAO> synLinksToSave = new ArrayList<SynLinkDAO>();
+            List<SynonymDAO> synsToSave = new ArrayList<SynonymDAO>();
+            for (Relationship rel : synRels) {
+                SynLinkDAO link = new SynLinkDAO();
+                synLinksToSave.add(link);
+                for (KeyPhrase kp : rel.getPhrases()) {
+                    SynonymDAO synDb = new SynonymDAO();
+                    synDb.setSynLink(link);
+                    synDb.setKp(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(kp.getId())));
+                    synsToSave.add(synDb);
+                }
+            }
+            // Should create the link objects first which should be ok to then reference in
+            // the next save
+            synLinkRepo.save(synLinksToSave);
+            synRepo.save(synsToSave);
+
+            // Clear memory
+            vec = null;
+            ann = null;
+            System.gc();
+
+            // Survived it!!!
+            log.info("Relation extraction completed for paper ID " + paper.getId() + " finding " + hypRels.size()
+                    + " hyps and " + synRels.size() + " syns");
+        } catch (Exception e) {
+            log.error("Relation extraction crashed for paper ID " + paper.getId() + " because " + e.getMessage(), e);
+        }
     }
 
     @Override
