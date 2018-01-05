@@ -100,65 +100,62 @@ public class RelSvm implements NlpProcessor {
     }
 
     @Override
-    public void processPaper(PaperDAO paper) {
-        try {
-            Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-            Annotator ann = new Annotator();
-            // Load the paper
-            Paper paperFromDb = PaperProcessor.loadPaper(paper);
+    public boolean processPaper(PaperDAO paper) throws Exception {
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
+        Annotator ann = new Annotator();
+        // Load the paper
+        Paper paperFromDb = PaperProcessor.loadPaper(paper);
 
-            // One SVM at a time, find the relations
-            RelationshipSVM hyp = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_HYP));
-            List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, vec, ann);
-            hyp = null;
-            System.gc();
+        // One SVM at a time, find the relations
+        RelationshipSVM hyp = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_HYP));
+        List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, vec, ann);
+        hyp = null;
+        System.gc();
 
-            RelationshipSVM syn = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_SYN));
-            List<Relationship> synRels = syn.predictRelationships(paperFromDb, vec, ann);
-            hyp = null;
-            System.gc();
+        RelationshipSVM syn = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_SYN));
+        List<Relationship> synRels = syn.predictRelationships(paperFromDb, vec, ann);
+        hyp = null;
+        System.gc();
 
-            // Convert the relationships into database entries
+        // Convert the relationships into database entries
 
-            // Hyponyms
-            List<HyponymDAO> hypsToSave = new ArrayList<HyponymDAO>();
-            for (Relationship rel : hypRels) {
-                HyponymDAO hypDb = new HyponymDAO();
-                hypDb.setKp1(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[0].getId())));
-                hypDb.setKp2(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[1].getId())));
-                hypsToSave.add(hypDb);
-            }
-            hypRepo.save(hypsToSave);
-
-            // Synonyms
-            List<SynLinkDAO> synLinksToSave = new ArrayList<SynLinkDAO>();
-            List<SynonymDAO> synsToSave = new ArrayList<SynonymDAO>();
-            for (Relationship rel : synRels) {
-                SynLinkDAO link = new SynLinkDAO();
-                synLinksToSave.add(link);
-                for (KeyPhrase kp : rel.getPhrases()) {
-                    SynonymDAO synDb = new SynonymDAO();
-                    synDb.setSynLink(link);
-                    synDb.setKp(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(kp.getId())));
-                    synsToSave.add(synDb);
-                }
-            }
-            // Should create the link objects first which should be ok to then reference in
-            // the next save
-            synLinkRepo.save(synLinksToSave);
-            synRepo.save(synsToSave);
-
-            // Clear memory
-            vec = null;
-            ann = null;
-            System.gc();
-
-            // Survived it!!!
-            log.info("Relation extraction completed for paper ID " + paper.getId() + " finding " + hypRels.size()
-                    + " hyps and " + synRels.size() + " syns");
-        } catch (Exception e) {
-            log.error("Relation extraction crashed for paper ID " + paper.getId() + " because " + e.getMessage(), e);
+        // Hyponyms
+        List<HyponymDAO> hypsToSave = new ArrayList<HyponymDAO>();
+        for (Relationship rel : hypRels) {
+            HyponymDAO hypDb = new HyponymDAO();
+            hypDb.setKp1(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[0].getId())));
+            hypDb.setKp2(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[1].getId())));
+            hypsToSave.add(hypDb);
         }
+        hypRepo.save(hypsToSave);
+
+        // Synonyms
+        List<SynLinkDAO> synLinksToSave = new ArrayList<SynLinkDAO>();
+        List<SynonymDAO> synsToSave = new ArrayList<SynonymDAO>();
+        for (Relationship rel : synRels) {
+            SynLinkDAO link = new SynLinkDAO();
+            synLinksToSave.add(link);
+            for (KeyPhrase kp : rel.getPhrases()) {
+                SynonymDAO synDb = new SynonymDAO();
+                synDb.setSynLink(link);
+                synDb.setKp(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(kp.getId())));
+                synsToSave.add(synDb);
+            }
+        }
+        // Should create the link objects first which should be ok to then reference in
+        // the next save
+        synLinkRepo.save(synLinksToSave);
+        synRepo.save(synsToSave);
+
+        // Clear memory
+        vec = null;
+        ann = null;
+        System.gc();
+
+        // Survived it!!!
+        log.info("Relation extraction completed for paper ID " + paper.getId() + " finding " + hypRels.size()
+                + " hyps and " + synRels.size() + " syns");
+        return true;
     }
 
     @Override

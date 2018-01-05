@@ -38,18 +38,19 @@ public class PreProcessor implements NlpProcessor {
     }
 
     @Override
-    public void processPaper(PaperDAO paper) throws Exception {
+    public boolean processPaper(PaperDAO paper) throws Exception {
         List<Paper> papers = LoadPapers.loadNewPapers(paper.getLocation(), false);
 
         // Check each case
         if (papers.isEmpty()) {
             // Paper could not be loaded
             log.warn("Paper NOT FOUND, ID " + paper.getId());
-            return;
+            return false;
         } else if (papers.size() == 1) {
             // Just this paper was loaded
             setupPaper(paper, papers.get(0));
             log.info("Paper setup, ID " + paper.getId());
+            return true;
         } else {
             // Many papers, convert this paper to the first one and then make lots of new
             // ones)
@@ -68,6 +69,7 @@ public class PreProcessor implements NlpProcessor {
             }
             log.info("Paper setup, ID " + paper.getId() + " with " + (papers.size() - 1)
                     + " extra paper entries created");
+            return true;
         }
     }
 

@@ -33,6 +33,7 @@ public class PaperProcessor {
 
     // Kinda looks sad without an annotation :'(
     private static final Logger log = LogManager.getLogger(PaperProcessor.class);
+    private static final Long paperFailStatus = Long.valueOf(-1);
     @Autowired
     private PaperRepository paperRepo;
     @Autowired
@@ -72,8 +73,16 @@ public class PaperProcessor {
             nlp.loadObjects();
             // Process the papers
             for (PaperDAO paper : papers) {
-                nlp.processPaper(paper);
-                paper.setStatus(status++);
+                try {
+                    if (nlp.processPaper(paper)) {
+                        paper.setStatus(status + 1);
+                    } else {
+                        paper.setStatus(Long.valueOf(paperFailStatus));
+                    }
+                } catch (Exception e) {
+                    log.error("Problem processing paper ID " + paper.getId(), e);
+                    paper.setStatus(Long.valueOf(paperFailStatus));
+                }
             }
             paperRepo.save(papers);
             // Unload components to help with memory

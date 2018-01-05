@@ -58,10 +58,12 @@ public class View {
             mv.addObject("paper", paper);
             List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
             mv.addObject("kps", kps);
-            List<HyponymDAO> hyps = hypRepo.findByKpIn(kps);
-            mv.addObject("hyps", hyps);
-            List<SynonymDAO> syns = synRepo.findByKpIn(kps);
-            mv.addObject("syns", syns);
+            if (kps != null && !kps.isEmpty()) {
+                List<HyponymDAO> hyps = hypRepo.findByKpIn(kps);
+                mv.addObject("hyps", hyps);
+                List<SynonymDAO> syns = synRepo.findByKpIn(kps);
+                mv.addObject("syns", syns);
+            }
         }
         mv.addObject("id", paperId);
         mv.addObject("validPaper", validPaper);
@@ -115,8 +117,12 @@ public class View {
         }
 
         List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
-        List<HyponymDAO> hyps = hypRepo.findByKpIn(kps);
-        List<SynonymDAO> syns = synRepo.findByKpIn(kps);
+        List<HyponymDAO> hyps = null;
+        List<SynonymDAO> syns = null;
+        if (kps != null && !kps.isEmpty()) {
+            hyps = hypRepo.findByKpIn(kps);
+            syns = synRepo.findByKpIn(kps);
+        }
 
         // Send information
         response.setContentType("text/plain");
@@ -127,28 +133,32 @@ public class View {
         for (KeyPhraseDAO kp : kps) {
             out.println(kp.toString());
         }
-        for (HyponymDAO hyp : hyps) {
-            out.println(hyp.toString());
-        }
-        String synToSend = "";
-        Long currentId = 0L;
-        for (SynonymDAO syn : syns) {
-            // If a new ID, write info and clear data
-            if (currentId != syn.getId() && !synToSend.isEmpty()) {
-                out.println(synToSend);
-                synToSend = "";
+        if (hyps != null && !hyps.isEmpty()) {
+            for (HyponymDAO hyp : hyps) {
+                out.println(hyp.toString());
             }
+        }
+        if (syns != null && !syns.isEmpty()) {
+            String synToSend = "";
+            Long currentId = 0L;
+            for (SynonymDAO syn : syns) {
+                // If a new ID, write info and clear data
+                if (currentId != syn.getId() && !synToSend.isEmpty()) {
+                    out.println(synToSend);
+                    synToSend = "";
+                }
 
-            if (synToSend.isEmpty()) {
-                synToSend = syn.toString();
-                currentId = syn.getId();
-            } else {
-                synToSend += " T" + syn.getKp().getRelativeId();
+                if (synToSend.isEmpty()) {
+                    synToSend = syn.toString();
+                    currentId = syn.getId();
+                } else {
+                    synToSend += " T" + syn.getKp().getRelativeId();
+                }
             }
-        }
-        // Write any remaining data
-        if (!synToSend.isEmpty()) {
-            out.println(synToSend);
+            // Write any remaining data
+            if (!synToSend.isEmpty()) {
+                out.println(synToSend);
+            }
         }
 
         out.flush();

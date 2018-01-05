@@ -37,7 +37,7 @@ public class ClazzW2V implements NlpProcessor {
     }
 
     @Override
-    public void processPaper(PaperDAO paper) {
+    public boolean processPaper(PaperDAO paper) {
         // Get all KPs for this paper
         List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
 
@@ -52,6 +52,7 @@ public class ClazzW2V implements NlpProcessor {
         kpRepo.save(kps);
 
         log.info("KP classification complete for " + kps.size() + " KPs");
+        return true;
     }
 
     @Override

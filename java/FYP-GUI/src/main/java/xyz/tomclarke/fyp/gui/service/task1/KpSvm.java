@@ -60,7 +60,7 @@ public class KpSvm implements NlpProcessor {
     }
 
     @Override
-    public void processPaper(PaperDAO paper) {
+    public boolean processPaper(PaperDAO paper) {
         Paper paperForNlp = PaperProcessor.loadPaper(paper);
         if (paperForNlp != null) {
             // Do some processing
@@ -84,7 +84,9 @@ public class KpSvm implements NlpProcessor {
             kpRepo.save(phrasesDb);
 
             log.info("KP extraction complete for Paper ID " + paper.getId() + " found " + phrases.size() + " KPs");
+            return true;
         }
+        return false;
     }
 
     @Override

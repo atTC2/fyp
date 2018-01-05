@@ -20,8 +20,10 @@ public interface NlpProcessor {
      * Processes a paper, adding or updating key phrases or relation records
      * 
      * @param paper
+     * @return True if all is good, False if there's a problem with the paper and it
+     *         should not be processed anymore
      */
-    public void processPaper(PaperDAO paper) throws Exception;
+    public boolean processPaper(PaperDAO paper) throws Exception;
 
     /**
      * Unload objects created initially to allow for later stages to be loaded
