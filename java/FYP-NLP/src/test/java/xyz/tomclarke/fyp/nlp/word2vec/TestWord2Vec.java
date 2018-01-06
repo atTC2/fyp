@@ -14,7 +14,6 @@ import org.junit.Test;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
-import xyz.tomclarke.fyp.nlp.svm.TestKeyPhraseSVM;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -54,7 +53,7 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseValues() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class, true);
+        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestWord2Vec.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         for (Paper paper : papers) {
             for (Extraction ext : paper.getExtractions()) {
@@ -79,7 +78,7 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseCombinedValues() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class, true);
+        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestWord2Vec.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         for (Paper paper : papers) {
             for (Extraction ext : paper.getExtractions()) {
@@ -114,7 +113,7 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseVector() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestKeyPhraseSVM.class, true);
+        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestWord2Vec.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         double largest = 0.0;
         double smallest = 0.0;

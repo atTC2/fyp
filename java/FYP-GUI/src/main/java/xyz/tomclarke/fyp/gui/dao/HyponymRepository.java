@@ -15,7 +15,7 @@ public interface HyponymRepository extends CrudRepository<HyponymDAO, Long> {
      *            The key phrase to search on
      * @return Hyponyms for the key phrase
      */
-    @Query(value = "SELECT h FROM hyponym h WHERE h.kp1 = :kp OR h.kp2 = :kp", nativeQuery = true)
+    @Query(value = "SELECT * FROM hyponym h WHERE h.kp1 = :kp OR h.kp2 = :kp", nativeQuery = true)
     List<HyponymDAO> findByKp(@Param("kp") KeyPhraseDAO kp);
 
     /**
@@ -25,7 +25,7 @@ public interface HyponymRepository extends CrudRepository<HyponymDAO, Long> {
      *            Key phrases to search by
      * @return A list of related hyponyms
      */
-    @Query(value = "SELECT h FROM hyponym h WHERE h.kp1 IN :kps OR h.kp2 IN :kps", nativeQuery = true)
+    @Query(value = "SELECT * FROM hyponym h WHERE h.kp1 IN :kps OR h.kp2 IN :kps", nativeQuery = true)
     List<HyponymDAO> findByKpIn(@Param("kps") List<KeyPhraseDAO> kps);
 
 }

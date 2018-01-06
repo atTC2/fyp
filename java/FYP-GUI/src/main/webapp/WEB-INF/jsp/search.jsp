@@ -108,7 +108,7 @@
 							data-href="view?paper=${result.id}">
 							<td>${result.id}</td>
 							<td><strong>${result.paper}</strong></td>
-							<td><span class="label label-success">${result.kps}</span></td>
+							<td>${result.kps}</td>
 							<!-- <td><span class="label label-info">${result.rels}</span></td> -->
 						</tr>
 					</c:forEach>

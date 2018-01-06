@@ -81,10 +81,13 @@ public class View {
 
             List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
             List<String> kpStrings = new ArrayList<String>();
+            List<String> kpClazzs = new ArrayList<String>();
             for (KeyPhraseDAO kp : kps) {
                 kpStrings.add(kp.getText());
+                kpClazzs.add(kp.getClassification());
             }
             view.setKps(kpStrings);
+            view.setKpClazzs(kpClazzs);
 
             // TODO include relationships in view
             if (kps != null && !kps.isEmpty()) {

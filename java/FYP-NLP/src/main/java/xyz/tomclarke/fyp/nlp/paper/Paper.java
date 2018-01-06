@@ -75,7 +75,9 @@ public abstract class Paper implements Serializable {
                 // Set the necessary parameters
                 text = loadedPaper.getText();
                 annotations = loadedPaper.getAnnotations();
-                extractions = loadedPaper.getExtractions();
+                if (canAttemptAnnRead) {
+                    extractions = loadedPaper.getExtractions();
+                }
                 tokenCounts = loadedPaper.getTokenCounts();
                 title = loadedPaper.getTitle();
                 author = loadedPaper.getAuthor();

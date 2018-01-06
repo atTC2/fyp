@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +11,9 @@ import xyz.tomclarke.fyp.gui.dao.KeyPhraseDAO;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
+import xyz.tomclarke.fyp.gui.service.PaperProcessor;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.word2vec.W2VClassifier;
-import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
-import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
  * Processes papers and classifies key phrases
@@ -29,35 +27,38 @@ public class ClazzW2V implements NlpProcessor {
     private static final Logger log = LogManager.getLogger(ClazzW2V.class);
     @Autowired
     private KeyPhraseRepository kpRepo;
-    private Word2Vec vec;
+    @Autowired
+    private PaperProcessor pp;
 
     @Override
     public void loadObjects() {
-        vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
+        // Nothing to do here
     }
 
     @Override
     public boolean processPaper(PaperDAO paper) {
         // Get all KPs for this paper
         List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
+        log.info("KP classification on paper ID " + paper.getId() + " for " + kps.size() + " KPs");
 
         // Classify them
         for (KeyPhraseDAO kp : kps) {
-            Classification clazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getText(), vec);
+            Classification clazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getText(), pp.getVec());
             kp.setClassification(clazz.toString());
-            log.debug("KP Classification for KP ID " + kp.getId() + " was " + clazz);
+            // This doesn't set the information on the extractions object in the actual
+            // Paper object, but that's ok for now...
         }
 
         // Save all of the changes
         kpRepo.save(kps);
 
-        log.info("KP classification complete for " + kps.size() + " KPs");
+        log.info("KP classification completed for paper ID " + paper.getId() + " for " + kps.size() + " KPs");
         return true;
     }
 
     @Override
     public void unload() {
-        vec = null;
+        // Nothing to do
         System.gc();
     }
 

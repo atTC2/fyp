@@ -53,8 +53,8 @@
 
 				<c:if test="${not empty paper.text}">
 					<div class="jumbotron">
-						<h1>${paper.title}</h1>
-						<h2>${paper.author}</h2>
+						<h2>${paper.title}</h2>
+						<h3>${paper.author}</h3>
 						<p>
 							<a href="/view/download?paper=${paper.id}"
 								class="btn btn-primary">Download Paper</a> <a
@@ -76,9 +76,24 @@
 									</tr>
 								</thead>
 								<tbody>
-									<c:forEach items="${paper.kps}" var="kp">
+									<c:forEach items="${paper.kps}" var="kp" varStatus="loop">
 										<tr>
-											<td><strong>${kp}</strong></td>
+											<td><strong>${kp}</strong> <c:if
+													test="${not empty paper.kpClazzs}">
+													<c:set var="clazz" scope="session"
+														value="${paper.kpClazzs[loop.index]}" />
+													<c:choose>
+														<c:when test="${clazz eq 'Task'}">
+															<span class="label label-info pull-right">Task</span>
+														</c:when>
+														<c:when test="${clazz eq 'Process'}">
+															<span class="label label-warning pull-right">Process</span>
+														</c:when>
+														<c:when test="${clazz eq 'Material'}">
+															<span class="label label-success pull-right">Material</span>
+														</c:when>
+													</c:choose>
+												</c:if></td>
 										</tr>
 									</c:forEach>
 								</tbody>

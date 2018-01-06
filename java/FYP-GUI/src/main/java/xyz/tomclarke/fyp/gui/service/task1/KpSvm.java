@@ -1,11 +1,11 @@
 package xyz.tomclarke.fyp.gui.service.task1;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +18,6 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.svm.KeyPhraseSVM;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
-import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
-import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
  * Processes papers and finds key phrases
@@ -36,13 +34,10 @@ public class KpSvm implements NlpProcessor {
     private PaperProcessor pp;
     @Autowired
     private KeyPhraseRepository kpRepo;
-    private Word2Vec vec;
     private KeyPhraseSVM svm;
 
     @Override
     public void loadObjects() throws Exception {
-        vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-
         // Try and load the SVM
         svm = (KeyPhraseSVM) pp.loadNlpObj(KP_SVM);
 
@@ -50,35 +45,41 @@ public class KpSvm implements NlpProcessor {
             // Need to build the SVM and save it
             List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class, true);
             svm = new KeyPhraseSVM();
-            svm.generateTrainingData(trainingPapers, null, vec);
+            svm.generateTrainingData(trainingPapers, null, pp.getVec());
             svm.train();
             pp.saveNlpObj(KP_SVM, svm);
         }
     }
 
     @Override
-    public boolean processPaper(PaperDAO paper) {
+    public boolean processPaper(PaperDAO paper) throws IOException {
         Paper paperForNlp = pp.loadPaper(paper);
+        log.info("KP extraction on Paper ID " + paper.getId());
         if (paperForNlp != null) {
             // Do some processing
-            List<KeyPhrase> phrases = svm.predictKeyPhrases(paperForNlp, vec);
+            List<KeyPhrase> phrases = svm.predictKeyPhrases(paperForNlp, pp.getVec());
             List<KeyPhraseDAO> phrasesDb = new ArrayList<KeyPhraseDAO>();
             // Convert the phrases into database format
             for (int i = 0; i < phrases.size(); i++) {
                 KeyPhrase phrase = phrases.get(i);
                 KeyPhraseDAO phraseDb = new KeyPhraseDAO();
 
-                phraseDb.setRelativeId(Long.valueOf(i));
+                phraseDb.setRelativeId(Long.valueOf(i + 1));
+                phrase.setId(phraseDb.getRelativeId().intValue());
                 phraseDb.setPaper(paper);
                 phraseDb.setText(phrase.getPhrase());
                 phraseDb.setStart(phrase.getPosition().getStart());
                 phraseDb.setEnd(phrase.getPosition().getEnd());
 
                 phrasesDb.add(phraseDb);
+                paperForNlp.addExtraction(phrase);
             }
 
             // Save the key phrases
             kpRepo.save(phrasesDb);
+
+            // Add the key phrases to the Paper object (will be saved upon method returning)
+            paper.setParse(pp.getPaperBytes(paperForNlp));
 
             log.info("KP extraction complete for Paper ID " + paper.getId() + " found " + phrases.size() + " KPs");
             return true;
@@ -88,7 +89,6 @@ public class KpSvm implements NlpProcessor {
 
     @Override
     public void unload() {
-        vec = null;
         svm = null;
         System.gc();
     }

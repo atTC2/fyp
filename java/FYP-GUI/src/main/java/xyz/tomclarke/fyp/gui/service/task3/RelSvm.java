@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +25,6 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
 import xyz.tomclarke.fyp.nlp.svm.RelationshipSVM;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
-import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
-import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
  * Process papers to find relationship information
@@ -57,6 +54,7 @@ public class RelSvm implements NlpProcessor {
     private SynLinkRepository synLinkRepo;
     @Autowired
     private SynonymRepository synRepo;
+    private Annotator ann;
 
     @Override
     public void loadObjects() throws Exception {
@@ -66,21 +64,20 @@ public class RelSvm implements NlpProcessor {
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
             List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class, true);
-            Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-            Annotator ann = new Annotator();
+            ann = new Annotator();
 
             // Build the SVM data
             RelationshipSVM hyp = new RelationshipSVM();
             if (!hypAvailable) {
-                hyp.generateTrainingData(trainingPapers, RelationType.HYPONYM_OF, vec, ann);
+                hyp.generateTrainingData(trainingPapers, RelationType.HYPONYM_OF, pp.getVec(), ann);
             }
             RelationshipSVM syn = new RelationshipSVM();
             if (!synAvailable) {
-                syn.generateTrainingData(trainingPapers, RelationType.SYNONYM_OF, vec, ann);
+                syn.generateTrainingData(trainingPapers, RelationType.SYNONYM_OF, pp.getVec(), ann);
             }
 
             // Train the SVMs, one at a time and clear the memory
-            vec = null;
+            pp.setVec(null);
             ann = null;
             System.gc();
 
@@ -100,20 +97,27 @@ public class RelSvm implements NlpProcessor {
 
     @Override
     public boolean processPaper(PaperDAO paper) throws Exception {
-        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-        Annotator ann = new Annotator();
+        log.info("Relation extraction on paper ID " + paper.getId());
+        // Need to reload after loadObjects()
+        pp.loadVec();
+
+        if (ann == null) {
+            ann = new Annotator();
+        }
         // Load the paper
         Paper paperFromDb = pp.loadPaper(paper);
 
         // One SVM at a time, find the relations
+        log.info("Hyp extraction");
         RelationshipSVM hyp = (RelationshipSVM) pp.loadNlpObj(REL_SVM_HYP);
-        List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, vec, ann);
+        List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, pp.getVec(), ann);
         hyp = null;
         System.gc();
 
+        log.info("Syn extraction");
         RelationshipSVM syn = (RelationshipSVM) pp.loadNlpObj(REL_SVM_SYN);
-        List<Relationship> synRels = syn.predictRelationships(paperFromDb, vec, ann);
-        hyp = null;
+        List<Relationship> synRels = syn.predictRelationships(paperFromDb, pp.getVec(), ann);
+        syn = null;
         System.gc();
 
         // Convert the relationships into database entries
@@ -125,6 +129,7 @@ public class RelSvm implements NlpProcessor {
             hypDb.setKp1(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[0].getId())));
             hypDb.setKp2(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[1].getId())));
             hypsToSave.add(hypDb);
+            paperFromDb.addExtraction(rel);
         }
         hypRepo.save(hypsToSave);
 
@@ -134,6 +139,7 @@ public class RelSvm implements NlpProcessor {
         for (Relationship rel : synRels) {
             SynLinkDAO link = new SynLinkDAO();
             synLinksToSave.add(link);
+            paperFromDb.addExtraction(rel);
             for (KeyPhrase kp : rel.getPhrases()) {
                 SynonymDAO synDb = new SynonymDAO();
                 synDb.setSynLink(link);
@@ -145,11 +151,8 @@ public class RelSvm implements NlpProcessor {
         // the next save
         synLinkRepo.save(synLinksToSave);
         synRepo.save(synsToSave);
-
-        // Clear memory
-        vec = null;
-        ann = null;
-        System.gc();
+        // Add the key phrases to the Paper object (will be saved upon method returning)
+        paper.setParse(pp.getPaperBytes(paperFromDb));
 
         // Survived it!!!
         log.info("Relation extraction completed for paper ID " + paper.getId() + " finding " + hypRels.size()
@@ -159,7 +162,10 @@ public class RelSvm implements NlpProcessor {
 
     @Override
     public void unload() {
-        // Nothing to do here
+        if (ann == null) {
+            ann = null;
+        }
+        System.gc();
     }
 
 }

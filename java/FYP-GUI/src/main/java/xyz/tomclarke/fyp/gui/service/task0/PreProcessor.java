@@ -1,8 +1,6 @@
 package xyz.tomclarke.fyp.gui.service.task0;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
+import xyz.tomclarke.fyp.gui.service.PaperProcessor;
 import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.preprocessing.LoadPapers;
@@ -29,6 +28,8 @@ public class PreProcessor implements NlpProcessor {
 
     private static final Logger log = LogManager.getLogger(PreProcessor.class);
     @Autowired
+    private PaperProcessor pp;
+    @Autowired
     private PaperRepository paperRepo;
     private Annotator ann;
 
@@ -40,6 +41,7 @@ public class PreProcessor implements NlpProcessor {
     @Override
     public boolean processPaper(PaperDAO paper) throws Exception {
         List<Paper> papers = LoadPapers.loadNewPapers(paper.getLocation(), false);
+        log.info("Setting up paper, ID " + paper.getId());
 
         // Check each case
         if (papers.isEmpty()) {
@@ -49,7 +51,6 @@ public class PreProcessor implements NlpProcessor {
         } else if (papers.size() == 1) {
             // Just this paper was loaded
             setupPaper(paper, papers.get(0));
-            log.info("Paper setup, ID " + paper.getId());
             return true;
         } else {
             // Many papers, convert this paper to the first one and then make lots of new
@@ -92,10 +93,7 @@ public class PreProcessor implements NlpProcessor {
         paper.setTitle(loadedPaper.getTitle());
         paper.setAuthor(loadedPaper.getAuthor());
         paper.setText(loadedPaper.getText());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(loadedPaper);
-        paper.setParse(baos.toByteArray());
+        paper.setParse(pp.getPaperBytes(loadedPaper));
     }
 
     @Override

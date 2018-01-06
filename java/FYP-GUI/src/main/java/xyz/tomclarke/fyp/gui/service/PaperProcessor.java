@@ -1,6 +1,7 @@
 package xyz.tomclarke.fyp.gui.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +25,8 @@ import xyz.tomclarke.fyp.gui.service.task1.KpSvm;
 import xyz.tomclarke.fyp.gui.service.task2.ClazzW2V;
 import xyz.tomclarke.fyp.gui.service.task3.RelSvm;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
+import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
 /**
  * Processes papers. It repeatedly gets papers to do processing on
@@ -35,6 +39,7 @@ public class PaperProcessor {
 
     private static final Logger log = LogManager.getLogger(PaperProcessor.class);
     private static final Long paperFailStatus = Long.valueOf(-1);
+    private static final Word2VecPretrained vecModel = Word2VecPretrained.GOOGLE_NEWS;
     @Value("${nlp.objectpath}")
     private String nlpObjectPath;
     @Autowired
@@ -47,9 +52,12 @@ public class PaperProcessor {
     private ClazzW2V task2;
     @Autowired
     private RelSvm task3;
+    private Word2Vec vec;
 
     @Scheduled(fixedDelay = 10000)
     public void processWaitingPapers() throws Exception {
+        loadVec();
+
         // TODO If this runs out of memory, try having the methods returning a boolean
         // saying if it had work to do and if it did, skip the other steps for now and
         // hopefully when it next runs the memory will have clearer
@@ -57,6 +65,16 @@ public class PaperProcessor {
         processWaitingPapers(1, task1);
         processWaitingPapers(2, task2);
         processWaitingPapers(3, task3);
+    }
+
+    /**
+     * Loads the Word2Vec model
+     */
+    public void loadVec() {
+        if (vec == null) {
+            // Load the Word2Vec model
+            vec = Word2VecProcessor.loadPreTrainedData(vecModel);
+        }
     }
 
     /**
@@ -85,9 +103,12 @@ public class PaperProcessor {
                 } catch (Exception e) {
                     log.error("Problem processing paper ID " + paper.getId(), e);
                     paper.setStatus(Long.valueOf(paperFailStatus));
+                } finally {
+                    // Causes more updates than if just waiting until the end, but stops repeat
+                    // processing if it crashes half way through
+                    paperRepo.save(paper);
                 }
             }
-            paperRepo.save(papers);
             // Unload components to help with memory
             nlp.unload();
             log.info("Finished processing " + papers.size() + " papers with " + nlp.getClass().getName());
@@ -134,7 +155,7 @@ public class PaperProcessor {
      *            The label of the object to load
      * @return The NLP Object to be saved, or null if it couldn't be found or loaded
      */
-    public NlpProcessor loadNlpObj(String label) {
+    public Object loadNlpObj(String label) {
         File objFile = getFileFromLabel(label);
 
         // Check it exists
@@ -144,7 +165,7 @@ public class PaperProcessor {
 
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(objFile));
-            NlpProcessor nlpObj = (NlpProcessor) ois.readObject();
+            Object nlpObj = ois.readObject();
             ois.close();
             return nlpObj;
         } catch (ClassNotFoundException | IOException e) {
@@ -187,4 +208,38 @@ public class PaperProcessor {
             return null;
         }
     }
+
+    /**
+     * Converts a paper object to bytes for saving in the database
+     * 
+     * @param paper
+     *            The paper to convert
+     * @return The bytes
+     * @throws IOException
+     */
+    public byte[] getPaperBytes(Paper paper) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(paper);
+        return baos.toByteArray();
+    }
+
+    /**
+     * Gets the Word2Vec instance to use
+     * 
+     * @return A Word2Vec model
+     */
+    public Word2Vec getVec() {
+        return vec;
+    }
+
+    /**
+     * Sets the Word2Vec model (potentially to null to help save memory)
+     * 
+     * @param vec
+     */
+    public void setVec(Word2Vec vec) {
+        this.vec = vec;
+    }
+
 }

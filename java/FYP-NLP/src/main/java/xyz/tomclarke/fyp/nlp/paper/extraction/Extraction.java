@@ -21,9 +21,19 @@ public abstract class Extraction implements Serializable {
     public static final String SPACE = " ";
 
     // When relationship and synonym-of, ID = 0
-    private final int id;
+    private int id;
 
     public Extraction(int id) {
+        this.id = id;
+    }
+
+    /**
+     * Sets the ID
+     * 
+     * @param id
+     *            The ID of the extraction
+     */
+    public void setId(int id) {
         this.id = id;
     }
 

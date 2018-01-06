@@ -19,6 +19,7 @@ public class PaperView {
     private String author;
     private String text;
     private List<String> kps;
+    private List<String> kpClazzs; // Must be in same order as kps
     // TODO support for relationships
 
     public PaperView() {
@@ -26,7 +27,7 @@ public class PaperView {
     }
 
     public PaperView(Long id, boolean validPaper, String title, boolean successful, boolean failure, String progress,
-            String author, String text, List<String> kps) {
+            String author, String text, List<String> kps, List<String> kpClazzs) {
         super();
         this.id = id;
         this.validPaper = validPaper;
@@ -37,6 +38,7 @@ public class PaperView {
         this.author = author;
         this.text = text;
         this.kps = kps;
+        this.kpClazzs = kpClazzs;
     }
 
     public Long getId() {
@@ -109,6 +111,14 @@ public class PaperView {
 
     public void setKps(List<String> kps) {
         this.kps = kps;
+    }
+
+    public List<String> getKpClazzs() {
+        return kpClazzs;
+    }
+
+    public void setKpClazzs(List<String> kpClazzs) {
+        this.kpClazzs = kpClazzs;
     }
 
 }
