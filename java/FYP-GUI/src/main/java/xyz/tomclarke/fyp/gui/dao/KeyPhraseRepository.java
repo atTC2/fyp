@@ -26,4 +26,13 @@ public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> 
      */
     KeyPhraseDAO findByPaperAndRelativeId(PaperDAO paper, Long relativeId);
 
+    /**
+     * Counts the number of key phrases connected to a paper
+     * 
+     * @param paper
+     *            The paper the key phrases need to be connected to
+     * @return The number of key phrases for the given paper
+     */
+    Long countByPaper(PaperDAO paper);
+
 }

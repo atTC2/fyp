@@ -11,23 +11,21 @@
 
 </head>
 <body>
+	<jsp:include page="navbar.jsp">
+		<jsp:param name="active" value="error" />
+	</jsp:include>
+	
 	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="error-template">
-					<h1>Oops!</h1>
-					<h2>${status}&nbsp;-&nbsp;${error}</h2>
-					<c:if test="${debug}">
-						<h2>${message}</h2>
-						<c:if test="${not empty trace}">
-							<pre>
-							<code>${fn:trim(trace)}</code>
-						</pre>
-						</c:if>
-					</c:if>
-				</div>
-			</div>
-		</div>
+		<h1 class="text-danger">Oops!</h1>
+		<h2 class="text-danger">${status}&nbsp;-&nbsp;${error}</h2>
+		<c:if test="${debug}">
+			<h2 class="text-danger">${message}</h2>
+			<c:if test="${not empty trace}">
+				<pre>
+					<code>${fn:trim(trace)}</code>
+				</pre>
+			</c:if>
+		</c:if>
 	</div>
 </body>
 

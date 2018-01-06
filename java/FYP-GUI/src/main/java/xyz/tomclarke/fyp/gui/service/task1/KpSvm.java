@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseDAO;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
-import xyz.tomclarke.fyp.gui.dao.NlpObjectRepository;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
 import xyz.tomclarke.fyp.gui.service.PaperProcessor;
@@ -35,8 +34,6 @@ public class KpSvm implements NlpProcessor {
     private static final String KP_SVM = "KP_EXTRACTION_SVM";
     @Autowired
     private KeyPhraseRepository kpRepo;
-    @Autowired
-    private NlpObjectRepository nlpObjectRepo;
     private Word2Vec vec;
     private KeyPhraseSVM svm;
 
@@ -45,9 +42,7 @@ public class KpSvm implements NlpProcessor {
         vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
 
         // Try and load the SVM
-        if (nlpObjectRepo.countByLabel(KP_SVM) == 1) {
-            svm = (KeyPhraseSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(KP_SVM));
-        }
+        svm = (KeyPhraseSVM) PaperProcessor.loadNlpObj(KP_SVM);
 
         if (svm == null) {
             // Need to build the SVM and save it
@@ -55,7 +50,7 @@ public class KpSvm implements NlpProcessor {
             svm = new KeyPhraseSVM();
             svm.generateTrainingData(trainingPapers, null, vec);
             svm.train();
-            nlpObjectRepo.save(PaperProcessor.buildNlpObj(KP_SVM, svm));
+            PaperProcessor.saveNlpObj(KP_SVM, svm);
         }
     }
 

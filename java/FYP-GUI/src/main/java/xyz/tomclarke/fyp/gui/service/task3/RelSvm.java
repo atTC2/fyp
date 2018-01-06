@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import xyz.tomclarke.fyp.gui.dao.HyponymDAO;
 import xyz.tomclarke.fyp.gui.dao.HyponymRepository;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
-import xyz.tomclarke.fyp.gui.dao.NlpObjectRepository;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.SynLinkDAO;
 import xyz.tomclarke.fyp.gui.dao.SynLinkRepository;
@@ -56,13 +55,11 @@ public class RelSvm implements NlpProcessor {
     private SynLinkRepository synLinkRepo;
     @Autowired
     private SynonymRepository synRepo;
-    @Autowired
-    private NlpObjectRepository nlpObjectRepo;
 
     @Override
     public void loadObjects() throws Exception {
-        boolean hypAvailable = nlpObjectRepo.countByLabel(REL_SVM_HYP) == 1;
-        boolean synAvailable = nlpObjectRepo.countByLabel(REL_SVM_SYN) == 1;
+        boolean hypAvailable = PaperProcessor.checkIfCanLoadNlpObj(REL_SVM_HYP);
+        boolean synAvailable = PaperProcessor.checkIfCanLoadNlpObj(REL_SVM_SYN);
 
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
@@ -87,14 +84,14 @@ public class RelSvm implements NlpProcessor {
 
             if (!hypAvailable) {
                 hyp.train();
-                nlpObjectRepo.save(PaperProcessor.buildNlpObj(REL_SVM_HYP, hyp));
+                PaperProcessor.saveNlpObj(REL_SVM_HYP, hyp);
             }
             hyp = null;
             System.gc();
 
             if (!synAvailable) {
                 syn.train();
-                nlpObjectRepo.save(PaperProcessor.buildNlpObj(REL_SVM_SYN, syn));
+                PaperProcessor.saveNlpObj(REL_SVM_SYN, syn);
             }
         }
     }
@@ -107,12 +104,12 @@ public class RelSvm implements NlpProcessor {
         Paper paperFromDb = PaperProcessor.loadPaper(paper);
 
         // One SVM at a time, find the relations
-        RelationshipSVM hyp = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_HYP));
+        RelationshipSVM hyp = (RelationshipSVM) PaperProcessor.loadNlpObj(REL_SVM_HYP);
         List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, vec, ann);
         hyp = null;
         System.gc();
 
-        RelationshipSVM syn = (RelationshipSVM) PaperProcessor.loadNlpObj(nlpObjectRepo.findByLabel(REL_SVM_SYN));
+        RelationshipSVM syn = (RelationshipSVM) PaperProcessor.loadNlpObj(REL_SVM_SYN);
         List<Relationship> synRels = syn.predictRelationships(paperFromDb, vec, ann);
         hyp = null;
         System.gc();

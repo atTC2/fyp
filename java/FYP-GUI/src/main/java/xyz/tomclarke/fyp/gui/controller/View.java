@@ -3,6 +3,7 @@ package xyz.tomclarke.fyp.gui.controller;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
@@ -26,6 +27,7 @@ import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.dao.SynonymDAO;
 import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
+import xyz.tomclarke.fyp.gui.model.PaperView;
 
 /**
  * Allows viewing and actions on a paper
@@ -37,6 +39,7 @@ import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
 @RequestMapping(value = "/view")
 public class View {
 
+    private static final Long STATUS_MAX = Long.valueOf(4);
     @Autowired
     private PaperRepository paperRepo;
     @Autowired
@@ -47,17 +50,43 @@ public class View {
     private SynonymRepository synRepo;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView index(@RequestParam("paper") Long paperId) {
+    public ModelAndView index(@RequestParam(value = "paper", required = false) Long paperId) {
+        if (paperId == null) {
+            // No paper, just send the user back to search
+            return new ModelAndView("redirect:/search");
+        }
+
         ModelAndView mv = new ModelAndView("view");
-        boolean validPaper = false;
+        PaperView view = new PaperView();
+
+        view.setValidPaper(false);
+        view.setTitle("Paper not found");
+        view.setId(paperId);
 
         // Get the paper information
         PaperDAO paper = paperRepo.findOne(paperId);
         if (paper != null) {
-            validPaper = true;
-            mv.addObject("paper", paper);
+            view.setValidPaper(true);
+            view.setTitle(paper.getTitle());
+            view.setAuthor(paper.getAuthor());
+            view.setText(paper.getText());
+            view.setSuccessful(paper.getStatus() == STATUS_MAX);
+            view.setFailure(paper.getStatus() == Long.valueOf(-1));
+            if (view.isSuccessful() || view.isFailure()) {
+                view.setProgress("100%");
+            } else {
+                Double percentage = Double.valueOf(paper.getStatus()) / Double.valueOf(STATUS_MAX);
+                view.setProgress((percentage * 100) + "%");
+            }
+
             List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
-            mv.addObject("kps", kps);
+            List<String> kpStrings = new ArrayList<String>();
+            for (KeyPhraseDAO kp : kps) {
+                kpStrings.add(kp.getText());
+            }
+            view.setKps(kpStrings);
+
+            // TODO include relationships in view
             if (kps != null && !kps.isEmpty()) {
                 List<HyponymDAO> hyps = hypRepo.findByKpIn(kps);
                 mv.addObject("hyps", hyps);
@@ -65,10 +94,8 @@ public class View {
                 mv.addObject("syns", syns);
             }
         }
-        mv.addObject("id", paperId);
-        mv.addObject("validPaper", validPaper);
-        mv.addObject("title", validPaper ? paper.getTitle() : "Paper not found");
 
+        mv.addObject("paper", view);
         return mv;
     }
 
