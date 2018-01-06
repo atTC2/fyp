@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
@@ -30,13 +30,13 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
  * @author tbc452
  *
  */
-@Component
+@Service
 public class PaperProcessor {
 
     private static final Logger log = LogManager.getLogger(PaperProcessor.class);
     private static final Long paperFailStatus = Long.valueOf(-1);
     @Value("${nlp.objectpath}")
-    private static String nlpObjectPath;
+    private String nlpObjectPath;
     @Autowired
     private PaperRepository paperRepo;
     @Autowired
@@ -103,7 +103,7 @@ public class PaperProcessor {
      *            The object to save
      * @throws IOException
      */
-    public static void saveNlpObj(String label, Object obj) throws IOException {
+    public void saveNlpObj(String label, Object obj) throws IOException {
         // Get rid of the old file if it's there
         File objFile = getFileFromLabel(label);
         if (objFile.exists()) {
@@ -123,7 +123,7 @@ public class PaperProcessor {
      *            The label identifying the NLP object
      * @return Whether it is found on disk and loading can be attempted
      */
-    public static boolean checkIfCanLoadNlpObj(String label) {
+    public boolean checkIfCanLoadNlpObj(String label) {
         return getFileFromLabel(label).exists();
     }
 
@@ -134,7 +134,7 @@ public class PaperProcessor {
      *            The label of the object to load
      * @return The NLP Object to be saved, or null if it couldn't be found or loaded
      */
-    public static NlpProcessor loadNlpObj(String label) {
+    public NlpProcessor loadNlpObj(String label) {
         File objFile = getFileFromLabel(label);
 
         // Check it exists
@@ -161,7 +161,7 @@ public class PaperProcessor {
      *            The label of the NLP object
      * @return The full path name
      */
-    private static File getFileFromLabel(String label) {
+    private File getFileFromLabel(String label) {
         return new File(nlpObjectPath + label + ".ser");
     }
 
@@ -172,7 +172,7 @@ public class PaperProcessor {
      *            The object to convert back
      * @return The Paper object loaded from the database
      */
-    public static Paper loadPaper(PaperDAO paperFromDb) {
+    public Paper loadPaper(PaperDAO paperFromDb) {
         if (paperFromDb != null) {
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream(paperFromDb.getParse());

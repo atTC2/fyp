@@ -51,37 +51,40 @@
 					</c:otherwise>
 				</c:choose>
 
-				<div class="jumbotron">
-					<h1>${paper.title}</h1>
-					<h2>${paper.author}</h2>
-					<p>
-						<a href="/view/download?paper=${paper.id}" class="btn btn-primary">Download
-							Paper</a> <a href="/view/extractions?paper=${paper.id}"
-							class="btn btn-primary">Download Extractions</a>
-					</p>
-				</div>
-				<div>
-					<blockquote>
-						<p>${paper.text}</p>
-					</blockquote>
-				</div>
-				<c:if test="${not empty paper.kps}">
-					<div>
-						<table class="table table-striped table-hover">
-							<thead>
-								<tr>
-									<th>Key Phrases</th>
-								</tr>
-							</thead>
-							<tbody>
-								<c:forEach items="${paper.kps}" var="kp">
-									<tr>
-										<td><strong>${kp}</strong></td>
-									</tr>
-								</c:forEach>
-							</tbody>
-						</table>
+				<c:if test="${not empty paper.text}">
+					<div class="jumbotron">
+						<h1>${paper.title}</h1>
+						<h2>${paper.author}</h2>
+						<p>
+							<a href="/view/download?paper=${paper.id}"
+								class="btn btn-primary">Download Paper</a> <a
+								href="/view/extractions?paper=${paper.id}"
+								class="btn btn-primary">Download Extractions</a>
+						</p>
 					</div>
+					<div>
+						<blockquote>
+							<p>${paper.text}</p>
+						</blockquote>
+					</div>
+					<c:if test="${not empty paper.kps}">
+						<div>
+							<table class="table table-striped table-hover">
+								<thead>
+									<tr>
+										<th>Key Phrases</th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:forEach items="${paper.kps}" var="kp">
+										<tr>
+											<td><strong>${kp}</strong></td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</div>
+					</c:if>
 				</c:if>
 			</c:when>
 			<c:otherwise>

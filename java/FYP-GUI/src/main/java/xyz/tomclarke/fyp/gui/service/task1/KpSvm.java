@@ -33,6 +33,8 @@ public class KpSvm implements NlpProcessor {
     private static final Logger log = LogManager.getLogger(KpSvm.class);
     private static final String KP_SVM = "KP_EXTRACTION_SVM";
     @Autowired
+    private PaperProcessor pp;
+    @Autowired
     private KeyPhraseRepository kpRepo;
     private Word2Vec vec;
     private KeyPhraseSVM svm;
@@ -42,7 +44,7 @@ public class KpSvm implements NlpProcessor {
         vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
 
         // Try and load the SVM
-        svm = (KeyPhraseSVM) PaperProcessor.loadNlpObj(KP_SVM);
+        svm = (KeyPhraseSVM) pp.loadNlpObj(KP_SVM);
 
         if (svm == null) {
             // Need to build the SVM and save it
@@ -50,13 +52,13 @@ public class KpSvm implements NlpProcessor {
             svm = new KeyPhraseSVM();
             svm.generateTrainingData(trainingPapers, null, vec);
             svm.train();
-            PaperProcessor.saveNlpObj(KP_SVM, svm);
+            pp.saveNlpObj(KP_SVM, svm);
         }
     }
 
     @Override
     public boolean processPaper(PaperDAO paper) {
-        Paper paperForNlp = PaperProcessor.loadPaper(paper);
+        Paper paperForNlp = pp.loadPaper(paper);
         if (paperForNlp != null) {
             // Do some processing
             List<KeyPhrase> phrases = svm.predictKeyPhrases(paperForNlp, vec);

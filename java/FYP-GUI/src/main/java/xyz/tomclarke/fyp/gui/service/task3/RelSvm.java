@@ -48,6 +48,8 @@ public class RelSvm implements NlpProcessor {
     private static final String REL_SVM_HYP = "REL_SVM_HYP";
     private static final String REL_SVM_SYN = "REL_SVM_SYN";
     @Autowired
+    private PaperProcessor pp;
+    @Autowired
     private KeyPhraseRepository kpRepo;
     @Autowired
     private HyponymRepository hypRepo;
@@ -58,8 +60,8 @@ public class RelSvm implements NlpProcessor {
 
     @Override
     public void loadObjects() throws Exception {
-        boolean hypAvailable = PaperProcessor.checkIfCanLoadNlpObj(REL_SVM_HYP);
-        boolean synAvailable = PaperProcessor.checkIfCanLoadNlpObj(REL_SVM_SYN);
+        boolean hypAvailable = pp.checkIfCanLoadNlpObj(REL_SVM_HYP);
+        boolean synAvailable = pp.checkIfCanLoadNlpObj(REL_SVM_SYN);
 
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
@@ -84,14 +86,14 @@ public class RelSvm implements NlpProcessor {
 
             if (!hypAvailable) {
                 hyp.train();
-                PaperProcessor.saveNlpObj(REL_SVM_HYP, hyp);
+                pp.saveNlpObj(REL_SVM_HYP, hyp);
             }
             hyp = null;
             System.gc();
 
             if (!synAvailable) {
                 syn.train();
-                PaperProcessor.saveNlpObj(REL_SVM_SYN, syn);
+                pp.saveNlpObj(REL_SVM_SYN, syn);
             }
         }
     }
@@ -101,15 +103,15 @@ public class RelSvm implements NlpProcessor {
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         Annotator ann = new Annotator();
         // Load the paper
-        Paper paperFromDb = PaperProcessor.loadPaper(paper);
+        Paper paperFromDb = pp.loadPaper(paper);
 
         // One SVM at a time, find the relations
-        RelationshipSVM hyp = (RelationshipSVM) PaperProcessor.loadNlpObj(REL_SVM_HYP);
+        RelationshipSVM hyp = (RelationshipSVM) pp.loadNlpObj(REL_SVM_HYP);
         List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, vec, ann);
         hyp = null;
         System.gc();
 
-        RelationshipSVM syn = (RelationshipSVM) PaperProcessor.loadNlpObj(REL_SVM_SYN);
+        RelationshipSVM syn = (RelationshipSVM) pp.loadNlpObj(REL_SVM_SYN);
         List<Relationship> synRels = syn.predictRelationships(paperFromDb, vec, ann);
         hyp = null;
         System.gc();

@@ -63,6 +63,9 @@ public class Search {
             SearchResult result = new SearchResult();
             result.setId(paper.getId());
             result.setPaper(paper.getTitle());
+            if (paper.getTitle() == null || paper.getTitle().trim().isEmpty()) {
+                result.setPaper(paper.getLocation());
+            }
             result.setKps(kpRepo.countByPaper(paper));
             results.add(result);
         }
