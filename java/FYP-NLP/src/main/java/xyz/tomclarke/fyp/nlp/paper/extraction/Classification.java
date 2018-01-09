@@ -1,8 +1,5 @@
 package xyz.tomclarke.fyp.nlp.paper.extraction;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * Represents the possible types of key phrases
  * 
@@ -13,7 +10,6 @@ public enum Classification {
 
     UNKNOWN("Unknown"), PROCESS("Process"), TASK("Task"), MATERIAL("Material");
 
-    private static final Logger log = LogManager.getLogger(Classification.class);
     private String description;
 
     private Classification(String description) {
@@ -42,8 +38,6 @@ public enum Classification {
         } else if (description.equals(UNKNOWN.description)) {
             return UNKNOWN;
         }
-
-        log.warn("Could not load Classification: " + description);
         return UNKNOWN;
     }
 }

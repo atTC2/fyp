@@ -124,8 +124,10 @@ public class RelSvm implements NlpProcessor {
 
         // Hyponyms
         List<HyponymDAO> hypsToSave = new ArrayList<HyponymDAO>();
-        for (Relationship rel : hypRels) {
+        for (int i = 0; i < hypRels.size(); i++) {
+            Relationship rel = hypRels.get(i);
             HyponymDAO hypDb = new HyponymDAO();
+            hypDb.setRelativeId(Long.valueOf(i + 1));
             hypDb.setKp1(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[0].getId())));
             hypDb.setKp2(kpRepo.findByPaperAndRelativeId(paper, Long.valueOf(rel.getPhrases()[1].getId())));
             hypsToSave.add(hypDb);

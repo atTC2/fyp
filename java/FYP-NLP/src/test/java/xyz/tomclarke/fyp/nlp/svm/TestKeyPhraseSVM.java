@@ -146,6 +146,7 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         testSvmPredictKeyPhrases(Word2VecPretrained.FREEBASE_NAMES);
     }
 
+    @Ignore
     @Test
     public void testSvmPredictKeyPhrasesFI() throws Exception {
         testSvmPredictKeyPhrases(Word2VecPretrained.FREEBASE_IDS);

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.dao.SynonymDAO;
 import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
 import xyz.tomclarke.fyp.gui.model.PaperView;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 
 /**
  * Allows viewing and actions on a paper
@@ -85,6 +87,8 @@ public class View {
             for (KeyPhraseDAO kp : kps) {
                 kpStrings.add(kp.getText());
                 kpClazzs.add(kp.getClassification());
+                // Draw the key phrase on the text
+                view.setText(decoratePaper(view.getText(), kp));
             }
             view.setKps(kpStrings);
             view.setKpClazzs(kpClazzs);
@@ -100,6 +104,54 @@ public class View {
 
         mv.addObject("paper", view);
         return mv;
+    }
+
+    /**
+     * Draws the key phrases onto the text sent to the user
+     * 
+     * @param text
+     *            The original text (to be modified)
+     * @param kp
+     *            The key phrase object
+     * @return The decorated original text
+     */
+    private String decoratePaper(String text, KeyPhraseDAO kp) {
+        final String placeholder = "!!!PLACEHOLDER!!!";
+        text = text.replaceAll(Pattern.quote(kp.getText()), placeholder);
+
+        // Do it for every instance of the key phrase
+        int placeholderIndex;
+        while ((placeholderIndex = text.indexOf(placeholder)) > -1) {
+            String before, segment, after;
+
+            before = text.substring(0, placeholderIndex);
+            if (text.length() > placeholderIndex + placeholder.length()) {
+                // KP is not the end of the document
+                after = text.substring(placeholderIndex + placeholder.length());
+            } else {
+                // KP is at end of document
+                after = "";
+            }
+
+            Classification clazz = Classification.getClazz(kp.getClassification());
+            switch (clazz) {
+            case MATERIAL:
+                segment = "<span class=\"label label-success\">" + kp.getText() + "</span>";
+                break;
+            case PROCESS:
+                segment = "<span class=\"label label-warning\">" + kp.getText() + "</span>";
+                break;
+            case TASK:
+                segment = "<span class=\"label label-info\">" + kp.getText() + "</span>";
+                break;
+            default:
+                segment = "<span class=\"label label-primary\">" + kp.getText() + "</span>";
+            }
+
+            text = before + segment + after;
+        }
+
+        return text;
     }
 
     @RequestMapping(value = "/download", method = RequestMethod.GET)
@@ -173,14 +225,14 @@ public class View {
             Long currentId = 0L;
             for (SynonymDAO syn : syns) {
                 // If a new ID, write info and clear data
-                if (currentId != syn.getId() && !synToSend.isEmpty()) {
+                if (currentId != syn.getSynLink().getId() && !synToSend.isEmpty()) {
                     out.println(synToSend);
                     synToSend = "";
                 }
 
                 if (synToSend.isEmpty()) {
                     synToSend = syn.toString();
-                    currentId = syn.getId();
+                    currentId = syn.getSynLink().getId();
                 } else {
                     synToSend += " T" + syn.getKp().getRelativeId();
                 }

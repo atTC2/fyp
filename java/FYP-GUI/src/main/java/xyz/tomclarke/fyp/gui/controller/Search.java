@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import xyz.tomclarke.fyp.gui.dao.HyponymRepository;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
+import xyz.tomclarke.fyp.gui.dao.SynLinkRepository;
 import xyz.tomclarke.fyp.gui.model.SearchQuery;
 import xyz.tomclarke.fyp.gui.model.SearchResult;
 
@@ -33,10 +35,10 @@ public class Search {
     private PaperRepository paperRepo;
     @Autowired
     private KeyPhraseRepository kpRepo;
-    // @Autowired
-    // private HyponymRepository hypRepo;
-    // @Autowired
-    // private SynonymRepository synRepo;
+    @Autowired
+    private HyponymRepository hypRepo;
+    @Autowired
+    private SynLinkRepository synLinkRepo;
 
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView index() {
@@ -55,7 +57,7 @@ public class Search {
             return mv;
         }
 
-        // Do actual search at some point
+        // TODO Do actual search at some point
 
         Iterable<PaperDAO> papers = paperRepo.findAll();
         List<SearchResult> results = new ArrayList<SearchResult>();
@@ -67,6 +69,7 @@ public class Search {
                 result.setPaper(paper.getLocation());
             }
             result.setKps(kpRepo.countByPaper(paper));
+            result.setRels(hypRepo.countByPaper(paper) + synLinkRepo.countByPaper(paper));
             results.add(result);
         }
         mv.addObject("results", results);

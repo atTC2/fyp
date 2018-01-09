@@ -17,6 +17,8 @@ public class HyponymDAO {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
+    @Column(name = "relative_id")
+    private Long relativeId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "kp1")
     private KeyPhraseDAO kp1;
@@ -26,7 +28,7 @@ public class HyponymDAO {
 
     @Override
     public String toString() {
-        return "R" + id + "\tHyponym-of Arg1:T" + kp1.getRelativeId() + " Arg2:T" + kp2.getRelativeId();
+        return "R" + relativeId + "\tHyponym-of Arg1:T" + kp1.getRelativeId() + " Arg2:T" + kp2.getRelativeId();
     }
 
     public Long getId() {
@@ -35,6 +37,14 @@ public class HyponymDAO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getRelativeId() {
+        return relativeId;
+    }
+
+    public void setRelativeId(Long relativeId) {
+        this.relativeId = relativeId;
     }
 
     public KeyPhraseDAO getKp1() {

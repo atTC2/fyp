@@ -99,7 +99,7 @@
 						<th>ID</th>
 						<th>Paper Title</th>
 						<th>KPs</th>
-						<!-- <th>Rels</th> -->
+						<th>Rels</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -109,7 +109,7 @@
 							<td>${result.id}</td>
 							<td><strong>${result.paper}</strong></td>
 							<td>${result.kps}</td>
-							<!-- <td><span class="label label-info">${result.rels}</span></td> -->
+							<td>${result.rels}</td>
 						</tr>
 					</c:forEach>
 				</tbody>
