@@ -54,13 +54,10 @@ public class PaperProcessor {
     private RelSvm task3;
     private Word2Vec vec;
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 60000)
     public void processWaitingPapers() throws Exception {
-        loadVec();
-
-        // TODO If this runs out of memory, try having the methods returning a boolean
-        // saying if it had work to do and if it did, skip the other steps for now and
-        // hopefully when it next runs the memory will have clearer
+        // Call each of the tasks (including pre-processing) with their corresponding
+        // status ID
         processWaitingPapers(0, task0);
         processWaitingPapers(1, task1);
         processWaitingPapers(2, task2);
@@ -89,6 +86,9 @@ public class PaperProcessor {
     private void processWaitingPapers(long status, NlpProcessor nlp) throws Exception {
         List<PaperDAO> papers = paperRepo.findByStatus(status);
         if (!papers.isEmpty()) {
+            // Only bother loading this if we actually need it
+            loadVec();
+
             log.info("Processing " + papers.size() + " papers with " + nlp.getClass().getName());
             // Ensure the required components are loaded
             nlp.loadObjects();

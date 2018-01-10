@@ -45,7 +45,6 @@ public abstract class Paper implements Serializable {
     protected static final String SER_FILE_EXT = ".ser";
     protected static final String ANN_FILE_EXT = ".ann";
 
-    private final boolean canAttemptAnnRead;
     private final String location;
     private final String serLocation;
     private String text;
@@ -56,7 +55,6 @@ public abstract class Paper implements Serializable {
     private String author;
 
     public Paper(String location, boolean canAttemptAnnRead) {
-        this.canAttemptAnnRead = canAttemptAnnRead;
         this.location = location;
         extractions = new ArrayList<Extraction>();
         tokenCounts = new HashMap<String, Integer>();
@@ -197,21 +195,19 @@ public abstract class Paper implements Serializable {
      * Saves the object to disk (if in ann mode)
      */
     private void save() {
-        if (canAttemptAnnRead) {
-            try {
-                // Get rid of the old file if it's there
-                File oldSer = new File(serLocation);
-                if (oldSer.exists()) {
-                    oldSer.delete();
-                }
-
-                // Write new serialisation
-                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serLocation));
-                oos.writeObject(this);
-                oos.close();
-            } catch (IOException e) {
-                log.error("Error writing serialisation", e);
+        try {
+            // Get rid of the old file if it's there
+            File oldSer = new File(serLocation);
+            if (oldSer.exists()) {
+                oldSer.delete();
             }
+
+            // Write new serialisation
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serLocation));
+            oos.writeObject(this);
+            oos.close();
+        } catch (IOException e) {
+            log.error("Error writing serialisation", e);
         }
     }
 

@@ -32,7 +32,7 @@ public class PDFPaper extends Paper {
                 setText(textStripper.getText(pdd));
                 pdd.close();
 
-                setTitle(pdf.getName());
+                setTitle(pdf.getName().replace(".pdf", ""));
             } catch (IOException e) {
                 log.error("Problem loading PDF document", e);
             }

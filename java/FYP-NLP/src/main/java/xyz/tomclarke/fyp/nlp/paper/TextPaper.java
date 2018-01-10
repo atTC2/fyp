@@ -27,7 +27,7 @@ public class TextPaper extends Paper {
             try {
                 setText(new String(Files.readAllBytes(Paths.get(textLocation))));
                 File file = new File(textLocation);
-                setTitle(file.getName());
+                setTitle(file.getName().replace(".txt", ""));
             } catch (IOException e) {
                 log.error("Problem loading text document", e);
             }

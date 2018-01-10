@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -84,11 +84,14 @@ public class View {
             List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
             List<String> kpStrings = new ArrayList<String>();
             List<String> kpClazzs = new ArrayList<String>();
+            int offset = 0;
             for (KeyPhraseDAO kp : kps) {
                 kpStrings.add(kp.getText());
                 kpClazzs.add(kp.getClassification());
                 // Draw the key phrase on the text
-                view.setText(decoratePaper(view.getText(), kp));
+                Pair<String, Integer> dec = decoratePaper(view.getText(), kp, offset);
+                view.setText(dec.getFirst());
+                offset = dec.getSecond();
             }
             view.setKps(kpStrings);
             view.setKpClazzs(kpClazzs);
@@ -113,45 +116,51 @@ public class View {
      *            The original text (to be modified)
      * @param kp
      *            The key phrase object
+     * @param offset
+     *            The offset from the original text caused by other text decorations
      * @return The decorated original text
      */
-    private String decoratePaper(String text, KeyPhraseDAO kp) {
-        final String placeholder = "!!!PLACEHOLDER!!!";
-        text = text.replaceAll(Pattern.quote(kp.getText()), placeholder);
+    private Pair<String, Integer> decoratePaper(String text, KeyPhraseDAO kp, int offset) {
+        final String labelMaterial = "<span class=\"label label-success\">";
+        final String labelProcess = "<span class=\"label label-warning\">";
+        final String labelTask = "<span class=\"label label-info\">";
+        final String labelDefault = "<span class=\"label label-primary\">";
+        final String labelEnd = "</span>";
 
         // Do it for every instance of the key phrase
-        int placeholderIndex;
-        while ((placeholderIndex = text.indexOf(placeholder)) > -1) {
-            String before, segment, after;
+        String before, segment, after;
 
-            before = text.substring(0, placeholderIndex);
-            if (text.length() > placeholderIndex + placeholder.length()) {
-                // KP is not the end of the document
-                after = text.substring(placeholderIndex + placeholder.length());
-            } else {
-                // KP is at end of document
-                after = "";
-            }
-
-            Classification clazz = Classification.getClazz(kp.getClassification());
-            switch (clazz) {
-            case MATERIAL:
-                segment = "<span class=\"label label-success\">" + kp.getText() + "</span>";
-                break;
-            case PROCESS:
-                segment = "<span class=\"label label-warning\">" + kp.getText() + "</span>";
-                break;
-            case TASK:
-                segment = "<span class=\"label label-info\">" + kp.getText() + "</span>";
-                break;
-            default:
-                segment = "<span class=\"label label-primary\">" + kp.getText() + "</span>";
-            }
-
-            text = before + segment + after;
+        before = text.substring(0, kp.getStart() + offset);
+        if (kp.getEnd() + offset < text.length()) {
+            // KP is not the end of the document
+            after = text.substring(kp.getEnd() + offset);
+        } else {
+            // KP is at end of document
+            after = "";
         }
 
-        return text;
+        Classification clazz = Classification.getClazz(kp.getClassification());
+        switch (clazz) {
+        case MATERIAL:
+            segment = labelMaterial + kp.getText() + labelEnd;
+            offset += labelMaterial.length() + labelEnd.length();
+            break;
+        case PROCESS:
+            segment = labelProcess + kp.getText() + labelEnd;
+            offset += labelProcess.length() + labelEnd.length();
+            break;
+        case TASK:
+            segment = labelTask + kp.getText() + labelEnd;
+            offset += labelTask.length() + labelEnd.length();
+            break;
+        default:
+            segment = labelDefault + kp.getText() + labelEnd;
+            offset += labelDefault.length() + labelEnd.length();
+        }
+
+        text = before + segment + after;
+
+        return Pair.of(text, offset);
     }
 
     @RequestMapping(value = "/download", method = RequestMethod.GET)
