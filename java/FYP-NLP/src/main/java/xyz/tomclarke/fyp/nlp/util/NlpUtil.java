@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.preprocessing.LoadPapers;
 import xyz.tomclarke.fyp.nlp.preprocessing.PreProcessor;
 
@@ -110,11 +111,16 @@ public abstract class NlpUtil {
      * @return The calculates TF-IDF score of the word
      */
     public static double calculateTfIdf(String word, Paper containingPaper, List<Paper> trainingPapers) {
+        if (!containingPaper.getTokenCounts().containsKey(word.toLowerCase())) {
+            // Can't handle this as its split differently
+            log.debug("TF-IDF calculator can't find word in paper " + word);
+            return 1;
+        }
         double tf = (double) containingPaper.getTokenCounts().get(word.toLowerCase())
                 / (double) containingPaper.getTokenCounts().values().stream().reduce(0, Integer::sum);
         int numOfPapersWithTerm = 0;
         for (Paper paperIdf : trainingPapers) {
-            if (paperIdf.getTokenCounts().containsKey(word)) {
+            if (paperIdf.getTokenCounts().containsKey(word.toLowerCase())) {
                 numOfPapersWithTerm++;
             }
         }
@@ -130,6 +136,35 @@ public abstract class NlpUtil {
 
         double idf = Math.log(documentCount / (double) numOfPapersWithTerm);
         return tf * idf;
+    }
+
+    /**
+     * Processes key phrases and removes low TF-IDF phrases (threshold = 0.02) which
+     * removes some of the noise caused by KP generation
+     * 
+     * @param kps
+     *            The key phrase list to process
+     * @param paper
+     *            The paper the key phrases are from
+     * @param trainingPapers
+     *            The training papers used
+     */
+    public static void removeLowTfIdfKPs(List<KeyPhrase> kps, Paper paper, List<Paper> trainingPapers) {
+        List<KeyPhrase> phrasesToRemove = new ArrayList<KeyPhrase>();
+        for (KeyPhrase kp : kps) {
+            String[] parts = kp.getPhrase().replaceAll("[^a-zA-Z0-9 ]", "").split(" ");
+            double tfIdf = 0;
+            for (String part : parts) {
+                tfIdf += NlpUtil.calculateTfIdf(part, paper, trainingPapers);
+            }
+            if (tfIdf < 0.02) {
+                phrasesToRemove.add(kp);
+            }
+        }
+
+        // Get rid of rubbish ones
+        log.debug("Removing " + phrasesToRemove.size() + " KPs");
+        kps.removeAll(phrasesToRemove);
     }
 
 }

@@ -277,6 +277,10 @@ public class KeyPhraseSVM extends BaseSvm {
             }
         }
 
+        // Sanitisation!
+        // Get rid of rubbish KPs
+        NlpUtil.removeLowTfIdfKPs(phrases, paper, trainingPapers);
+
         return phrases;
     }
 

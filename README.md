@@ -40,7 +40,23 @@ Overall statistics (inc): Accuracy: 0.88922933 Precision: 0.78783593 Recall: 0.5
 Overall statistics (str): Accuracy: 0.83886618 Precision: 0.31666667 Recall: 0.20721477 F1: 0.25050710
 ```
 
-Wiki2Vec wouldn't work...
+### SVM - with Word2Vec and TF-IDF filter (threshold = 0.02)
+Using Google News:
+
+```
+Overall statistics (gen): Accuracy: 0.91219922 Precision: 0.87105060 Recall: 0.76065500 F1: 0.81211831
+Overall statistics (inc): Accuracy: 0.88728406 Precision: 0.79970972 Recall: 0.67940814 F1: 0.73466667
+Overall statistics (str): Accuracy: 0.79908785 Precision: 0.22053232 Recall: 0.17507546 F1: 0.19519231
+```
+
+Using Freebase:
+
+```
+Overall statistics (gen): Accuracy: 0.91808821 Precision: 0.90629897 Recall: 0.68988550 F1: 0.78342137
+Overall statistics (inc): Accuracy: 0.89572081 Precision: 0.82576322 Recall: 0.59020756 F1: 0.68839230
+Overall statistics (str): Accuracy: 0.84636354 Precision: 0.34739803 Recall: 0.20721477 F1: 0.25959012
+```
+
 ### Task 2
 #### SVM 
 
