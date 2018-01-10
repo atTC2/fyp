@@ -46,9 +46,12 @@ public final class W2VClassifier {
         distMatl /= (double) foundWords;
 
         if (foundWords == 0) {
-            return Classification.UNKNOWN;
+            // From analysis, for now just return Material as it is most likely to be a
+            // material
+            return Classification.MATERIAL;
         }
 
+        // Largest number means closest
         double max = Math.max(distTask, Math.max(distProc, distMatl));
         if (max == distTask) {
             return Classification.TASK;
@@ -59,7 +62,7 @@ public final class W2VClassifier {
         } else {
             // Shouldn't get here
             log.error("Found max which wasn't in valid numbers");
-            return Classification.UNKNOWN;
+            return Classification.MATERIAL;
         }
     }
 
@@ -77,13 +80,22 @@ public final class W2VClassifier {
         double distTask = 0;
         double distProc = 0;
         double distMatl = 0;
+        boolean foundOneWord = false;
 
         for (String token : tokens) {
             if (vec.hasWord(token)) {
+                foundOneWord = true;
+                // Larger number = closer
                 distTask = Math.max(distTask, vec.similarity(token, "task"));
                 distProc = Math.max(distProc, vec.similarity(token, "process"));
                 distMatl = Math.max(distMatl, vec.similarity(token, "material"));
             }
+        }
+
+        if (!foundOneWord) {
+            // From analysis, for now just return Material as it is most likely to be a
+            // material
+            return Classification.MATERIAL;
         }
 
         double max = Math.max(distTask, Math.max(distProc, distMatl));
@@ -97,7 +109,7 @@ public final class W2VClassifier {
         } else {
             // Shouldn't get here
             log.error("Found max which wasn't in valid numbers");
-            return Classification.UNKNOWN;
+            return Classification.MATERIAL;
         }
     }
 

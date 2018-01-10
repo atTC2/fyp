@@ -83,12 +83,25 @@ Overall statistics: Accuracy: 0.47904483 Precision: 0.47904483 Recall: 1.0000000
 Specific results were: tp: 983.0 fp: 1069.0 tn: 0.0 fn: 0.0
 ```
 
+When if a key phrase cannot be classified, the default is `Material`:
+
+```
+Overall statistics: Accuracy: 0.54580897 Precision: 0.54580897 Recall: 1.00000000 F1: 0.70617907
+Specific results were: tp: 1120.0 fp: 932.0 tn: 0.0 fn: 0.0
+```
+
 #### W2V Classifier - based on closest distance from tokens to class
 Using Google News:
 
 ```
 Overall statistics: Accuracy: 0.46198830 Precision: 0.46198830 Recall: 1.00000000 F1: 0.63200000
 Specific results were: tp: 948.0 fp: 1104.0 tn: 0.0 fn: 0.0
+```
+
+When if a key phrase cannot be classified, the default is `Material`:
+
+```
+Specific results were: tp: 1085.0 fp: 967.0 tn: 0.0 fn: 0.0
 ```
 
 ### Task 3
