@@ -8,12 +8,38 @@ Taking on the [ScienceIE](https://scienceie.github.io/) task.
 * Maven 3
 * For Word2Vec, some [pretrained models](https://github.com/3Top/word2vec-api) (download `Google News`, `Freebase IDs`, `Freebase Names` and `DBPedia vectors (wiki2vec)`).
 
-### What to run
-* Firstly, cd to the root of the Java code (`cd java/FYP/`)
-* The system can be built by running `./build.sh`.
-* To run tests, execute `./test.sh <test class name>`. Test classes can be found under `java/FYP/src/test/java`.
+### Running the system
+The 2 Java projects under the `java` directory are `FYP-NLP`, which includes all NLP code, and `FYP-GUI`, which includes the GUI code making the project usable as a service. Scripts are provided for convenience:
 
-## Results (as of 18.12.2017)
+| Java Project | Script | Description |
+|--------------|--------------------------|---------------------------------------------------------------------------------------------------------|
+| FYP-NLP | `./build.sh` | Compiles the system, without running any tests. |
+| FYP-NLP | `./install.sh` | Compiles the system, without running any tests, and installs the project to the local Maven repository. |
+| FYP-NLP | `./test.sh <test class>` | Compiles the system and runs the JUnit test class given. |
+| FYP-GUI | `./build.sh` | Compiles the GUI and runs all JUnit tests. |
+| FYP-GUI | `./run.sh` | Compiles the GUI, without running any tests, and launches the GUI. |
+
+## Current Status
+
+In terms of NLP...
+* For Task 1, the existing SVM is not doing bad, at least as far as my own evaluation is concerned. I believe the ScienceIE scripts to be scoring lower than I am calculating as I think they include matching the exact boundaries rather than just matching phrases, but clearly some more work is needed. The plan for future SVM development is to use the parse trees of sentences, to a) try to make key phrases that are actually phrases (and not just a string of tokens that the system deems to be key phrases) and b) to use some of this information as support vectors to further help the boundary and key phrase identification. Clustering was atempted (using Word2Vec to help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
+* For Task 2, the existing method of using Word2Vec with a simple averaging algorithm seems fairly effective (over 50% of classification on gold data is correct). The current SVM attempt is awful compared. It may be interesting to try a CRF on it and a gazetteer (trained off of existing data and WordNet potentially).
+* For Task 3, the existing SVM using Word2Vec is not very good at all. A limited number of words appear in WordNet meaning that may not be a way to work on this task either. A rule engine is expensive to build and probably unachievable, although potentially dynamic searching of Wikipedia/Freebase (resources used by the best solution at SemEval 2017) may be a good solution to at least produce some good output).
+
+In terms of making the system into a product...
+* A GUI has been constructed, allowing submission and automatic analysis of papers (although currently the paper already has to be on the local system to work, web extraction needs to be worked on).
+* Bootstrap makes it look quite nice!
+* Papers can be viewed (with key phrases drawn on) and annotations downloaded. A way to view hyponyms and synonyms needs to be implemented, although with the current relation extraction system in place there isn't much to view yet anyway.
+* The search page shows papers well, and while the search boxes are there and the back end receives anything submitted, the search information is not actually used yet and all papers in the database are shown. PageRank should be researched and implemented, but this should be a short process given PageRank isn't outside the taught syllabus at UoB.
+* Being able to search by task/process/material is enough to reach my initial goals of the GUI, but it may be nice to expand it further to something more interesting.
+
+## Road Map
+
+Compared to my initial time table plan, I am still on time. I gave myself until the end of January for NLP development (with no product/GUI development up until that point) and then February to build the GUI and complete all NLP and GUI testing ready for the demo at the start of March.
+
+I think that plan is still valid and sensible. The focus now is to implement the suggestions above for the NLP by the end of January as planned and complete searching in GUI either along side or into the first week of so of February. The main write up should begin around the start of February (hence all NLP should be done in January) allowing time to complete it to draft status for around the demonstration. Given the other studies I am completing at the moment and I keep to my schedule, this should resolve in a good solution being produced very soon.
+
+## Results (as of 12/01/2018)
 ### Task 1
 #### SVM
 
@@ -120,3 +146,51 @@ Using Google News:
 Overall statistics: Accuracy: 0.99507961 Precision: 0.06666667 Recall: 0.00966184 F1: 0.01687764
 Specific results were: tp: 2.0 fp: 28.0 tn: 47119.0 fn: 205.0
 ```
+
+### ScienceIE Scripts
+Evaluating the annotation data supplied by ScienceIE with the ScienceIE scripts produces these results:
+
+```
+tom@tom-redline:~/FYP/testing$ python eval.py gold predicted rel
+           precision   recall f1-score  support
+
+    Process     0.06     0.04     0.05      954
+   Material     0.05     0.06     0.06      904
+       Task     0.02     0.01     0.01      193
+
+avg / total     0.05     0.05     0.05     2051
+
+
+tom@tom-redline:~/FYP/testing$ python eval.py gold predicted types
+           precision   recall f1-score  support
+
+KEYPHRASE-NOTYPES     0.09     0.08     0.08     2051
+
+avg / total     0.09     0.08     0.08     2051
+
+
+tom@tom-redline:~/FYP/testing$ python eval.py gold predicted keys
+/usr/local/lib/python2.7/dist-packages/sklearn/metrics/classification.py:1135: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+           precision   recall f1-score  support
+
+ Hyponym-of     0.00     0.00     0.00       95
+ Synonym-of     0.00     0.00     0.00      112
+
+avg / total     0.00     0.00     0.00      207
+
+
+tom@tom-redline:~/FYP/testing$ python eval.py gold predicted
+/usr/local/lib/python2.7/dist-packages/sklearn/metrics/classification.py:1135: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+           precision   recall f1-score  support
+
+    Process     0.06     0.04     0.05      954
+   Material     0.05     0.06     0.06      904
+       Task     0.02     0.01     0.01      193
+ Synonym-of     0.00     0.00     0.00      112
+ Hyponym-of     0.00     0.00     0.00       95
+
+avg / total     0.05     0.04     0.05     2258
+```
+

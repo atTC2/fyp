@@ -98,8 +98,7 @@
 					<tr>
 						<th>ID</th>
 						<th>Paper Title</th>
-						<th>KPs</th>
-						<th>Rels</th>
+						<th>KPs / Rels</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -107,9 +106,12 @@
 						<tr class="clickable-row" style="cursor: pointer;"
 							data-href="view?paper=${result.id}">
 							<td>${result.id}</td>
-							<td><strong>${result.paper}</strong></td>
-							<td>${result.kps}</td>
-							<td>${result.rels}</td>
+							<td><strong>${result.paper}</strong><a class="pull-right"
+								href="/view/download?paper=${result.id}"><span
+									class="glyphicon glyphicon-download"></span></a></td>
+							<td>${result.kps}&nbsp;/&nbsp;${result.rels}<a
+								class="pull-right" href="/view/extractions?paper=${result.id}"><span
+									class="glyphicon glyphicon-download"></span></a></td>
 						</tr>
 					</c:forEach>
 				</tbody>

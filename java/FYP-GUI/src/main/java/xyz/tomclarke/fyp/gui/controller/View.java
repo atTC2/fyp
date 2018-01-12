@@ -3,10 +3,10 @@ package xyz.tomclarke.fyp.gui.controller;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
@@ -217,9 +217,10 @@ public class View {
 
         // Send information
         response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + paper.getTitle() + ".ann\"");
 
-        ServletOutputStream out = response.getOutputStream();
+        PrintWriter out = response.getWriter();
 
         for (KeyPhraseDAO kp : kps) {
             out.println(kp.toString());
