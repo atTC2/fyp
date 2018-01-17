@@ -212,26 +212,6 @@ public abstract class Paper implements Serializable {
     }
 
     /**
-     * Gets the sentence containing a given token
-     * 
-     * @param targetToken
-     *            The token to find the parent sentence of
-     * @return The parent sentence.
-     */
-    public CoreMap getSentenceWithToken(CoreLabel targetToken) {
-        for (CoreMap sentence : annotations) {
-            for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
-                if (token == targetToken) {
-                    return sentence;
-                }
-            }
-        }
-
-        // Could not find a parent sentence.
-        return null;
-    }
-
-    /**
      * Gets the text of a paper
      * 
      * @return The text of the paper

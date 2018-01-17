@@ -21,6 +21,7 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
+import xyz.tomclarke.fyp.nlp.util.Tuple;
 
 /**
  * Uses libsvm to analyse text and extract key phrases
@@ -34,7 +35,7 @@ public class KeyPhraseSVM extends BaseSvm {
 
     private static final Logger log = LogManager.getLogger(KeyPhraseSVM.class);
 
-    private static final int numOfSVs = 11;
+    private static final int numOfSVs = 12;
 
     // Used when constructing SVs
     private List<Paper> trainingPapers;
@@ -99,11 +100,7 @@ public class KeyPhraseSVM extends BaseSvm {
                     // type
                     double keyPhrase = paper.isTokenPartOfKeyPhrase(token, clazz) ? 1.0 : 0.0;
 
-                    svm_node[] nodes = generateSupportVectors(token, paper, previousWordKeyPhrase, vec);
-
-                    log.debug(String.format("%f 1:%.8f 2:%f 3:%.8f 4:%.8f 5:%f 6:%f 7:%f 8:%.8f", keyPhrase,
-                            nodes[0].value, nodes[1].value, nodes[2].value, nodes[3].value, nodes[4].value,
-                            nodes[5].value, nodes[6].value, nodes[7].value));
+                    svm_node[] nodes = generateSupportVectors(token, sentence, paper, previousWordKeyPhrase, vec);
 
                     // Add the information
                     problem.y[index] = keyPhrase;
@@ -123,6 +120,8 @@ public class KeyPhraseSVM extends BaseSvm {
      * 
      * @param token
      *            The token to generate SVs for
+     * @param sentence
+     *            The sentence the token is in
      * @param paper
      *            The paper (the token is from)
      * @param previousWordKeyPhrase
@@ -131,8 +130,8 @@ public class KeyPhraseSVM extends BaseSvm {
      *            The Word2Vec instance to use
      * @return The array of generated SVs
      */
-    public svm_node[] generateSupportVectors(CoreLabel token, Paper paper, boolean previousWordKeyPhrase,
-            Word2Vec vec) {
+    public svm_node[] generateSupportVectors(CoreLabel token, CoreMap sentence, Paper paper,
+            boolean previousWordKeyPhrase, Word2Vec vec) {
         String word = token.get(TextAnnotation.class).toLowerCase();
 
         // Length (1)
@@ -164,12 +163,11 @@ public class KeyPhraseSVM extends BaseSvm {
         // In first (5) or last (6) sentence?
         int inFirstSentence = 0;
         int inLastSentence = 0;
-        CoreMap sentenceFL = paper.getSentenceWithToken(token);
         // TODO consider if this is right (a key word could be in the middle of the text
         // and at the start/end...)
-        if (paper.getAnnotations().get(0) == sentenceFL) {
+        if (paper.getAnnotations().get(0) == sentence) {
             inFirstSentence = 1;
-        } else if (paper.getAnnotations().get(paper.getAnnotations().size() - 1) == sentenceFL) {
+        } else if (paper.getAnnotations().get(paper.getAnnotations().size() - 1) == sentence) {
             inLastSentence = 1;
         }
         svm_node svFS = makeNewNode(5, inFirstSentence);
@@ -177,7 +175,6 @@ public class KeyPhraseSVM extends BaseSvm {
         // Was the previous word a key phrase (7)
         svm_node svLWKP = makeNewNode(7, previousWordKeyPhrase ? 1.0 : 0.0);
         // Depth in sentence
-        CoreMap sentence = paper.getSentenceWithToken(token);
         svm_node svDepthSentence = makeNewNode(8, (double) sentence.get(TokensAnnotation.class).indexOf(token)
                 / (double) sentence.get(TokensAnnotation.class).size());
         // Similarity to task
@@ -186,6 +183,11 @@ public class KeyPhraseSVM extends BaseSvm {
         svm_node svProcess = makeNewNode(10, vec.similarity(word, "process"));
         // Similarity to material
         svm_node svMaterial = makeNewNode(11, vec.similarity(word, "material"));
+        // Parse Tree Depth - try and pick out similar depth things. Depth is depth /
+        // max sentence depth
+        int tokenParseDepth = NlpUtil.calculateTokenParseDepth(token, sentence);
+        int sentenceParseDepth = NlpUtil.calculateSentenceParseDepth(sentence);
+        svm_node svParseTreeDepth = makeNewNode(12, (double) tokenParseDepth / (double) sentenceParseDepth);
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -200,6 +202,7 @@ public class KeyPhraseSVM extends BaseSvm {
         nodes[8] = svTask;
         nodes[9] = svProcess;
         nodes[10] = svMaterial;
+        nodes[11] = svParseTreeDepth;
         return nodes;
     }
 
@@ -240,7 +243,7 @@ public class KeyPhraseSVM extends BaseSvm {
             for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
 
-                svm_node[] nodes = generateSupportVectors(token, paper, previousWordKP, vec);
+                svm_node[] nodes = generateSupportVectors(token, sentence, paper, previousWordKP, vec);
                 boolean isPredictedKeyPhrase = predict(nodes);
 
                 // Get the position
@@ -283,5 +286,87 @@ public class KeyPhraseSVM extends BaseSvm {
 
         return phrases;
     }
+
+    /**
+     * Predicts key phrases for a paper, using depth informal to only allow complete
+     * phrases
+     * 
+     * WIP
+     * 
+     * @param paper
+     *            The paper to predict papers for
+     * @param vec
+     *            The Word2Vec instance to use
+     * @return The key phrases found
+     */
+    /*
+     * public List<KeyPhrase> predictKeyPhrasesBasedOnDepth(Paper paper, Word2Vec
+     * vec) { List<KeyPhrase> phrases = new ArrayList<KeyPhrase>();
+     * 
+     * // For when building a new KP List<Tuple<CoreLabel, Integer>> tokensForKp =
+     * new ArrayList<Tuple<CoreLabel, Integer>>();
+     * 
+     * // So key phrases can be created, ensure to keep a count as we go for
+     * (CoreMap sentence : paper.getAnnotations()) { for (CoreLabel token :
+     * sentence.get(TokensAnnotation.class)) { svm_node[] nodes =
+     * generateSupportVectors(token, sentence, paper, !tokensForKp.isEmpty(), vec);
+     * boolean isPredictedKeyPhrase = predict(nodes);
+     * 
+     * // If is a key phrase and previous is not, make sure they next loop knows
+     * this // is a key phrase if (isPredictedKeyPhrase) { tokensForKp.add( new
+     * Tuple<CoreLabel, Integer>(token, NlpUtil.calculateTokenParseDepth(token,
+     * sentence))); }
+     * 
+     * // Is not a key phrase, but it has just finished a key phrase area, save
+     * this. if (!isPredictedKeyPhrase && !tokensForKp.isEmpty()) { int kpStart = 0;
+     * int kpEnd = 0; // Track if we have gone up at all (deeper) or are currently
+     * going shallower // If direction changes, we may have 2 different key phrases
+     * // I'd hope this shouldn't happen, so for now just debug // TODO check logs
+     * boolean decreasing = false; int minDepth = tokensForKp.get(0).getValue(); for
+     * (Tuple<CoreLabel, Integer> tp : tokensForKp) { if (minDepth < tp.getValue())
+     * { minDepth = tp.getValue(); decreasing = true; } else if (decreasing) {
+     * log.warn("KP SVM Extraction: Change in direction"); decreasing = false; } }
+     * // Any should do... String sentenceWords =
+     * sentence.get(TextAnnotation.class); for (Tuple<CoreLabel, Integer> tp :
+     * tokensForKp) { if (minDepth == tp.getValue()) { String word =
+     * token.get(TextAnnotation.class).toLowerCase(); // Figure out boundaries //
+     * Firstly, get the tree for that part String lowestTree = null;
+     * 
+     * // Then extract the tree from the sentence int wordPos =
+     * NlpUtil.findTokenInstanceInSentence(token, sentence); String[]
+     * lowestTreeParts = lowestTree.replaceAll("\\([A-Z]* |\\) |\\)",
+     * " ").split(" "); // Loop to extract the start of the phrase String
+     * sentencePart = sentenceWords.toLowerCase(); for (int i = wordPos; i > 0; i++)
+     * { sentencePart = sentencePart.substring(sentenceWords.indexOf(word)); }
+     * kpStart = sentenceWords.toLowerCase().indexOf(sentencePart); // Now find the
+     * end of the phrase
+     * 
+     * String fullPhrase = "foundstring";
+     * 
+     * // Then find that in the body of the text. // Avoid wrong indexes by finding
+     * the sentence first (making sure we can) if
+     * (paper.getText().contains(sentenceWords) &&
+     * sentenceWords.contains(fullPhrase)) { int posSentenceInPaper =
+     * paper.getText().indexOf(sentenceWords); int posInSentence =
+     * sentenceWords.indexOf(fullPhrase);
+     * 
+     * kpStart = posSentenceInPaper + posInSentence; kpEnd = posSentenceInPaper +
+     * posInSentence + fullPhrase.length(); } else { log.error(
+     * "Could not make key phrase '" + fullPhrase + "' in paper " +
+     * paper.toString()); }
+     * 
+     * break; } }
+     * 
+     * try { // Add key phrase // Classification is either the one the SVm was
+     * trained with, or UNKNOWN phrases.add( paper.makeKeyPhrase(kpStart, kpEnd,
+     * clazz == null ? Classification.UNKNOWN : clazz)); } catch (Exception e) { //
+     * Making a new key phrase went wrong somehow... log.error(e.getMessage()); }
+     * tokensForKp.clear(); } } // Clear saved KP info tokensForKp.clear(); }
+     * 
+     * // Sanitisation! // Get rid of rubbish KPs NlpUtil.removeLowTfIdfKPs(phrases,
+     * paper, trainingPapers);
+     * 
+     * return phrases; }
+     */
 
 }

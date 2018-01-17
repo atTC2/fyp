@@ -10,6 +10,12 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
+import edu.stanford.nlp.util.CoreMap;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.preprocessing.LoadPapers;
@@ -165,6 +171,213 @@ public abstract class NlpUtil {
         // Get rid of rubbish ones
         log.debug("Removing " + phrasesToRemove.size() + " KPs");
         kps.removeAll(phrasesToRemove);
+    }
+
+    /**
+     * Finds the instance of a token in a sentence
+     * 
+     * @param token
+     *            The token
+     * @param sentence
+     *            The sentence containing the token
+     * @return It's position
+     */
+    public static int findTokenInstanceInSentence(CoreLabel token, CoreMap sentence) {
+        String word = token.get(TextAnnotation.class).toLowerCase();
+        int instanceInSentence = 0;
+        for (CoreLabel t : sentence.get(TokensAnnotation.class)) {
+            token.get(TextAnnotation.class).toLowerCase();
+            if (t == token) {
+                break;
+            } else if (t.get(TextAnnotation.class).toLowerCase().equals(word)) {
+                instanceInSentence++;
+            }
+        }
+        return instanceInSentence;
+    }
+
+    /**
+     * Calculates the depth of a token
+     * 
+     * @param token
+     *            The token to find the depth of
+     * @param sentence
+     *            The sentence the token is from
+     * @return The depth of the token in the sentence's parse tree
+     */
+    public static Integer calculateTokenParseDepth(CoreLabel token, CoreMap sentence) {
+        // First, find out the token depth
+        int instanceInSentence = findTokenInstanceInSentence(token, sentence);
+
+        String word = token.get(TextAnnotation.class).toLowerCase();
+        Tree tree = sentence.get(TreeAnnotation.class);
+        for (Tree subTree : tree.getChildrenAsList()) {
+            if (subTree.isLeaf()) {
+                return checkLeaf(word, subTree, 1, instanceInSentence);
+            } else {
+                Integer subCalculation = calculateTokenParseDepth(word, subTree, 1, instanceInSentence);
+                if (subCalculation != null) {
+                    return subCalculation;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Helper for calculating token parse depth
+     * 
+     * @param token
+     *            The token to find the depth of
+     * @param tree
+     *            The current tree to examine
+     * @param depth
+     *            The current depth traversed to
+     * @param instanceInSentence
+     *            The instance of the word in the sentence
+     * @return The depth, or null if it cannot be found, or the subtractions (value
+     *         < 0) made to the instanceInSentence
+     */
+    private static Integer calculateTokenParseDepth(String token, Tree tree, int depth, int instanceInSentence) {
+        int subtractionsMade = 0;
+        for (Tree subTree : tree.getChildrenAsList()) {
+            // subTree.pennString(); // (NP (DT The) (NN research) (NN work))
+            if (subTree.isLeaf()) {
+                return checkLeaf(token, subTree, depth, instanceInSentence);
+            } else {
+                Integer subCalculation = calculateTokenParseDepth(token, subTree, depth + 1, instanceInSentence);
+                if (subCalculation != null) {
+                    if (subCalculation < 0) {
+                        // Take one off the instance counter and carry on looping
+                        instanceInSentence += subCalculation;
+                        subtractionsMade += subCalculation;
+                    } else {
+                        // We found it! Return it!
+                        return subCalculation;
+                    }
+                }
+            }
+        }
+
+        // Return either the subtractions made (so return value is < 0) or null as
+        // nothing to report
+        if (subtractionsMade != 0) {
+            return subtractionsMade;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Checks a leaf to see if it is a match and the correct match to a token
+     * 
+     * @param token
+     *            The token
+     * @param tree
+     *            The tree the token is in
+     * @param depth
+     *            The current depth of this leaf
+     * @param instanceInSentence
+     *            The instance counter of the phrsae in the sentence
+     * @return The depth, or null if it cannot be found, or the subtractions (value
+     *         < 0) made to the instanceInSentence
+     */
+    private static Integer checkLeaf(String token, Tree tree, int depth, int instanceInSentence) {
+        if (tree.nodeString().equalsIgnoreCase(token)) {
+            if (instanceInSentence > 0) {
+                // We've found a copy of the token
+                return -1;
+            } else {
+                // Otherwise we have found the one we're looking for!
+                return depth;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Calculates the maximum depth of a sentence's parse tree
+     * 
+     * @param sentence
+     *            The sentence the token is from
+     * @return The depth of the token in the sentence's parse tree
+     */
+    public static int calculateSentenceParseDepth(CoreMap sentence) {
+        Tree tree = sentence.get(TreeAnnotation.class);
+
+        for (Tree subTree : tree.getChildrenAsList()) {
+            if (subTree.isLeaf()) {
+                return 1;
+            } else {
+                int subCalculation = calculateSentenceParseDepth(subTree, 1);
+                return subCalculation;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Helper for calculating sentence parse depth
+     * 
+     * @param tree
+     *            The current tree to examine
+     * @param depth
+     *            The current depth traversed to
+     * @return The depth, or null if it cannot be found
+     */
+    private static Integer calculateSentenceParseDepth(Tree tree, int depth) {
+        for (Tree subTree : tree.getChildrenAsList()) {
+            if (subTree.isLeaf()) {
+                return depth + 1;
+            } else {
+                return calculateSentenceParseDepth(subTree, depth + 1);
+            }
+        }
+        return depth;
+    }
+
+    /**
+     * Finds the words at the given depth
+     * 
+     * @param depth
+     *            The depth to find the tokens of
+     * @param sentence
+     *            The sentence the token is from
+     * @return A list of tokens at the target depth
+     */
+    public static List<String> findWordsAtParseDepth(int depth, CoreMap sentence) {
+        return findWordsAtParseDepth(depth, 0, sentence.get(TreeAnnotation.class));
+    }
+
+    /**
+     * Helper to finds the words at the given depth
+     * 
+     * @param depth
+     *            The depth to find the tokens of
+     * @param currentDepth
+     *            The current depth of traversal
+     * @param tree
+     *            The tree to traverse
+     * @return A list of tokens at the target depth
+     */
+    private static List<String> findWordsAtParseDepth(int depth, int currentDepth, Tree tree) {
+        List<String> words = new ArrayList<String>();
+
+        for (Tree subTree : tree.getChildrenAsList()) {
+            // If at depth, return leafs
+            if (depth - 1 == currentDepth) {
+                if (subTree.isLeaf()) {
+                    words.add(subTree.nodeString());
+                }
+            } else {
+                words.addAll(findWordsAtParseDepth(depth, currentDepth + 1, subTree));
+            }
+        }
+
+        return words;
     }
 
 }

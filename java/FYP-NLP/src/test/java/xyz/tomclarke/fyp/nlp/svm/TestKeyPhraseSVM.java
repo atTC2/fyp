@@ -104,7 +104,8 @@ public class TestKeyPhraseSVM extends TestOnPapers {
                     double keyPhrase = paper.isTokenPartOfKeyPhrase(token) ? 1.0 : 0.0;
 
                     // SV Nodes (question)
-                    svm_node[] nodes = svmGeneral.generateSupportVectors(token, paper, previousWordKeyPhrase, vec);
+                    svm_node[] nodes = svmGeneral.generateSupportVectors(token, sentence, paper, previousWordKeyPhrase,
+                            vec);
 
                     // Ask the question and compare the answer to the expected answer
                     boolean isPredictedKeyPhrase = svmGeneral.predict(nodes);
