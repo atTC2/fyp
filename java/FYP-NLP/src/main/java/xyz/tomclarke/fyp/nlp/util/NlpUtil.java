@@ -27,10 +27,14 @@ import xyz.tomclarke.fyp.nlp.preprocessing.PreProcessor;
  * @author tbc452
  *
  */
-public abstract class NlpUtil {
+public final class NlpUtil {
 
     private static final Logger log = LogManager.getLogger(NlpUtil.class);
     private static List<String> ignoreList;
+
+    private NlpUtil() {
+        // Nothing to do here
+    }
 
     /**
      * Decides if it is a token to ignore

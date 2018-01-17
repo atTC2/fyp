@@ -16,6 +16,15 @@ public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> 
     List<KeyPhraseDAO> findByPaper(PaperDAO paper);
 
     /**
+     * Finds key phrases with a given classification
+     * 
+     * @param classification
+     *            The classification to find
+     * @return A list of key phrases with the given classification
+     */
+    List<KeyPhraseDAO> findByClassification(String classification);
+
+    /**
      * Selects a single key phrase row by paper and relative ID
      * 
      * @param paper
@@ -34,5 +43,14 @@ public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> 
      * @return The number of key phrases for the given paper
      */
     Long countByPaper(PaperDAO paper);
+
+    /**
+     * Counts the number of key phrases with the given classification
+     * 
+     * @param classification
+     *            The classification to filter by
+     * @return The number of key phrases with the given classification
+     */
+    Long countByClassification(String classification);
 
 }

@@ -52,16 +52,16 @@
 				</c:choose>
 
 				<c:if test="${not empty paper.text}">
-					<div class="jumbotron">
-						<h2>${paper.title}</h2>
+					<div class="page-header">
+						<h1>${paper.title}</h1>
 						<h3>${paper.author}</h3>
-						<p>
-							<a href="/view/download?paper=${paper.id}"
-								class="btn btn-primary">Download Paper</a> <a
-								href="/view/extractions?paper=${paper.id}"
-								class="btn btn-primary">Download Extractions</a>
-						</p>
+
 					</div>
+					<p>
+						<a href="/view/download?paper=${paper.id}" class="btn btn-primary">Download
+							Paper</a> <a href="/view/extractions?paper=${paper.id}"
+							class="btn btn-primary">Download Extractions</a>
+					</p>
 					<div>
 						<blockquote>
 							<p>${paper.text}</p>

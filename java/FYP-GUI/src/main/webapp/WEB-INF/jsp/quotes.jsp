@@ -12,7 +12,7 @@
 </head>
 <body>
 	<jsp:include page="navbar.jsp">
-		<jsp:param name="active" value="search" />
+		<jsp:param name="active" value="blank" />
 	</jsp:include>
 
 	<div class="container">

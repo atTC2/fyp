@@ -41,7 +41,8 @@ public class Error implements ErrorController {
         Map<String, Object> errorInfo = errorAttributes.getErrorAttributes(requestAttributes, debug);
         mv.addAllObjects(errorInfo);
         mv.addObject("debug", debug);
-        log.error("Spring error: " + errorInfo.get("status") + " - " + errorInfo.get("message"));
+        log.error("Spring error: " + errorInfo.get("status") + " for " + request.getRequestURL().toString() + "?"
+                + request.getQueryString() + " - " + errorInfo.get("message"));
         return mv;
     }
 

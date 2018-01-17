@@ -10,6 +10,7 @@ import xyz.tomclarke.fyp.gui.dao.HyponymRepository;
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.dao.SynLinkRepository;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 
 /**
  * Acts as the home page for the GUI
@@ -37,6 +38,9 @@ public class Home {
         mv.addObject("countKP", kp.count());
         mv.addObject("countHyp", hyp.count());
         mv.addObject("countSyn", syn.count());
+        mv.addObject("countTask", kp.countByClassification(Classification.TASK.toString()));
+        mv.addObject("countProcess", kp.countByClassification(Classification.PROCESS.toString()));
+        mv.addObject("countMaterial", kp.countByClassification(Classification.MATERIAL.toString()));
         return mv;
     }
 
