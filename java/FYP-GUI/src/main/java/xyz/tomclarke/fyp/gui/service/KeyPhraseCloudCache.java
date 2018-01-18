@@ -9,10 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import xyz.tomclarke.fyp.gui.dao.KeyPhraseDAO;
@@ -50,7 +51,7 @@ public class KeyPhraseCloudCache {
      * 
      * @throws Exception
      */
-    @Scheduled(fixedDelay = 1800000)
+    @PostConstruct
     public void updateCache() {
         log.info("Updating KP cloud cache");
         trainingPapers = LoadPapers

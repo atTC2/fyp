@@ -29,14 +29,14 @@ public enum Classification {
      * @return The found classification type
      */
     public static Classification getClazz(String description) {
-        if (description.equals(PROCESS.description)) {
+        if (description == null) {
+            return UNKNOWN;
+        } else if (description.equals(PROCESS.description)) {
             return PROCESS;
         } else if (description.equals(TASK.description)) {
             return TASK;
         } else if (description.equals(MATERIAL.description)) {
             return MATERIAL;
-        } else if (description.equals(UNKNOWN.description)) {
-            return UNKNOWN;
         }
         return UNKNOWN;
     }

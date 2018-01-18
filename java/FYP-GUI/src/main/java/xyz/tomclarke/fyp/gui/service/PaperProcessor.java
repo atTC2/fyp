@@ -43,6 +43,8 @@ public class PaperProcessor {
     @Value("${nlp.objectpath}")
     private String nlpObjectPath;
     @Autowired
+    private KeyPhraseCloudCache cloudCache;
+    @Autowired
     private PaperRepository paperRepo;
     @Autowired
     private PreProcessor task0;
@@ -85,6 +87,8 @@ public class PaperProcessor {
      */
     private void processWaitingPapers(long status, NlpProcessor nlp) throws Exception {
         List<PaperDAO> papers = paperRepo.findByStatus(status);
+        // Be ready to update the cache systems if anything actually happens
+        boolean oneSuccessfullyProcessed = false;
         if (!papers.isEmpty()) {
             // Only bother loading this if we actually need it
             loadVec();
@@ -97,6 +101,7 @@ public class PaperProcessor {
                 try {
                     if (nlp.processPaper(paper)) {
                         paper.setStatus(status + 1);
+                        oneSuccessfullyProcessed = true;
                     } else {
                         paper.setStatus(Long.valueOf(paperFailStatus));
                     }
@@ -112,6 +117,11 @@ public class PaperProcessor {
             // Unload components to help with memory
             nlp.unload();
             log.info("Finished processing " + papers.size() + " papers with " + nlp.getClass().getName());
+
+        }
+        // Update cache systems
+        if (oneSuccessfullyProcessed) {
+            cloudCache.updateCache();
         }
     }
 
