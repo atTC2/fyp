@@ -19,8 +19,8 @@ public class TextPaper extends Paper {
     private static final long serialVersionUID = 1673335959412177249L;
     private static final Logger log = LogManager.getLogger(Paper.class);
 
-    public TextPaper(String textLocation, boolean canAttemptAnnRead) {
-        super(textLocation, canAttemptAnnRead);
+    public TextPaper(String textLocation, boolean canAttemptAnnRead, boolean saveUpdatedToDisk) {
+        super(textLocation, canAttemptAnnRead, saveUpdatedToDisk);
 
         // Text may have been loaded in.
         if (getText() == null) {

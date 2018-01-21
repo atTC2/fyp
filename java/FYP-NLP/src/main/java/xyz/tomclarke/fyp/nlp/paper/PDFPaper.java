@@ -19,8 +19,8 @@ public class PDFPaper extends Paper {
     private static final long serialVersionUID = 3727602886028917271L;
     private static final Logger log = LogManager.getLogger(PDFPaper.class);
 
-    public PDFPaper(String fileLocation) {
-        super(fileLocation, false);
+    public PDFPaper(String fileLocation, boolean saveUpdatedToDisk) {
+        super(fileLocation, false, saveUpdatedToDisk);
 
         // Text may have been loaded in.
         if (getText() == null) {

@@ -24,6 +24,7 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
 import xyz.tomclarke.fyp.nlp.svm.RelationshipSVM;
+import xyz.tomclarke.fyp.nlp.util.NlpObjectStore;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -58,8 +59,8 @@ public class RelSvm implements NlpProcessor {
 
     @Override
     public void loadObjects() throws Exception {
-        boolean hypAvailable = pp.checkIfCanLoadNlpObj(REL_SVM_HYP);
-        boolean synAvailable = pp.checkIfCanLoadNlpObj(REL_SVM_SYN);
+        boolean hypAvailable = NlpObjectStore.checkIfCanLoadNlpObj(REL_SVM_HYP);
+        boolean synAvailable = NlpObjectStore.checkIfCanLoadNlpObj(REL_SVM_SYN);
 
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
@@ -83,14 +84,14 @@ public class RelSvm implements NlpProcessor {
 
             if (!hypAvailable) {
                 hyp.train();
-                pp.saveNlpObj(REL_SVM_HYP, hyp);
+                NlpObjectStore.saveNlpObj(REL_SVM_HYP, hyp);
             }
             hyp = null;
             System.gc();
 
             if (!synAvailable) {
                 syn.train();
-                pp.saveNlpObj(REL_SVM_SYN, syn);
+                NlpObjectStore.saveNlpObj(REL_SVM_SYN, syn);
             }
         }
     }
@@ -109,13 +110,13 @@ public class RelSvm implements NlpProcessor {
 
         // One SVM at a time, find the relations
         log.info("Hyp extraction");
-        RelationshipSVM hyp = (RelationshipSVM) pp.loadNlpObj(REL_SVM_HYP);
+        RelationshipSVM hyp = (RelationshipSVM) NlpObjectStore.loadNlpObj(REL_SVM_HYP);
         List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, pp.getVec(), ann);
         hyp = null;
         System.gc();
 
         log.info("Syn extraction");
-        RelationshipSVM syn = (RelationshipSVM) pp.loadNlpObj(REL_SVM_SYN);
+        RelationshipSVM syn = (RelationshipSVM) NlpObjectStore.loadNlpObj(REL_SVM_SYN);
         List<Relationship> synRels = syn.predictRelationships(paperFromDb, pp.getVec(), ann);
         syn = null;
         System.gc();

@@ -41,7 +41,7 @@ public class TestSerialisation {
 
     @Test
     public void TestMakeSerFile() {
-        Paper paper = new TextPaper(testFileName, true);
+        Paper paper = new TextPaper(testFileName, true, true);
 
         // A file should have been made now...
         Assert.assertTrue(new File(testFileName + Paper.SER_FILE_EXT).exists());
@@ -50,13 +50,13 @@ public class TestSerialisation {
     @Test
     public void TestSerFileReadIn() {
         // First create a file, then read it back in
-        Paper paper = new TextPaper(testFileName, true);
+        Paper paper = new TextPaper(testFileName, true, true);
 
         // A file should have been made now...
         Assert.assertTrue(new File(testFileName + Paper.SER_FILE_EXT).exists());
 
         // Now create a new object and it should have the same text...
-        Paper paperLoaded = new TextPaper(testFileName, true);
+        Paper paperLoaded = new TextPaper(testFileName, true, true);
         // Should load it in straight away
         Assert.assertEquals(paperLoaded.getText(), sampleText);
     }
@@ -64,26 +64,26 @@ public class TestSerialisation {
     @Test
     public void TestSerFileMultipleWrites() {
         // First create a file, then read it back in
-        Paper paper = new TextPaper(testFileName, true);
+        Paper paper = new TextPaper(testFileName, true, true);
 
         // A file should have been made now...
         Assert.assertTrue(new File(testFileName + Paper.SER_FILE_EXT).exists());
 
         // Now create a new object and it should have the same text...
-        Paper paperLoaded = new TextPaper(testFileName, true);
+        Paper paperLoaded = new TextPaper(testFileName, true, true);
         // Should load it in straight away
         Assert.assertEquals(paperLoaded.getText(), sampleText);
 
         // Now change the text, save it, try loading it again
         paper.setText(sampleText + sampleText);
-        paperLoaded = new TextPaper(testFileName, true);
+        paperLoaded = new TextPaper(testFileName, true, true);
         Assert.assertEquals(paperLoaded.getText(), sampleText + sampleText);
     }
 
     @Test
     public void TestReadInNotOverwrite() throws IOException {
         // First create a file, then read it back in
-        Paper paper = new TextPaper(testFileName, true);
+        Paper paper = new TextPaper(testFileName, true, true);
 
         // A file should have been made now...
         Assert.assertTrue(new File(testFileName + Paper.SER_FILE_EXT).exists());
@@ -95,7 +95,7 @@ public class TestSerialisation {
         writer.close();
 
         // Now create a new object and it should have the same text...
-        Paper paperLoaded = new TextPaper(testFileName, true);
+        Paper paperLoaded = new TextPaper(testFileName, true, true);
         // Should load it in and NOT change the text
         Assert.assertEquals(paperLoaded.getText(), sampleText);
     }

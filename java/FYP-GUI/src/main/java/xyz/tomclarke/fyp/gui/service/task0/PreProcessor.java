@@ -40,7 +40,7 @@ public class PreProcessor implements NlpProcessor {
 
     @Override
     public boolean processPaper(PaperDAO paper) throws Exception {
-        List<Paper> papers = LoadPapers.loadNewPapers(paper.getLocation(), false);
+        List<Paper> papers = LoadPapers.loadNewPapers(paper.getLocation(), false, false);
         log.info("Setting up paper, ID " + paper.getId());
 
         // Check each case

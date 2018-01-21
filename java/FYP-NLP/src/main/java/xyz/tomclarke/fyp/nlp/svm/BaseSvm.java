@@ -74,7 +74,6 @@ public abstract class BaseSvm implements Serializable {
      */
     public boolean predict(svm_node[] nodes) {
         double prediction = svm.svm_predict(model, nodes);
-        log.debug("Prediction: " + prediction);
         return prediction > 0.0;
     }
 

@@ -1,7 +1,6 @@
 package xyz.tomclarke.fyp.gui.service;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -54,8 +53,13 @@ public class KeyPhraseCloudCache {
     @PostConstruct
     public void updateCache() {
         log.info("Updating KP cloud cache");
-        trainingPapers = LoadPapers
-                .loadNewPapers(new File(LoadPapers.class.getClassLoader().getResource("papers.txt").getFile()), false);
+        // Ensure we have the training papers
+        if (trainingPapers == null) {
+            // Need to ensure they're annotated
+            trainingPapers = NlpUtil.loadAndAnnotatePapers(LoadPapers.class, false);
+        }
+
+        // Get key phrase information from DB
         List<KeyPhraseDAO> taskKps = kpRepo.findByClassification(Classification.TASK.toString());
         List<KeyPhraseDAO> processKps = kpRepo.findByClassification(Classification.PROCESS.toString());
         List<KeyPhraseDAO> materialKps = kpRepo.findByClassification(Classification.MATERIAL.toString());

@@ -17,6 +17,7 @@ import xyz.tomclarke.fyp.gui.service.PaperProcessor;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.svm.KeyPhraseSVM;
+import xyz.tomclarke.fyp.nlp.util.NlpObjectStore;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -39,7 +40,7 @@ public class KpSvm implements NlpProcessor {
     @Override
     public void loadObjects() throws Exception {
         // Try and load the SVM
-        svm = (KeyPhraseSVM) pp.loadNlpObj(KP_SVM);
+        svm = (KeyPhraseSVM) NlpObjectStore.loadNlpObj(KP_SVM);
 
         if (svm == null) {
             // Need to build the SVM and save it
@@ -47,7 +48,7 @@ public class KpSvm implements NlpProcessor {
             svm = new KeyPhraseSVM();
             svm.generateTrainingData(trainingPapers, null, pp.getVec());
             svm.train();
-            pp.saveNlpObj(KP_SVM, svm);
+            NlpObjectStore.saveNlpObj(KP_SVM, svm);
         }
     }
 

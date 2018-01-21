@@ -72,7 +72,7 @@ public final class NlpUtil {
      */
     public static <T> List<Paper> loadAndAnnotatePapers(Class<T> clazz, boolean canAttemptAnnRead) {
         return annotatePapers(LoadPapers.loadNewPapers(
-                new File(clazz.getClassLoader().getResource("papers.txt").getFile()), canAttemptAnnRead));
+                new File(clazz.getClassLoader().getResource("papers.txt").getFile()), canAttemptAnnRead, true));
     }
 
     /**
@@ -85,7 +85,7 @@ public final class NlpUtil {
      */
     public static <T> List<Paper> loadAndAnnotateTestPapers(Class<T> clazz) {
         return annotatePapers(LoadPapers
-                .loadNewPapers(new File(clazz.getClassLoader().getResource("papers_test.txt").getFile()), true));
+                .loadNewPapers(new File(clazz.getClassLoader().getResource("papers_test.txt").getFile()), true, true));
     }
 
     /**
@@ -341,47 +341,6 @@ public final class NlpUtil {
             }
         }
         return depth;
-    }
-
-    /**
-     * Finds the words at the given depth
-     * 
-     * @param depth
-     *            The depth to find the tokens of
-     * @param sentence
-     *            The sentence the token is from
-     * @return A list of tokens at the target depth
-     */
-    public static List<String> findWordsAtParseDepth(int depth, CoreMap sentence) {
-        return findWordsAtParseDepth(depth, 0, sentence.get(TreeAnnotation.class));
-    }
-
-    /**
-     * Helper to finds the words at the given depth
-     * 
-     * @param depth
-     *            The depth to find the tokens of
-     * @param currentDepth
-     *            The current depth of traversal
-     * @param tree
-     *            The tree to traverse
-     * @return A list of tokens at the target depth
-     */
-    private static List<String> findWordsAtParseDepth(int depth, int currentDepth, Tree tree) {
-        List<String> words = new ArrayList<String>();
-
-        for (Tree subTree : tree.getChildrenAsList()) {
-            // If at depth, return leafs
-            if (depth - 1 == currentDepth) {
-                if (subTree.isLeaf()) {
-                    words.add(subTree.nodeString());
-                }
-            } else {
-                words.addAll(findWordsAtParseDepth(depth, currentDepth + 1, subTree));
-            }
-        }
-
-        return words;
     }
 
 }

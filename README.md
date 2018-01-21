@@ -66,7 +66,7 @@ Overall statistics (inc): Accuracy: 0.88922933 Precision: 0.78783593 Recall: 0.5
 Overall statistics (str): Accuracy: 0.83886618 Precision: 0.31666667 Recall: 0.20721477 F1: 0.25050710
 ```
 
-### SVM - with Word2Vec and TF-IDF filter (threshold = 0.02)
+### SVM - as above with TF-IDF filter (threshold = 0.02)
 Using Google News:
 
 ```
@@ -81,6 +81,28 @@ Using Freebase:
 Overall statistics (gen): Accuracy: 0.91808821 Precision: 0.90629897 Recall: 0.68988550 F1: 0.78342137
 Overall statistics (inc): Accuracy: 0.89572081 Precision: 0.82576322 Recall: 0.59020756 F1: 0.68839230
 Overall statistics (str): Accuracy: 0.84636354 Precision: 0.34739803 Recall: 0.20721477 F1: 0.25959012
+```
+
+### SVM - as above with relative sentence parse depth
+
+Using Google News:
+
+```
+Overall statistics (gen): Accuracy: 0.91136351 Precision: 0.87198007 Recall: 0.77114537 F1: 0.81846873
+Overall statistics (inc): Accuracy: 0.88463994 Precision: 0.79621668 Recall: 0.68508015 F1: 0.73647932
+Overall statistics (str): Accuracy: 0.79383915 Precision: 0.23368421 Recall: 0.18966254 F1: 0.20938458
+Overall statistics (rls): Accuracy: 0.78771437 Precision: 0.09939394 Recall: 0.07877041 F1: 0.08788853
+Boundary statistics: Accuracy: 0.67848835 Precision: 0.44310719 Recall: 0.53591336 F1: 0.48511150
+```
+
+Using Freebase:
+
+```
+Overall statistics (gen): Accuracy: 0.91592032 Precision: 0.91006233 Recall: 0.71103896 F1: 0.79833355
+Overall statistics (inc): Accuracy: 0.89296974 Precision: 0.83458378 Recall: 0.61344538 F1: 0.70712880
+Overall statistics (str): Accuracy: 0.83577832 Precision: 0.36969697 Recall: 0.22555464 F1: 0.28017351
+Overall statistics (rls): Accuracy: 0.82919604 Precision: 0.16151203 Recall: 0.08973747 F1: 0.11537281
+Boundary statistics: Accuracy: 0.71281884 Precision: 0.48996445 Recall: 0.39410830 F1: 0.43683975
 ```
 
 ### Task 2
@@ -154,9 +176,9 @@ Evaluating the annotation data supplied by ScienceIE with the ScienceIE scripts 
 tom@tom-redline:~/FYP/testing$ python eval.py gold predicted rel
            precision   recall f1-score  support
 
-    Process     0.06     0.04     0.05      954
-   Material     0.05     0.06     0.06      904
-       Task     0.02     0.01     0.01      193
+    Process     0.05     0.04     0.05      954
+   Material     0.05     0.07     0.06      904
+       Task     0.03     0.02     0.02      193
 
 avg / total     0.05     0.05     0.05     2051
 
@@ -164,9 +186,9 @@ avg / total     0.05     0.05     0.05     2051
 tom@tom-redline:~/FYP/testing$ python eval.py gold predicted types
            precision   recall f1-score  support
 
-KEYPHRASE-NOTYPES     0.09     0.08     0.08     2051
+KEYPHRASE-NOTYPES     0.09     0.09     0.09     2051
 
-avg / total     0.09     0.08     0.08     2051
+avg / total     0.09     0.09     0.09     2051
 
 
 tom@tom-redline:~/FYP/testing$ python eval.py gold predicted keys
@@ -185,12 +207,12 @@ tom@tom-redline:~/FYP/testing$ python eval.py gold predicted
   'precision', 'predicted', average, warn_for)
            precision   recall f1-score  support
 
-    Process     0.06     0.04     0.05      954
-   Material     0.05     0.06     0.06      904
-       Task     0.02     0.01     0.01      193
+    Process     0.05     0.04     0.05      954
+   Material     0.05     0.07     0.06      904
+       Task     0.03     0.02     0.02      193
  Synonym-of     0.00     0.00     0.00      112
  Hyponym-of     0.00     0.00     0.00       95
 
-avg / total     0.05     0.04     0.05     2258
+avg / total     0.05     0.05     0.05     2258
 ```
 

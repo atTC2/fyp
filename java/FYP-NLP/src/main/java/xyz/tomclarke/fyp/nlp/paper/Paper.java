@@ -47,6 +47,7 @@ public abstract class Paper implements Serializable {
 
     private final String location;
     private final String serLocation;
+    private final boolean saveUpdatedToDisk;
     private String text;
     private List<CoreMap> annotations;
     private List<Extraction> extractions;
@@ -54,8 +55,9 @@ public abstract class Paper implements Serializable {
     private String title;
     private String author;
 
-    public Paper(String location, boolean canAttemptAnnRead) {
+    public Paper(String location, boolean canAttemptAnnRead, boolean saveUpdatedToDisk) {
         this.location = location;
+        this.saveUpdatedToDisk = saveUpdatedToDisk;
         extractions = new ArrayList<Extraction>();
         tokenCounts = new HashMap<String, Integer>();
 
@@ -195,19 +197,21 @@ public abstract class Paper implements Serializable {
      * Saves the object to disk (if in ann mode)
      */
     private void save() {
-        try {
-            // Get rid of the old file if it's there
-            File oldSer = new File(serLocation);
-            if (oldSer.exists()) {
-                oldSer.delete();
-            }
+        if (saveUpdatedToDisk) {
+            try {
+                // Get rid of the old file if it's there
+                File oldSer = new File(serLocation);
+                if (oldSer.exists()) {
+                    oldSer.delete();
+                }
 
-            // Write new serialisation
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serLocation));
-            oos.writeObject(this);
-            oos.close();
-        } catch (IOException e) {
-            log.error("Error writing serialisation", e);
+                // Write new serialisation
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serLocation));
+                oos.writeObject(this);
+                oos.close();
+            } catch (IOException e) {
+                log.error("Error writing serialisation", e);
+            }
         }
     }
 

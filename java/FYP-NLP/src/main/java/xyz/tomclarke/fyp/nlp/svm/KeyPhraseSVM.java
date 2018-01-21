@@ -21,7 +21,6 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
-import xyz.tomclarke.fyp.nlp.util.Tuple;
 
 /**
  * Uses libsvm to analyse text and extract key phrases
@@ -286,87 +285,4 @@ public class KeyPhraseSVM extends BaseSvm {
 
         return phrases;
     }
-
-    /**
-     * Predicts key phrases for a paper, using depth informal to only allow complete
-     * phrases
-     * 
-     * WIP
-     * 
-     * @param paper
-     *            The paper to predict papers for
-     * @param vec
-     *            The Word2Vec instance to use
-     * @return The key phrases found
-     */
-    /*
-     * public List<KeyPhrase> predictKeyPhrasesBasedOnDepth(Paper paper, Word2Vec
-     * vec) { List<KeyPhrase> phrases = new ArrayList<KeyPhrase>();
-     * 
-     * // For when building a new KP List<Tuple<CoreLabel, Integer>> tokensForKp =
-     * new ArrayList<Tuple<CoreLabel, Integer>>();
-     * 
-     * // So key phrases can be created, ensure to keep a count as we go for
-     * (CoreMap sentence : paper.getAnnotations()) { for (CoreLabel token :
-     * sentence.get(TokensAnnotation.class)) { svm_node[] nodes =
-     * generateSupportVectors(token, sentence, paper, !tokensForKp.isEmpty(), vec);
-     * boolean isPredictedKeyPhrase = predict(nodes);
-     * 
-     * // If is a key phrase and previous is not, make sure they next loop knows
-     * this // is a key phrase if (isPredictedKeyPhrase) { tokensForKp.add( new
-     * Tuple<CoreLabel, Integer>(token, NlpUtil.calculateTokenParseDepth(token,
-     * sentence))); }
-     * 
-     * // Is not a key phrase, but it has just finished a key phrase area, save
-     * this. if (!isPredictedKeyPhrase && !tokensForKp.isEmpty()) { int kpStart = 0;
-     * int kpEnd = 0; // Track if we have gone up at all (deeper) or are currently
-     * going shallower // If direction changes, we may have 2 different key phrases
-     * // I'd hope this shouldn't happen, so for now just debug // TODO check logs
-     * boolean decreasing = false; int minDepth = tokensForKp.get(0).getValue(); for
-     * (Tuple<CoreLabel, Integer> tp : tokensForKp) { if (minDepth < tp.getValue())
-     * { minDepth = tp.getValue(); decreasing = true; } else if (decreasing) {
-     * log.warn("KP SVM Extraction: Change in direction"); decreasing = false; } }
-     * // Any should do... String sentenceWords =
-     * sentence.get(TextAnnotation.class); for (Tuple<CoreLabel, Integer> tp :
-     * tokensForKp) { if (minDepth == tp.getValue()) { String word =
-     * token.get(TextAnnotation.class).toLowerCase(); // Figure out boundaries //
-     * Firstly, get the tree for that part String lowestTree = null;
-     * 
-     * // Then extract the tree from the sentence int wordPos =
-     * NlpUtil.findTokenInstanceInSentence(token, sentence); String[]
-     * lowestTreeParts = lowestTree.replaceAll("\\([A-Z]* |\\) |\\)",
-     * " ").split(" "); // Loop to extract the start of the phrase String
-     * sentencePart = sentenceWords.toLowerCase(); for (int i = wordPos; i > 0; i++)
-     * { sentencePart = sentencePart.substring(sentenceWords.indexOf(word)); }
-     * kpStart = sentenceWords.toLowerCase().indexOf(sentencePart); // Now find the
-     * end of the phrase
-     * 
-     * String fullPhrase = "foundstring";
-     * 
-     * // Then find that in the body of the text. // Avoid wrong indexes by finding
-     * the sentence first (making sure we can) if
-     * (paper.getText().contains(sentenceWords) &&
-     * sentenceWords.contains(fullPhrase)) { int posSentenceInPaper =
-     * paper.getText().indexOf(sentenceWords); int posInSentence =
-     * sentenceWords.indexOf(fullPhrase);
-     * 
-     * kpStart = posSentenceInPaper + posInSentence; kpEnd = posSentenceInPaper +
-     * posInSentence + fullPhrase.length(); } else { log.error(
-     * "Could not make key phrase '" + fullPhrase + "' in paper " +
-     * paper.toString()); }
-     * 
-     * break; } }
-     * 
-     * try { // Add key phrase // Classification is either the one the SVm was
-     * trained with, or UNKNOWN phrases.add( paper.makeKeyPhrase(kpStart, kpEnd,
-     * clazz == null ? Classification.UNKNOWN : clazz)); } catch (Exception e) { //
-     * Making a new key phrase went wrong somehow... log.error(e.getMessage()); }
-     * tokensForKp.clear(); } } // Clear saved KP info tokensForKp.clear(); }
-     * 
-     * // Sanitisation! // Get rid of rubbish KPs NlpUtil.removeLowTfIdfKPs(phrases,
-     * paper, trainingPapers);
-     * 
-     * return phrases; }
-     */
-
 }

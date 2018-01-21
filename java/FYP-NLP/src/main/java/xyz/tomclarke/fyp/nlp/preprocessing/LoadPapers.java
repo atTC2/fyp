@@ -31,9 +31,11 @@ public class LoadPapers {
      *            A file containing locations of papers
      * @param canAttemtAnnRead
      *            Specifies whether the paper object should be saved to disk
+     * @param saveUpdatedToDisk
+     *            Whether to save information addition to disk
      * @return A list of loaded papers
      */
-    public static List<Paper> loadNewPapers(File papersList, boolean canAttemptAnnRead) {
+    public static List<Paper> loadNewPapers(File papersList, boolean canAttemptAnnRead, boolean saveUpdatedToDisk) {
         ArrayList<Paper> papers = new ArrayList<Paper>();
         // Read through each line and try to load in the file.
         try (Scanner scanner = new Scanner(papersList)) {
@@ -47,7 +49,7 @@ public class LoadPapers {
                 }
 
                 // Try a single file
-                papers.addAll(loadNewPapers(paperLocation, canAttemptAnnRead));
+                papers.addAll(loadNewPapers(paperLocation, canAttemptAnnRead, saveUpdatedToDisk));
             }
         } catch (IOException e) {
             log.error("Problem reading papers.txt", e);
@@ -64,10 +66,13 @@ public class LoadPapers {
      *            The location of the paper
      * @param canAttemptAnnRead
      *            Whether the parse should be written to disk (if possible)
+     * @param saveUpdatedToDisk
+     *            Whether to save information addition to disk
      * @return A list of papers or null if none can be added
      */
-    public static List<Paper> loadNewPapers(String paperLocation, boolean canAttemptAnnRead) {
-        Paper newPaper = loadNewPaper(paperLocation, canAttemptAnnRead);
+    public static List<Paper> loadNewPapers(String paperLocation, boolean canAttemptAnnRead,
+            boolean saveUpdatedToDisk) {
+        Paper newPaper = loadNewPaper(paperLocation, canAttemptAnnRead, saveUpdatedToDisk);
         List<Paper> papers = new ArrayList<Paper>();
         if (newPaper != null) {
             return Arrays.asList(newPaper);
@@ -77,7 +82,7 @@ public class LoadPapers {
             if (paperDir.isDirectory()) {
                 for (String newLocation : paperDir.list()) {
                     newPaper = loadNewPaper(paperDir.getAbsolutePath() + File.separator + newLocation,
-                            canAttemptAnnRead);
+                            canAttemptAnnRead, saveUpdatedToDisk);
                     if (newPaper != null) {
                         papers.add(newPaper);
                     }
@@ -94,18 +99,20 @@ public class LoadPapers {
      *            The location of the file
      * @param canAttemtAnnRead
      *            Specifies whether the paper object should be saved to disk
+     * @param saveUpdatedToDisk
+     *            Whether to save information addition to disk
      * @return The new Paper object, or null if the paper is not supported.
      */
-    public static Paper loadNewPaper(String location, boolean canAttemptAnnRead) {
+    public static Paper loadNewPaper(String location, boolean canAttemptAnnRead, boolean saveUpdatedToDisk) {
         // Try and pick a type of paper on file extension
         int beginningOfFileExtension = location.lastIndexOf('.');
         if (beginningOfFileExtension >= 0) {
             String fileExtension = location.substring(beginningOfFileExtension);
             switch (fileExtension) {
             case ".txt":
-                return new TextPaper(location, canAttemptAnnRead);
+                return new TextPaper(location, canAttemptAnnRead, saveUpdatedToDisk);
             case ".pdf":
-                return new PDFPaper(location);
+                return new PDFPaper(location, saveUpdatedToDisk);
             }
         }
 

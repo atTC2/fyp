@@ -35,4 +35,15 @@ public class Position implements Serializable {
         this.end = end;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Position)) {
+            return false;
+        }
+
+        Position pos = (Position) o;
+
+        return pos.getStart() == start && pos.getEnd() == end;
+    }
+
 }

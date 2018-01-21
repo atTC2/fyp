@@ -1,13 +1,7 @@
 package xyz.tomclarke.fyp.nlp.evaluation;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
@@ -25,7 +19,8 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
  */
 public abstract class EvaluateExtractions {
 
-    private static final Logger log = LogManager.getLogger(EvaluateExtractions.class);
+    // private static final Logger log =
+    // LogManager.getLogger(EvaluateExtractions.class);
 
     /**
      * Evaluates key phrases (for now we ignore ID and text position)
@@ -72,20 +67,19 @@ public abstract class EvaluateExtractions {
                 case INCLUSIVE:
                     matchingPhrase = predKPWord.contains(actKPWord);
                     // TESTING - investigating the extra bits that damage the strict F1 score
-                    if (matchingPhrase) {
-                        try (BufferedWriter bw = new BufferedWriter(
-                                new FileWriter("/home/tom/FYP/inclusive_differences.txt", true))) {
-                            bw.write(predKPWord + "|" + actKPWord + "|" + (predKPWord.length() - actKPWord.length()));
-                            bw.newLine();
-                            bw.close();
-                        } catch (IOException e) {
-                            log.error("inclusive differences write error", e);
-                        }
-                    }
+                    /*
+                     * if (matchingPhrase) { try (BufferedWriter bw = new BufferedWriter( new
+                     * FileWriter("/home/tom/FYP/inclusive_differences.txt", true))) {
+                     * bw.write(predKPWord + "|" + actKPWord + "|" + (predKPWord.length() -
+                     * actKPWord.length())); bw.newLine(); bw.close(); } catch (IOException e) {
+                     * log.error("inclusive differences write error", e); } }
+                     */
                     break;
                 case STRICT:
                     matchingPhrase = predKPWord.equals(actKPWord);
                     break;
+                case REALLY_STRICT:
+                    matchingPhrase = predKPWord.equals(actKPWord) && predKP.getPosition().equals(actKP.getPosition());
                 }
 
                 // Check classification of key phrase
@@ -143,6 +137,63 @@ public abstract class EvaluateExtractions {
         }
 
         return ConfusionStatistic.calculateScore(tp, fp, tn, fn);
+    }
+
+    /**
+     * Evaluates key phrases based on boundaries
+     * 
+     * @param pred
+     *            The predicted key phrases
+     * @param act
+     *            The actual key phrases
+     * @param paper
+     *            The paper the key phrases are for
+     * @return The statistics on key phrase extraction
+     */
+    public static ConfusionStatistic evaluateKeyPhrasesOnBoundaries(List<KeyPhrase> pred, List<KeyPhrase> act,
+            Paper paper) {
+        double tp = 0;
+        double fp = 0;
+        double tn = 0;
+        double fn = 0;
+
+        for (int i = 0; i < paper.getText().length(); i++) {
+            // First, is it in predicted key phrases...
+            boolean inPred = isIndexInKeyPhraseList(i, pred);
+            // Is it in actual?
+            boolean inAct = isIndexInKeyPhraseList(i, act);
+
+            // Increment correct scenario
+            if (inPred && inAct) {
+                tp++;
+            } else if (inPred && !inAct) {
+                fp++;
+            } else if (!inPred && inAct) {
+                fn++;
+            } else if (!inPred && !inAct) {
+                tn++;
+            }
+        }
+
+        return ConfusionStatistic.calculateScore(tp, fp, tn, fn);
+    }
+
+    /**
+     * Tests to see if the index is within the list of key phrases given
+     * 
+     * @param index
+     *            The index to check
+     * @param kps
+     *            The key phrases to search through
+     * @return
+     */
+    private static boolean isIndexInKeyPhraseList(int index, List<KeyPhrase> kps) {
+        for (KeyPhrase kp : kps) {
+            if (index >= kp.getPosition().getStart() && index < kp.getPosition().getEnd()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
