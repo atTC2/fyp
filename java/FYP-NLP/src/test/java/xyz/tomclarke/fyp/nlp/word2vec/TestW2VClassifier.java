@@ -26,6 +26,7 @@ public class TestW2VClassifier extends TestOnPapers {
 
     private static final Logger log = LogManager.getLogger(TestKeyPhraseSVM.class);
 
+    @Ignore
     @Test
     public void testGetClazzBasedOnAvgDistanceGN() throws Exception {
         testGetClazzBasedOnAvgDistance(Word2VecPretrained.GOOGLE_NEWS);
@@ -88,6 +89,7 @@ public class TestW2VClassifier extends TestOnPapers {
                 + " fn: " + stats.getFn());
     }
 
+    @Ignore
     @Test
     public void testGetClazzBasedOnClosestDistanceGN() throws Exception {
         testGetClazzBasedOnClosestDistance(Word2VecPretrained.GOOGLE_NEWS);
@@ -100,7 +102,6 @@ public class TestW2VClassifier extends TestOnPapers {
         testGetClazzBasedOnClosestDistance(Word2VecPretrained.WIKI2VEC);
     }
 
-    @Ignore
     @Test
     public void testGetClazzBasedOnClosestDistanceFI() throws Exception {
         testGetClazzBasedOnClosestDistance(Word2VecPretrained.FREEBASE_IDS);
