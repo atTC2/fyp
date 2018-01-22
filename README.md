@@ -22,7 +22,7 @@ The 2 Java projects under the `java` directory are `FYP-NLP`, which includes all
 ## Current Status
 
 In terms of NLP...
-* For Task 1, the existing SVM is not doing bad, at least as far as my own evaluation is concerned. I believe the ScienceIE scripts to be scoring lower than I am calculating as I think they include matching the exact boundaries rather than just matching phrases, but clearly some more work is needed. The plan for future SVM development is to use the parse trees of sentences, to a) try to make key phrases that are actually phrases (and not just a string of tokens that the system deems to be key phrases) and b) to use some of this information as support vectors to further help the boundary and key phrase identification. Clustering was atempted (using Word2Vec to help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
+* For Task 1, the existing SVM is doing fine, and I think is about ready to leave alone. Official scripts give up to ~0.17 which isn't as good as the achievements at ScienceIE but good enough for me, especially when compared with my own evaluation which is a little fairer. Clustering was atempted (using Word2Vec to help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
 * For Task 2, the existing method of using Word2Vec with a simple averaging algorithm seems fairly effective (over 50% of classification on gold data is correct). The current SVM attempt is awful compared. It may be interesting to try a CRF on it and a gazetteer (trained off of existing data and WordNet potentially).
 * For Task 3, the existing SVM using Word2Vec is not very good at all. A limited number of words appear in WordNet meaning that may not be a way to work on this task either. A rule engine is expensive to build and probably unachievable, although potentially dynamic searching of Wikipedia/Freebase (resources used by the best solution at SemEval 2017) may be a good solution to at least produce some good output).
 
@@ -30,8 +30,7 @@ In terms of making the system into a product...
 * A GUI has been constructed, allowing submission and automatic analysis of papers (although currently the paper already has to be on the local system to work, web extraction needs to be worked on).
 * Bootstrap makes it look quite nice!
 * Papers can be viewed (with key phrases drawn on) and annotations downloaded. A way to view hyponyms and synonyms needs to be implemented, although with the current relation extraction system in place there isn't much to view yet anyway.
-* The search page shows papers well, and while the search boxes are there and the back end receives anything submitted, the search information is not actually used yet and all papers in the database are shown. PageRank should be researched and implemented, but this should be a short process given PageRank isn't outside the taught syllabus at UoB.
-* Being able to search by task/process/material is enough to reach my initial goals of the GUI, but it may be nice to expand it further to something more interesting.
+* The search page shows papers well, and while the search boxes are there and the back end receives anything submitted, the search information is not actually used yet and all papers in the database are shown. PageRank should be researched and implemented.
 
 ## Road Map
 
@@ -66,7 +65,7 @@ Overall statistics (inc): Accuracy: 0.88922933 Precision: 0.78783593 Recall: 0.5
 Overall statistics (str): Accuracy: 0.83886618 Precision: 0.31666667 Recall: 0.20721477 F1: 0.25050710
 ```
 
-### SVM - as above with TF-IDF filter (threshold = 0.02)
+### SVM - as above with phrase TF-IDF filter (threshold = 0.02)
 Using Google News:
 
 ```
@@ -103,6 +102,18 @@ Overall statistics (inc): Accuracy: 0.89296974 Precision: 0.83458378 Recall: 0.6
 Overall statistics (str): Accuracy: 0.83577832 Precision: 0.36969697 Recall: 0.22555464 F1: 0.28017351
 Overall statistics (rls): Accuracy: 0.82919604 Precision: 0.16151203 Recall: 0.08973747 F1: 0.11537281
 Boundary statistics: Accuracy: 0.71281884 Precision: 0.48996445 Recall: 0.39410830 F1: 0.43683975
+```
+
+### SVM - as above with sanitisation on key phrase creation
+
+Using Google News:
+
+```
+Overall statistics (gen): Accuracy: 0.92011127 Precision: 0.89298454 Recall: 0.79202700 F1: 0.83948133
+Overall statistics (inc): Accuracy: 0.88610193 Precision: 0.79515990 Recall: 0.68198666 F1: 0.73423783
+Overall statistics (str): Accuracy: 0.81752969 Precision: 0.38006839 Recall: 0.30678233 F1: 0.33951560
+Overall statistics (rls): Accuracy: 0.80952969 Precision: 0.20231566 Recall: 0.15742058 F1: 0.17706667
+Boundary statistics: Accuracy: 0.70283639 Precision: 0.47664850 Recall: 0.52525632 F1: 0.49977329
 ```
 
 ### Task 2

@@ -259,8 +259,6 @@ public class KeyPhraseSVM extends BaseSvm {
                     }
 
                     // Is not a key phrase, but it has just finished a key phrase area, save this.
-                    // TODO what if random characters, then a no key word - this'll include the
-                    // random characters
                     if (!isPredictedKeyPhrase && previousWordKP) {
                         previousWordKP = false;
                         kpEnd = counter;
@@ -269,7 +267,7 @@ public class KeyPhraseSVM extends BaseSvm {
                             // Add key phrase
                             // Classification is either the one the SVm was trained with, or UNKNOWN
                             phrases.add(paper.makeKeyPhrase(kpStart, kpEnd,
-                                    clazz == null ? Classification.UNKNOWN : clazz));
+                                    clazz == null ? Classification.UNKNOWN : clazz, trainingPapers));
                         } catch (Exception e) {
                             // Making a new key phrase went wrong somehow...
                             log.error(e.getMessage());

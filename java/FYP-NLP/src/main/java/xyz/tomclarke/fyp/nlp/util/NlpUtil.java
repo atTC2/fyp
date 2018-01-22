@@ -31,6 +31,10 @@ public final class NlpUtil {
 
     private static final Logger log = LogManager.getLogger(NlpUtil.class);
     private static List<String> ignoreList;
+    
+    public static final double TF_IDF_THRESHOLD_PHRASE = 0.02;
+    public static final double TF_IDF_THRESHOLD_TOKEN = 0.007;
+    public static final String REGEX_ALL_PUNCTUATION = "[^a-zA-Z0-9 ]";
 
     private NlpUtil() {
         // Nothing to do here
@@ -162,12 +166,12 @@ public final class NlpUtil {
     public static void removeLowTfIdfKPs(List<KeyPhrase> kps, Paper paper, List<Paper> trainingPapers) {
         List<KeyPhrase> phrasesToRemove = new ArrayList<KeyPhrase>();
         for (KeyPhrase kp : kps) {
-            String[] parts = kp.getPhrase().replaceAll("[^a-zA-Z0-9 ]", "").split(" ");
+            String[] parts = kp.getPhrase().replaceAll(REGEX_ALL_PUNCTUATION, "").split(" ");
             double tfIdf = 0;
             for (String part : parts) {
                 tfIdf += NlpUtil.calculateTfIdf(part, paper, trainingPapers);
             }
-            if (tfIdf < 0.02) {
+            if (tfIdf < TF_IDF_THRESHOLD_PHRASE) {
                 phrasesToRemove.add(kp);
             }
         }

@@ -135,7 +135,6 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         testSvmPredictKeyPhrases(Word2VecPretrained.GOOGLE_NEWS);
     }
 
-    @Ignore
     @Test
     public void testSvmPredictKeyPhrasesGNAndPreBuiltSvm() throws Exception {
         testSvmPredictKeyPhrases(Word2VecPretrained.GOOGLE_NEWS, "KP_EXTRACTION_SVM");
@@ -148,6 +147,7 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         testSvmPredictKeyPhrases(Word2VecPretrained.WIKI2VEC);
     }
 
+    @Ignore
     @Test
     public void testSvmPredictKeyPhrasesFN() throws Exception {
         testSvmPredictKeyPhrases(Word2VecPretrained.FREEBASE_NAMES);

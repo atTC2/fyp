@@ -131,6 +131,38 @@
 					}
 				}
 			});
+
+			// Give time for the chart to be drawn, and add extra bits to the pie chart
+			setTimeout(function() {
+				// Link segments to their pages
+				$('path').click(function(elem) {
+					console.log('Clicked: ' + elem.target.id);
+					switch (elem.target.id) {
+					case 'p0_segment0':
+						window.location = '/kps/task'
+						break;
+					case 'p0_segment1':
+						window.location = '/kps/process'
+						break;
+					case 'p0_segment2':
+						window.location = '/kps/material'
+						break;
+					}
+				});
+				
+				// Make middle bit clickable to see all KP clouds
+				$('#p0_title').click(function() {
+					window.location = '/kps';
+				});
+				$('#p0_subtitle').click(function() {
+					window.location = '/kps';
+				});
+				
+				// Add hand pointer
+				$('path').css('cursor', 'pointer');
+				$('#p0_title').css('cursor', 'pointer');
+				$('#p0_subtitle').css('cursor', 'pointer');
+			}, 10);
 		</script>
 	</div>
 

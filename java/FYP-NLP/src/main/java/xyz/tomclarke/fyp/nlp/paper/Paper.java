@@ -29,6 +29,7 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Position;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
+import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Holds useful information about getting text from scientific papers and where
@@ -121,7 +122,7 @@ public abstract class Paper implements Serializable {
 
     /**
      * Generates a new key phrase. The phrase is what is in between the two indexes
-     * given, blank space trimmed
+     * given, blank space trimmed and the key phrase sanitised
      * 
      * @param start
      *            The start of the key phrase
@@ -129,11 +130,14 @@ public abstract class Paper implements Serializable {
      *            The end of the key phrase
      * @param clazz
      *            The classification being found
+     * @param trainingPapers
+     *            The training papers available, used in sanitisation
      * @return The new key phrase object (with set ID and unknown classification)
      * @throws Exception
      *             If the phrase is empty
      */
-    public KeyPhrase makeKeyPhrase(int start, int end, Classification clazz) throws Exception {
+    public KeyPhrase makeKeyPhrase(int start, int end, Classification clazz, List<Paper> trainingPapers)
+            throws Exception {
         int lowestAvailableId = 0;
 
         // Find the highest ID and add one
@@ -149,9 +153,42 @@ public abstract class Paper implements Serializable {
         if (phrase.isEmpty()) {
             throw new Exception("Generated Key Phrase is empty");
         }
-
         // Cater for shortening at the start of the phrase
         start = start + text.substring(start).indexOf(phrase.charAt(0));
+
+        // Sanitise!
+
+        // Remove end punctuation
+        while (phrase.substring(0, 1).matches("[^a-zA-Z0-9\\[\"{(]")) {
+            phrase = phrase.substring(1);
+            start++;
+        }
+        while (phrase.substring(phrase.length() - 1).matches("[^a-zA-Z0-9)/]}\"]")) {
+            phrase = phrase.substring(0, phrase.length() - 1);
+            end--;
+        }
+
+        // Remove end tokens with low TF-IDF
+        String token;
+        int phraseSplitIndex;
+        while ((phraseSplitIndex = phrase.indexOf(" ")) > -1
+                && NlpUtil.calculateTfIdf((token = phrase.substring(0, phraseSplitIndex)), this,
+                        trainingPapers) < NlpUtil.TF_IDF_THRESHOLD_TOKEN) {
+            int tokenLenWithSpace = token.length() + 1;
+            phrase = phrase.substring(tokenLenWithSpace);
+            start += tokenLenWithSpace;
+        }
+        while ((phraseSplitIndex = phrase.lastIndexOf(" ")) > -1
+                && NlpUtil.calculateTfIdf((token = phrase.substring(phraseSplitIndex)), this,
+                        trainingPapers) < NlpUtil.TF_IDF_THRESHOLD_TOKEN) {
+            int tokenLenWithSpace = token.length() + 1;
+            phrase = phrase.substring(0, phrase.length() - tokenLenWithSpace);
+            end -= tokenLenWithSpace;
+        }
+
+        if (phrase.isEmpty()) {
+            throw new Exception("Generated Key Phrase is empty");
+        }
 
         return new KeyPhrase(lowestAvailableId, phrase, new Position(start, start += phrase.length()), clazz);
     }
