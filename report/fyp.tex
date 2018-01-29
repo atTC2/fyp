@@ -1,0 +1,106 @@
+\documentclass{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=1.in]{geometry}
+\usepackage{tocloft}
+\renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill\hfill}
+\renewcommand{\cftloftitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftafterloftitle}{\hfill}
+\renewcommand{\cftlottitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftafterlottitle}{\hfill}
+
+\begin{document}
+
+
+%----------------------------------------------------------------------
+% Title
+
+
+\begin{titlepage}
+\pagenumbering{gobble}
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width = 0.4\textwidth]{img/uob-text.jpg}
+    \end{center}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width = 0.2\textwidth]{img/uob-seal.png}
+    \end{center}
+\end{figure}
+
+
+\begin{center}
+    \large
+    \vspace{.5cm}
+    Final Year Project\\
+    \vspace{0.5cm}
+    \huge
+    \textbf{Extracting Key Phrases and Relations from Scientific Publications}\\
+    \large
+    \vspace{1cm}
+    Dissertation for B.Sc in Computer Science\\
+    \vspace{.5cm}
+    School of Computer Science, University of Birmingham\\
+    \vspace{2cm}
+    Author\\
+    Thomas Clarke (1443652)\\
+    \vspace{.5cm}
+    Supervisor\\
+    Dr Mark Lee\\
+    \vspace{2cm}
+    \textbf{April 2018}\\
+\end{center}
+\end{titlepage}
+
+%----------------------------------------------------------------------
+% Contents and stuff
+
+\pagenumbering{gobble}
+\tableofcontents
+\listoffigures
+\listoftables
+\pagebreak
+
+\pagenumbering{arabic}
+
+\begin{center}\section*{Acknowledgments}\end{center}
+\addcontentsline{toc}{section}{Acknowledgments}
+I would like to give acknowledgement to those who helped me throughout the completion of this project.\\
+
+Firstly, a thank you to Dr Mark Lee for being a supportive and informative supervisor, as well as an entertaining host during project meetings. \\
+
+I also wish to thank my friends and family in supporting me during the year leading preceding this dissertation, ensuring I kept on track and in a good frame of mind.\\
+
+\pagebreak
+
+%----------------------------------------------------------------------
+% Parts
+
+\input{parts/1-abstract}
+\input{parts/2-intro}
+\input{parts/3-literature}
+\input{parts/4-plannedwork}
+\input{parts/5-nlp1}
+\input{parts/6-nlp2}
+\input{parts/7-nlp3}
+\input{parts/8-gui}
+\input{parts/9-discussion}
+
+%----------------------------------------------------------------------
+% References
+
+\pagebreak
+\pagenumbering{gobble}
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{ieeetr}
+\nocite{*}
+\bibliography{fyp.bib}
+\end{document}
+
