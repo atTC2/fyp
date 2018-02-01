@@ -43,7 +43,8 @@ public class ClazzW2V implements NlpProcessor {
 
         // Classify them
         for (KeyPhraseDAO kp : kps) {
-            Classification clazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getText(), pp.getVec());
+            Classification clazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getText(), pp.getVec(),
+                    Classification.MATERIAL, true);
             kp.setClassification(clazz.toString());
             // This doesn't set the information on the extractions object in the actual
             // Paper object, but that's ok for now...

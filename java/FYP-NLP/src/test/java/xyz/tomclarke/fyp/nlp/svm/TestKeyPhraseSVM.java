@@ -129,12 +129,12 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         log.info(ConfusionStatistic.calculateScore(tp, fp, tn, fn));
     }
 
-    @Ignore
     @Test
     public void testSvmPredictKeyPhrasesGN() throws Exception {
         testSvmPredictKeyPhrases(Word2VecPretrained.GOOGLE_NEWS);
     }
 
+    @Ignore
     @Test
     public void testSvmPredictKeyPhrasesGNAndPreBuiltSvm() throws Exception {
         testSvmPredictKeyPhrases(Word2VecPretrained.GOOGLE_NEWS, "KP_EXTRACTION_SVM");

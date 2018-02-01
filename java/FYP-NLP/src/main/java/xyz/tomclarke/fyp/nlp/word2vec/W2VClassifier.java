@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
+import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Looks at different ways Word2Vec can be used to classify key phrases
@@ -23,9 +24,14 @@ public final class W2VClassifier {
      *            The key phrase
      * @param vec
      *            The Word2Vec data to use
+     * @param autoClazz
+     *            The default classification to assign if none can be selected
+     * @param removeStopWords
+     *            Whether to remove stop words from classification
      * @return The classification decided on
      */
-    public static Classification getClazzBasedOnAvgDistance(String kp, Word2Vec vec) {
+    public static Classification getClazzBasedOnAvgDistance(String kp, Word2Vec vec, Classification autoClazz,
+            boolean removeStopWords) {
         String[] tokens = kp.split(" ");
         double distTask = 0;
         double distProc = 0;
@@ -33,7 +39,12 @@ public final class W2VClassifier {
         int foundWords = 0;
 
         for (String token : tokens) {
-            if (vec.hasWord(token)) {
+            boolean removeDueToStop = false;
+            if (removeStopWords) {
+                removeDueToStop = NlpUtil.isTokenToIgnore(token);
+            }
+
+            if (vec.hasWord(token) && !removeDueToStop) {
                 foundWords++;
                 distTask += vec.similarity(token, "task");
                 distProc += vec.similarity(token, "process");
@@ -46,10 +57,10 @@ public final class W2VClassifier {
         distMatl /= (double) foundWords;
 
         if (foundWords == 0) {
-            // From analysis, for now just return Material as it is most likely to be a
-            // material
-            return Classification.MATERIAL;
+            return autoClazz;
         }
+
+        log.info("Made it past teh default, value " + foundWords);
 
         // Largest number means closest
         double max = Math.max(distTask, Math.max(distProc, distMatl));
@@ -62,7 +73,7 @@ public final class W2VClassifier {
         } else {
             // Shouldn't get here
             log.error("Found max which wasn't in valid numbers");
-            return Classification.MATERIAL;
+            return autoClazz;
         }
     }
 
@@ -73,9 +84,14 @@ public final class W2VClassifier {
      *            The key phrase
      * @param vec
      *            The Word2Vec data to use
+     * @param autoClazz
+     *            The default classification to assign if none can be selected
+     * @param removeStopWords
+     *            Whether to remove stop words from classification
      * @return The classification decided on
      */
-    public static Classification getClazzBasedOnClosestDistance(String kp, Word2Vec vec) {
+    public static Classification getClazzBasedOnClosestDistance(String kp, Word2Vec vec, Classification autoClazz,
+            boolean removeStopWords) {
         String[] tokens = kp.split(" ");
         double distTask = 0;
         double distProc = 0;
@@ -83,7 +99,12 @@ public final class W2VClassifier {
         boolean foundOneWord = false;
 
         for (String token : tokens) {
-            if (vec.hasWord(token)) {
+            boolean removeDueToStop = false;
+            if (removeStopWords) {
+                removeDueToStop = !NlpUtil.isTokenToIgnore(token);
+            }
+
+            if (vec.hasWord(token) && removeDueToStop) {
                 foundOneWord = true;
                 // Larger number = closer
                 distTask = Math.max(distTask, vec.similarity(token, "task"));
@@ -92,14 +113,12 @@ public final class W2VClassifier {
             }
         }
 
+        // Handle if it can't be classified
         if (!foundOneWord) {
-            // From analysis, for now just return Material as it is most likely to be a
-            // material
-            return Classification.MATERIAL;
+            return autoClazz;
         }
 
         double max = Math.max(distTask, Math.max(distProc, distMatl));
-        // If no token found, it'll just choose task
         if (max == distTask) {
             return Classification.TASK;
         } else if (max == distProc) {
@@ -109,7 +128,7 @@ public final class W2VClassifier {
         } else {
             // Shouldn't get here
             log.error("Found max which wasn't in valid numbers");
-            return Classification.MATERIAL;
+            return autoClazz;
         }
     }
 

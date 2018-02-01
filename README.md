@@ -116,6 +116,28 @@ Overall statistics (rls): Accuracy: 0.80952969 Precision: 0.20231566 Recall: 0.1
 Boundary statistics: Accuracy: 0.70283639 Precision: 0.47664850 Recall: 0.52525632 F1: 0.49977329
 ```
 
+### SVM - as above with stop words noted
+
+Using Google News:
+
+```
+Overall statistics (gen): Accuracy: 0.92007046 Precision: 0.88087631 Recall: 0.80584551 F1: 0.84169211
+Overall statistics (inc): Accuracy: 0.88540785 Precision: 0.77582899 Recall: 0.70022261 F1: 0.73608944
+Overall statistics (str): Accuracy: 0.81625968 Precision: 0.38195691 Recall: 0.33255178 F1: 0.35554627
+Overall statistics (rls): Accuracy: 0.80758907 Precision: 0.21262458 Recall: 0.18147448 F1: 0.19581846
+Boundary statistics: Accuracy: 0.71908746 Precision: 0.50268300 Recall: 0.56545848 F1: 0.53222606
+```
+
+Using Freebase:
+
+```
+Overall statistics (gen): Accuracy: 0.91385701 Precision: 0.89001233 Recall: 0.78388358 F1: 0.83358355
+Overall statistics (inc): Accuracy: 0.88577008 Precision: 0.81294758 Recall: 0.69953167 F1: 0.75198728
+Overall statistics (str): Accuracy: 0.80260332 Precision: 0.34548336 Recall: 0.26715686 F1: 0.30131306
+Overall statistics (rls): Accuracy: 0.79427395 Precision: 0.17907574 Recall: 0.13304721 F1: 0.15266758
+Boundary statistics: Accuracy: 0.69546586 Precision: 0.46696035 Recall: 0.54798556 F1: 0.50423875
+```
+
 ### Task 2
 #### SVM 
 
@@ -134,47 +156,23 @@ Overall statistics (inc): Accuracy: 0.90453540 Precision: 0.47200000 Recall: 0.0
 Overall statistics (str): Accuracy: 0.90336450 Precision: 0.21428571 Recall: 0.00929615 F1: 0.01781926
 ```
 
-#### W2V Classifier - based on average distance from tokens to class
-Using Google News:
+#### W2V Classifier
 
 ```
-Overall statistics: Accuracy: 0.47904483 Precision: 0.47904483 Recall: 1.00000000 F1: 0.64777595
-Specific results were: tp: 983.0 fp: 1069.0 tn: 0.0 fn: 0.0
-```
+Based on average distance
+	Correctly Classified Key phrases		Incorrectly Classified Key phrases	
+Parameters	GOOGLE_NEWS	FREEBASE_IDS	GOOGLE_NEWS	FREEBASE_IDS
+UNKNOWN + false			2052	2052
+MATERIAL + false	904	904	1148	1148
+MATERIAL + true	1117	904	935	1148
+				
+Based on closest distance
+	Correctly Classified Key phrases		Incorrectly Classified Key phrases	
+Parameters	GOOGLE_NEWS	FREEBASE_IDS	GOOGLE_NEWS	FREEBASE_IDS
+UNKNOWN + false			2052	2052
+MATERIAL + false	904	904	1148	1148
+MATERIAL + true	1080	904	972	1148
 
-When if a key phrase cannot be classified, the default is `Material`:
-
-```
-Overall statistics: Accuracy: 0.54580897 Precision: 0.54580897 Recall: 1.00000000 F1: 0.70617907
-Specific results were: tp: 1120.0 fp: 932.0 tn: 0.0 fn: 0.0
-```
-
-Using Freebase:
-
-```
-Overall statistics: Accuracy: 0.44054581 Precision: 0.44054581 Recall: 1.00000000 F1: 0.61163735
-Specific results were: tp: 904.0 fp: 1148.0 tn: 0.0 fn: 0.0
-```
-
-#### W2V Classifier - based on closest distance from tokens to class
-Using Google News:
-
-```
-Overall statistics: Accuracy: 0.46198830 Precision: 0.46198830 Recall: 1.00000000 F1: 0.63200000
-Specific results were: tp: 948.0 fp: 1104.0 tn: 0.0 fn: 0.0
-```
-
-When if a key phrase cannot be classified, the default is `Material`:
-
-```
-Specific results were: tp: 1085.0 fp: 967.0 tn: 0.0 fn: 0.0
-```
-
-Using Freebase:
-
-```
-Overall statistics: Accuracy: 0.44054581 Precision: 0.44054581 Recall: 1.00000000 F1: 0.61163735
-Specific results were: tp: 904.0 fp: 1148.0 tn: 0.0 fn: 0.0
 ```
 
 ### Task 3

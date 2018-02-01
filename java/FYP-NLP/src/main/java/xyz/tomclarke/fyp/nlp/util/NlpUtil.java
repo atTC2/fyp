@@ -31,7 +31,7 @@ public final class NlpUtil {
 
     private static final Logger log = LogManager.getLogger(NlpUtil.class);
     private static List<String> ignoreList;
-    
+
     public static final double TF_IDF_THRESHOLD_PHRASE = 0.02;
     public static final double TF_IDF_THRESHOLD_TOKEN = 0.007;
     public static final String REGEX_ALL_PUNCTUATION = "[^a-zA-Z0-9 ]";
@@ -42,6 +42,9 @@ public final class NlpUtil {
 
     /**
      * Decides if it is a token to ignore
+     * 
+     * It is the stop words from Standford NLP
+     * https://github.com/stanfordnlp/CoreNLP/blob/master/data/edu/stanford/nlp/patterns/surface/stopwords.txt
      * 
      * @param token
      *            The token to check
@@ -61,7 +64,7 @@ public final class NlpUtil {
             }
         }
 
-        return ignoreList.contains(token);
+        return ignoreList.contains(token.toLowerCase());
     }
 
     /**

@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import xyz.tomclarke.fyp.nlp.TestOnPapers;
@@ -26,39 +25,59 @@ public class TestW2VClassifier extends TestOnPapers {
 
     private static final Logger log = LogManager.getLogger(TestKeyPhraseSVM.class);
 
-    @Ignore
     @Test
-    public void testGetClazzBasedOnAvgDistanceGN() throws Exception {
-        testGetClazzBasedOnAvgDistance(Word2VecPretrained.GOOGLE_NEWS);
+    public void testGetClazzGN() throws Exception {
+        testAllScenarios(Word2VecPretrained.GOOGLE_NEWS);
     }
 
-    @Ignore
     @Test
-    public void testGetClazzBasedOnAvgDistanceW2V() throws Exception {
-        // Wiki2Vec doesn't work right now
-        testGetClazzBasedOnAvgDistance(Word2VecPretrained.WIKI2VEC);
+    public void testGetClazzFI() throws Exception {
+        testAllScenarios(Word2VecPretrained.FREEBASE_IDS);
     }
 
-    @Ignore
-    @Test
-    public void testGetClazzBasedOnAvgDistanceFI() throws Exception {
-        testGetClazzBasedOnAvgDistance(Word2VecPretrained.FREEBASE_IDS);
-    }
+    /**
+     * Runs all test to demonstrate Word2Vec development
+     * 
+     * @param set
+     *            The pre-trained Word2Vec model
+     */
+    private void testAllScenarios(Word2VecPretrained set) {
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
 
-    @Ignore
-    @Test
-    public void testGetClazzBasedOnAvgDistanceFN() throws Exception {
-        testGetClazzBasedOnAvgDistance(Word2VecPretrained.FREEBASE_NAMES);
+        // Average distance
+        log.info("W2V Classification - based on average distance using " + set + " with default clazz "
+                + Classification.UNKNOWN + " and stopwords " + false);
+        testGetClazzBasedOnAvgDistance(vec, Classification.UNKNOWN, false);
+        log.info("W2V Classification - based on average distance using " + set + " with default clazz "
+                + Classification.MATERIAL + " and stopwords " + false);
+        testGetClazzBasedOnAvgDistance(vec, Classification.MATERIAL, false);
+        log.info("W2V Classification - based on average distance using " + set + " with default clazz "
+                + Classification.MATERIAL + " and stopwords " + true);
+        testGetClazzBasedOnAvgDistance(vec, Classification.MATERIAL, true);
+
+        // Closest distance
+        log.info("W2V Classification - based on closest distance using " + set + " with default clazz "
+                + Classification.UNKNOWN + " and stopwords " + false);
+        testGetClazzBasedOnClosestDistance(vec, Classification.UNKNOWN, false);
+        log.info("W2V Classification - based on closest distance using " + set + " with default clazz "
+                + Classification.MATERIAL + " and stopwords " + false);
+        testGetClazzBasedOnClosestDistance(vec, Classification.MATERIAL, false);
+        log.info("W2V Classification - based on closest distance using " + set + " with default clazz "
+                + Classification.MATERIAL + " and stopwords " + true);
+        testGetClazzBasedOnClosestDistance(vec, Classification.MATERIAL, true);
     }
 
     /**
      * Test simple Word2Vec classification on existing KeyPhrases
      * 
-     * @param set
-     *            The pre-trained Word2Vec model
+     * @param vec
+     *            The pre-trained Word2Vec
+     * @param autoClazz
+     *            The default classification to assign if none can be selected
+     * @param removeStopWords
+     *            Whether to remove stop words from classification
      */
-    private void testGetClazzBasedOnAvgDistance(Word2VecPretrained set) {
-        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
+    private void testGetClazzBasedOnAvgDistance(Word2Vec vec, Classification autoClazz, boolean removeStopWords) {
         List<ConfusionStatistic> overallStats = new ArrayList<ConfusionStatistic>();
         for (Paper paper : testPapers) {
             int tp = 0;
@@ -69,7 +88,8 @@ public class TestW2VClassifier extends TestOnPapers {
             List<KeyPhrase> kps = paper.getKeyPhrases();
 
             for (KeyPhrase kp : kps) {
-                Classification predClazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getPhrase(), vec);
+                Classification predClazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getPhrase(), vec, autoClazz,
+                        removeStopWords);
                 if (predClazz.equals(kp.getClazz())) {
                     tp++;
                 } else {
@@ -83,44 +103,22 @@ public class TestW2VClassifier extends TestOnPapers {
 
         ConfusionStatistic stats = ConfusionStatistic.calculateScoreSum(overallStats);
 
-        log.info("W2V Classification - based on average distance using " + set);
         log.info("Overall statistics: " + stats);
         log.info("Specific results were: tp: " + stats.getTp() + " fp: " + stats.getFp() + " tn: " + stats.getTn()
                 + " fn: " + stats.getFn());
     }
 
-    @Ignore
-    @Test
-    public void testGetClazzBasedOnClosestDistanceGN() throws Exception {
-        testGetClazzBasedOnClosestDistance(Word2VecPretrained.GOOGLE_NEWS);
-    }
-
-    @Ignore
-    @Test
-    public void testGetClazzBasedOnClosestDistanceW2V() throws Exception {
-        // Wiki2Vec doesn't work right now
-        testGetClazzBasedOnClosestDistance(Word2VecPretrained.WIKI2VEC);
-    }
-
-    @Test
-    public void testGetClazzBasedOnClosestDistanceFI() throws Exception {
-        testGetClazzBasedOnClosestDistance(Word2VecPretrained.FREEBASE_IDS);
-    }
-
-    @Ignore
-    @Test
-    public void testGetClazzBasedOnClosestDistanceFN() throws Exception {
-        testGetClazzBasedOnClosestDistance(Word2VecPretrained.FREEBASE_NAMES);
-    }
-
     /**
      * Test simple Word2Vec classification on existing KeyPhrases
      * 
-     * @param set
-     *            The pre-trained Word2Vec model
+     * @param vec
+     *            The pre-trained Word2Vec
+     * @param autoClazz
+     *            The default classification to assign if none can be selected
+     * @param removeStopWords
+     *            Whether to remove stop words from classification
      */
-    private void testGetClazzBasedOnClosestDistance(Word2VecPretrained set) {
-        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
+    private void testGetClazzBasedOnClosestDistance(Word2Vec vec, Classification autoClazz, boolean removeStopWords) {
         List<ConfusionStatistic> overallStats = new ArrayList<ConfusionStatistic>();
         for (Paper paper : testPapers) {
             int tp = 0;
@@ -131,7 +129,8 @@ public class TestW2VClassifier extends TestOnPapers {
             List<KeyPhrase> kps = paper.getKeyPhrases();
 
             for (KeyPhrase kp : kps) {
-                Classification predClazz = W2VClassifier.getClazzBasedOnClosestDistance(kp.getPhrase(), vec);
+                Classification predClazz = W2VClassifier.getClazzBasedOnClosestDistance(kp.getPhrase(), vec, autoClazz,
+                        removeStopWords);
                 if (predClazz.equals(kp.getClazz())) {
                     tp++;
                 } else {
@@ -145,7 +144,6 @@ public class TestW2VClassifier extends TestOnPapers {
 
         ConfusionStatistic stats = ConfusionStatistic.calculateScoreSum(overallStats);
 
-        log.info("W2V Classification - based on closest distance using " + set);
         log.info("Overall statistics: " + stats);
         log.info("Specific results were: tp: " + stats.getTp() + " fp: " + stats.getFp() + " tn: " + stats.getTn()
                 + " fn: " + stats.getFn());

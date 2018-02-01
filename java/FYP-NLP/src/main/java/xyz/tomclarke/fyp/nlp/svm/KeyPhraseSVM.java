@@ -34,7 +34,7 @@ public class KeyPhraseSVM extends BaseSvm {
 
     private static final Logger log = LogManager.getLogger(KeyPhraseSVM.class);
 
-    private static final int numOfSVs = 12;
+    private static final int numOfSVs = 13;
 
     // Used when constructing SVs
     private List<Paper> trainingPapers;
@@ -187,6 +187,8 @@ public class KeyPhraseSVM extends BaseSvm {
         int tokenParseDepth = NlpUtil.calculateTokenParseDepth(token, sentence);
         int sentenceParseDepth = NlpUtil.calculateSentenceParseDepth(sentence);
         svm_node svParseTreeDepth = makeNewNode(12, (double) tokenParseDepth / (double) sentenceParseDepth);
+        // Stop word or ignore word?
+        svm_node svIgnoreWord = makeNewNode(13, NlpUtil.isTokenToIgnore(word) ? 1.0 : 0.0);
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -202,6 +204,7 @@ public class KeyPhraseSVM extends BaseSvm {
         nodes[9] = svProcess;
         nodes[10] = svMaterial;
         nodes[11] = svParseTreeDepth;
+        nodes[12] = svIgnoreWord;
         return nodes;
     }
 
