@@ -11,44 +11,58 @@ import javax.validation.constraints.Size;
 public class SearchQuery {
 
     @Size(min = 0, max = 30)
-    private String task;
-    @Size(min = 0, max = 30)
-    private String process;
-    @Size(min = 0, max = 30)
-    private String material;
+    private String text;
+    private boolean focusOnTask;
+    private boolean focusOnProcess;
+    private boolean focusOnMaterial;
 
     public SearchQuery() {
         // Nothing to do here
     }
 
-    public SearchQuery(String task, String process, String material) {
-        this.task = task;
-        this.process = process;
-        this.material = material;
+    public SearchQuery(String text, boolean focusOnTask, boolean focusOnProcess, boolean focusOnMaterial) {
+        super();
+        this.text = text;
+        this.focusOnTask = focusOnTask;
+        this.focusOnProcess = focusOnProcess;
+        this.focusOnMaterial = focusOnMaterial;
     }
 
-    public String getTask() {
-        return task;
+    @Override
+    public String toString() {
+        return "QUERY:\"" + text + "\", T:" + focusOnTask + ", P:" + focusOnProcess + ", M:" + focusOnMaterial;
     }
 
-    public void setTask(String task) {
-        this.task = task;
+    public String getText() {
+        return text;
     }
 
-    public String getProcess() {
-        return process;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public void setProcess(String process) {
-        this.process = process;
+    public boolean isFocusOnTask() {
+        return focusOnTask;
     }
 
-    public String getMaterial() {
-        return material;
+    public void setFocusOnTask(boolean focusOnTask) {
+        this.focusOnTask = focusOnTask;
     }
 
-    public void setMaterial(String material) {
-        this.material = material;
+    public boolean isFocusOnProcess() {
+        return focusOnProcess;
+    }
+
+    public void setFocusOnProcess(boolean focusOnProcess) {
+        this.focusOnProcess = focusOnProcess;
+    }
+
+    public boolean isFocusOnMaterial() {
+        return focusOnMaterial;
+    }
+
+    public void setFocusOnMaterial(boolean focusOnMaterial) {
+        this.focusOnMaterial = focusOnMaterial;
     }
 
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<jwnl_properties language="en" country="uk">
+  <dictionary class="net.didion.jwnl.dictionary.FileBackedDictionary">
+    <param name="dictionary_path"
+      value="C:\\Users\\Tom\\OneDrive\\University\\Yr3\\FYP\\Code\\resources\\wn-dict" />
+  </dictionary>
+  <version publisher="Princeton" number="3.1" language="en" />
+  <resource class="jwnl.properties" />
+</jwnl_properties>

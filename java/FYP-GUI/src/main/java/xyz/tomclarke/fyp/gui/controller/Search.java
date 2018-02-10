@@ -1,10 +1,11 @@
 package xyz.tomclarke.fyp.gui.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -13,13 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import xyz.tomclarke.fyp.gui.dao.HyponymRepository;
-import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
-import xyz.tomclarke.fyp.gui.dao.PaperDAO;
-import xyz.tomclarke.fyp.gui.dao.PaperRepository;
-import xyz.tomclarke.fyp.gui.dao.SynLinkRepository;
 import xyz.tomclarke.fyp.gui.model.SearchQuery;
 import xyz.tomclarke.fyp.gui.model.SearchResult;
+import xyz.tomclarke.fyp.gui.service.PaperSearch;
 
 /**
  * Lists all papers and allows for searching
@@ -31,14 +28,10 @@ import xyz.tomclarke.fyp.gui.model.SearchResult;
 @RequestMapping(value = "/search")
 public class Search {
 
+    private static final Logger log = LogManager.getLogger(Search.class);
+
     @Autowired
-    private PaperRepository paperRepo;
-    @Autowired
-    private KeyPhraseRepository kpRepo;
-    @Autowired
-    private HyponymRepository hypRepo;
-    @Autowired
-    private SynLinkRepository synLinkRepo;
+    private PaperSearch paperSearch;
 
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView index() {
@@ -57,22 +50,17 @@ public class Search {
             return mv;
         }
 
-        // TODO Do actual search at some point
+        // Do the search
+        List<SearchResult> searchResults = paperSearch.search(search);
+        mv.addObject("results", searchResults);
 
-        Iterable<PaperDAO> papers = paperRepo.findAll();
-        List<SearchResult> results = new ArrayList<SearchResult>();
-        for (PaperDAO paper : papers) {
-            SearchResult result = new SearchResult();
-            result.setId(paper.getId());
-            result.setPaper(paper.getTitle());
-            if (paper.getTitle() == null || paper.getTitle().trim().isEmpty()) {
-                result.setPaper(paper.getLocation());
-            }
-            result.setKps(kpRepo.countByPaper(paper));
-            result.setRels(hypRepo.countByPaper(paper) + synLinkRepo.countByPaper(paper));
-            results.add(result);
+        // Record what was searched, may be interesting
+        log.info(search + ", FOUND:" + searchResults.size());
+
+        // Let the user know nothing was found
+        if (searchResults.isEmpty()) {
+            mv.addObject("noResults", true);
         }
-        mv.addObject("results", results);
 
         return mv;
     }

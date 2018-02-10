@@ -22,74 +22,45 @@
 		</div>
 	</div>
 
-
-	<c:choose>
-		<c:when test="${hasErrored}">
-			<c:set var="cssForForm" scope="session" value="has-error" />
-		</c:when>
-		<c:otherwise>
-			<c:set var="cssForForm" scope="session" value="" />
-		</c:otherwise>
-	</c:choose>
-
 	<form:form method="POST" action="/search" modelAttribute="search"
-		class="form-group ${cssForForm}">
-
+		class="form-group">
 		<div class="container">
-			<div class="row">
-				<div class="col-lg-4 text-center">
-					<div class="card">
-						<div class="card-block form-group">
-							<h3 class="card-title">
-								<form:label class="control-label" path="task">Task:</form:label>
-							</h3>
-							<div class="card-subtitle mb-2 text-muted">
-								<form:input type="text" class="form-control" path="task" />
-								<p>
-									<form:errors path="task" />
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-4 text-center">
-					<div class="card">
-						<div class="card-block form-group">
-							<h3 class="card-title">
-								<form:label class="control-label" path="process">Process:</form:label>
-							</h3>
-							<div class="card-subtitle mb-2 text-muted">
-								<form:input type="text" class="form-control" path="process" />
-								<p>
-									<form:errors path="process" />
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-4 text-center">
-					<div class="card">
-						<div class="card-block form-group">
-							<h3 class="card-title">
-								<form:label class="control-label" path="material">Material:</form:label>
-							</h3>
-							<div class="card-subtitle mb-2 text-muted">
-								<form:input type="text" class="form-control" path="material" />
-								<p>
-									<form:errors path="material" />
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
+			<form:label class="control-label" path="text">Enter terms to search for and focus on task, process or material related items:</form:label>
+			<div class="form-group input-group">
+				<form:input type="text" class="form-control" path="text"
+					placeholder="Search terms or phrases" />
+				<span class="input-group-btn"> <input class="btn btn-primary"
+					type="submit" value="Submit" />
+				</span>
 			</div>
+			<div>
+				<label class="control-label">Focus on:</label>
+				<form:checkbox path="focusOnTask" />
+				Task
+				<form:checkbox path="focusOnProcess" />
+				Process
+				<form:checkbox path="focusOnMaterial" />
+				Material
+			</div>
+			<c:if test="${hasErrored}">
+				<div class="alert alert-dismissable alert-danger">
+					<button type="button" class="close" data-dismiss="alert">×</button>
+					<strong><form:errors path="text" /></strong>
+				</div>
+			</c:if>
+		</div>
+	</form:form>
 
-			<div class="row text-center">
-				<input class="btn btn-primary btn-lg" type="submit" value="Submit" />
+	<c:if test="${noResults}">
+		<div class="container">
+			<div class="alert alert-dismissable alert-danger">
+				<button type="button" class="close" data-dismiss="alert">×</button>
+				<p>
+					<strong>No papers found!</strong>
+				</p>
 			</div>
 		</div>
-
-	</form:form>
+	</c:if>
 
 	<c:if test="${not empty results}">
 		<div class="container">

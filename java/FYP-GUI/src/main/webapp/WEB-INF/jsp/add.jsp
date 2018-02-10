@@ -37,7 +37,8 @@
 			class="form-group ${cssForForm}">
 			<form:label class="control-label" path="location">Please enter the paper location:</form:label>
 			<div class="form-group input-group">
-				<form:input type="text" class="form-control" path="location" />
+				<form:input type="text" class="form-control" path="location"
+					placeholder="Paper location..." />
 				<span class="input-group-btn"> <input class="btn btn-primary"
 					type="submit" value="Submit" />
 				</span>

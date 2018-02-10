@@ -84,7 +84,7 @@ public class KeyPhraseCloudCache {
      */
     public List<KPViewCloudEntity> getTaskCloud() {
         if (taskCloud == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Task cloud not available");
         }
         return taskCloud;
     }
@@ -96,7 +96,7 @@ public class KeyPhraseCloudCache {
      */
     public List<KPViewCloudEntity> getProcessCloud() {
         if (processCloud == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Process cloud not available");
         }
         return processCloud;
     }
@@ -108,7 +108,7 @@ public class KeyPhraseCloudCache {
      */
     public List<KPViewCloudEntity> getMaterialCloud() {
         if (materialCloud == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Material cloud not available");
         }
         return materialCloud;
     }
@@ -120,7 +120,7 @@ public class KeyPhraseCloudCache {
      */
     public List<KPViewRow> getTaskRows() {
         if (taskRows == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Task rows not available");
         }
         return taskRows;
     }
@@ -132,7 +132,7 @@ public class KeyPhraseCloudCache {
      */
     public List<KPViewRow> getProcessRows() {
         if (processRows == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Process rows not available");
         }
         return processRows;
     }
@@ -144,7 +144,7 @@ public class KeyPhraseCloudCache {
      */
     public List<KPViewRow> getMaterialRows() {
         if (materialRows == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Material rows not available");
         }
         return materialRows;
     }

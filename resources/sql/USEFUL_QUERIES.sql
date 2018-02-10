@@ -11,3 +11,8 @@ SELECT kp1.* FROM key_phrase kp1, key_phrase kp2 WHERE kp1.paper = kp2.paper AND
 
 -- Find a certain type of key phrases
 SELECT * FROM fyp.key_phrase WHERE classification = "Task";
+
+-- Papers not finished processing
+SELECT * FROM fyp.paper WHERE status != 4;
+-- Finish them
+UPDATE fyp.paper SET status = -1 WHERE status != 4;
