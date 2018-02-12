@@ -7,6 +7,7 @@
 \usepackage{float}
 \usepackage[margin=1.in]{geometry}
 \usepackage{tocloft}
+
 \renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
 \renewcommand{\cftaftertoctitle}{\hfill\hfill}
 \renewcommand{\cftloftitlefont}{\hfill\Large\bfseries}
@@ -16,10 +17,8 @@
 
 \begin{document}
 
-
 %----------------------------------------------------------------------
 % Title
-
 
 \begin{titlepage}
 \pagenumbering{gobble}
@@ -62,43 +61,54 @@
 %----------------------------------------------------------------------
 % Contents and stuff
 
+\section*{Declaration}
+The material contained within this thesis has not previously been submitted for a degree at the University of Birmingham or any other university. The research reported within this thesis has been conducted by the author unless indicated otherwise.
+
 \pagenumbering{gobble}
-\tableofcontents
-\listoffigures
-\listoftables
 \pagebreak
 
-\pagenumbering{arabic}
-
-\begin{center}\section*{Acknowledgments}\end{center}
-\addcontentsline{toc}{section}{Acknowledgments}
+\section*{Acknowledgements}
 I would like to give acknowledgement to those who helped me throughout the completion of this project.\\
 
 Firstly, a thank you to Dr Mark Lee for being a supportive and informative supervisor, as well as an entertaining host during project meetings. \\
 
 I also wish to thank my friends and family in supporting me during the year leading preceding this dissertation, ensuring I kept on track and in a good frame of mind.\\
 
+\pagenumbering{gobble}
 \pagebreak
+
+\section*{Abstract}
+
+\section*{Keywords}
+Natural Language Processing, Key Phrase Extraction, Classification, Relation Extraction, Support Vector Machine, Word2Vec, Spring Boot
+
+\pagenumbering{gobble}
+\pagebreak
+
+\tableofcontents
+\listoffigures
+\listoftables
+\pagenumbering{gobble}
+\pagebreak
+
+\pagenumbering{arabic}
 
 %----------------------------------------------------------------------
 % Parts
 
-\input{parts/1-abstract}
-\input{parts/2-intro}
-\input{parts/3-literature}
-\input{parts/4-plannedwork}
-\input{parts/5-nlp1}
-\input{parts/6-nlp2}
-\input{parts/7-nlp3}
-\input{parts/8-gui}
-\input{parts/9-discussion}
+\input{parts/1-intro}
+\input{parts/2-background}
+\input{parts/3-plannedwork}
+\input{parts/4-nlp-spec}
+\input{parts/5-nlp-eval}
+% may swap the following two bits around depending upon what is included
+\input{parts/6-discussion}
+\input{parts/7-gui}
 
 %----------------------------------------------------------------------
 % References
 
 \pagebreak
-\pagenumbering{gobble}
-\addcontentsline{toc}{section}{References}
 \bibliographystyle{ieeetr}
 \nocite{*}
 \bibliography{fyp.bib}
