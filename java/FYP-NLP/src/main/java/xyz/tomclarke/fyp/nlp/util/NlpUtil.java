@@ -117,9 +117,32 @@ public final class NlpUtil {
     }
 
     /**
-     * Calculates the TF-IDF of a word in a paper
+     * Converts words to tokens (lower case, removes all punctuation, splits on
+     * spaces)
+     * 
+     * @param words
+     *            The words to get tokens from
+     * @return A list of tokens
+     */
+    public static String[] getAllTokens(String words) {
+        return sanitiseString(words).split(" ");
+    }
+
+    /**
+     * Removes all punctuation from a word for processing
      * 
      * @param word
+     *            The word to remove punctuation from
+     * @return The sanitised string
+     */
+    private static String sanitiseString(String word) {
+        return word.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
+    }
+
+    /**
+     * Calculates the TF-IDF of a word in a paper
+     * 
+     * @param originalWord
      *            The word to calculate the TF-IDF of
      * @param containingPaper
      *            The paper the word is from
@@ -127,17 +150,29 @@ public final class NlpUtil {
      *            The training papers
      * @return The calculates TF-IDF score of the word
      */
-    public static double calculateTfIdf(String word, Paper containingPaper, List<Paper> trainingPapers) {
-        if (!containingPaper.getTokenCounts().containsKey(word.toLowerCase())) {
-            // Can't handle this as its split differently
-            log.debug("TF-IDF calculator can't find word in paper " + word);
-            return 1;
+    public static double calculateTfIdf(String originalWord, Paper containingPaper, List<Paper> trainingPapers) {
+        // Prepare for calculations
+        String word = sanitiseString(originalWord);
+
+        if (!containingPaper.getTokenCounts().containsKey(word)) {
+            // Try the actual word
+            word = originalWord.toLowerCase();
+            if (!containingPaper.getTokenCounts().containsKey(word)) {
+                // Can't handle this as its split differently
+                log.error(
+                        "TF-IDF calculator can't find \"" + originalWord + "\" in paper " + containingPaper.getTitle());
+
+                // Can't find it, hm...
+                // If stop word, go 0, if not stop word, go 1
+                return isTokenToIgnore(originalWord) ? 0.0 : 1.0;
+            }
         }
-        double tf = (double) containingPaper.getTokenCounts().get(word.toLowerCase())
+
+        double tf = (double) containingPaper.getTokenCounts().get(word)
                 / (double) containingPaper.getTokenCounts().values().stream().reduce(0, Integer::sum);
         int numOfPapersWithTerm = 0;
         for (Paper paperIdf : trainingPapers) {
-            if (paperIdf.getTokenCounts().containsKey(word.toLowerCase())) {
+            if (paperIdf.getTokenCounts().containsKey(word)) {
                 numOfPapersWithTerm++;
             }
         }

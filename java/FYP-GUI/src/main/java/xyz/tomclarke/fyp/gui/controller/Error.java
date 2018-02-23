@@ -18,7 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Handles errors
+ * Handles GUI errors
  * 
  * @author tbc452
  *
@@ -41,8 +41,16 @@ public class Error implements ErrorController {
         Map<String, Object> errorInfo = errorAttributes.getErrorAttributes(requestAttributes, debug);
         mv.addAllObjects(errorInfo);
         mv.addObject("debug", debug);
-        log.error("Spring error: " + errorInfo.get("status") + " for " + request.getRequestURL().toString() + "?"
-                + request.getQueryString() + " - " + errorInfo.get("message"));
+        String queryString = request.getQueryString();
+        if (queryString == null || queryString.isEmpty()) {
+            // No query
+            queryString = "";
+        } else {
+            // Query string there, so make it look valid in printing with a ?
+            queryString = "?" + queryString;
+        }
+        log.error("Spring error: " + errorInfo.get("status") + " for " + request.getRequestURL().toString()
+                + queryString + " - " + errorInfo.get("message"));
         return mv;
     }
 
@@ -50,4 +58,5 @@ public class Error implements ErrorController {
     public String getErrorPath() {
         return PATH;
     }
+
 }

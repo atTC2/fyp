@@ -16,6 +16,7 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
+import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Uses libsvm to extract relations between key phrases using Word2Vec
@@ -147,8 +148,8 @@ public class RelationshipSVM extends BaseSvm {
     public svm_node[] generateSupportVectors(KeyPhrase kp1, KeyPhrase kp2, Word2Vec vec, Annotator ann)
             throws Exception {
         // Get phrase vectors
-        double[] vector1 = getPhraseVectorOfNoun(kp1, vec, ann);
-        double[] vector2 = getPhraseVectorOfNoun(kp2, vec, ann);
+        double[] vector1 = getPhraseVectorIgnoringStopWords(kp1, vec);
+        double[] vector2 = getPhraseVectorIgnoringStopWords(kp2, vec);
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -229,6 +230,7 @@ public class RelationshipSVM extends BaseSvm {
      * @throws Exception
      *             If a word vector isn't the expected length.
      */
+    @SuppressWarnings("unused")
     private double[] getPhraseVectorOfNoun(KeyPhrase kp, Word2Vec vec, Annotator ann) throws Exception {
         // Remove punctuation and get each word
         List<CoreMap> sentences = ann.annotate(kp.getPhrase());
@@ -243,8 +245,6 @@ public class RelationshipSVM extends BaseSvm {
             deepestNoun = kp.getPhrase();
         }
         deepestNoun = deepestNoun.replaceAll("\\p{Punct}", "").replaceAll(" ", "_");
-        // log.debug("NOUN SELECTED: " + kp.getPhrase() + " -> " + deepestNoun + " in
-        // vec: " + vec.hasWord(deepestNoun));
 
         int expectedVectorLength = numOfSVs;
         double[] vector = new double[expectedVectorLength];
@@ -262,6 +262,53 @@ public class RelationshipSVM extends BaseSvm {
                     for (int i = 0; i < wordVector.length; i++) {
                         vector[i] += wordVector[i];
                     }
+                }
+            }
+        }
+
+        return vector;
+    }
+
+    /**
+     * Calculates a phrase vector from combining word vectors, ignoring stop words
+     * if possible
+     * 
+     * @param kp
+     *            The key phrase
+     * @param vec
+     *            The Word2Vec data to use
+     * @return The phrase vector
+     * @throws Exception
+     *             If a word vector isn't the expected length.
+     */
+    private double[] getPhraseVectorIgnoringStopWords(KeyPhrase kp, Word2Vec vec) throws Exception {
+        // Remove punctuation and get each word
+        String[] tokens = NlpUtil.getAllTokens(kp.getPhrase());
+        List<String> tokensToProcess = new ArrayList<String>();
+        // Ensure there is at least 1 non-stop word
+        for (String token : NlpUtil.getAllTokens(kp.getPhrase())) {
+            if (!NlpUtil.isTokenToIgnore(token)) {
+                tokensToProcess.add(token);
+            }
+        }
+
+        // If there are tokens which aren't ignored, just process on these
+        if (!tokensToProcess.isEmpty()) {
+            tokens = tokensToProcess.toArray(new String[tokensToProcess.size()]);
+        }
+
+        int expectedVectorLength = numOfSVs;
+        double[] vector = new double[expectedVectorLength];
+
+        // Sum token vectors, ignoring words that are not in Word2Vec
+        for (String token : tokens) {
+            if (vec.hasWord(token)) {
+                double[] wordVector = vec.getWordVector(token);
+                if (expectedVectorLength != wordVector.length) {
+                    throw new Exception("Word Vector length not " + expectedVectorLength);
+                }
+                for (int i = 0; i < wordVector.length; i++) {
+                    vector[i] += wordVector[i];
                 }
             }
         }

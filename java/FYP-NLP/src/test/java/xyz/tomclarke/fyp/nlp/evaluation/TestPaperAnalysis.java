@@ -2,7 +2,9 @@ package xyz.tomclarke.fyp.nlp.evaluation;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Ignore;
@@ -10,6 +12,7 @@ import org.junit.Test;
 
 import xyz.tomclarke.fyp.nlp.TestOnPapers;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -30,6 +33,7 @@ public class TestPaperAnalysis extends TestOnPapers {
         }
     }
 
+    @Ignore
     @Test
     public void printTokenAnalysis() throws IOException {
         Map<String, Double> tfIdfs = new HashMap<String, Double>();
@@ -53,6 +57,29 @@ public class TestPaperAnalysis extends TestOnPapers {
         }
 
         fileWriter.close();
+    }
+
+    @Ignore
+    @Test
+    public void isAnyPhraseAllStopTokens() {
+        List<Paper> papersToCheck = new ArrayList<Paper>();
+        papersToCheck.addAll(trainingPapers);
+        papersToCheck.addAll(testPapers);
+        for (Paper paper : papersToCheck) {
+            for (KeyPhrase kp : paper.getKeyPhrases()) {
+                boolean kpHasNonStopWord = false;
+                for (String token : NlpUtil.getAllTokens(kp.getPhrase())) {
+                    if (!NlpUtil.isTokenToIgnore(token)) {
+                        kpHasNonStopWord = true;
+                        break;
+                    }
+                }
+                if (!kpHasNonStopWord) {
+                    System.out
+                            .println("KP made of stop words: \"" + kp.getPhrase() + "\" in paper " + paper.getTitle());
+                }
+            }
+        }
     }
 
 }
