@@ -3,6 +3,9 @@ package xyz.tomclarke.fyp.nlp.evaluation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -19,8 +22,7 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
  */
 public abstract class EvaluateExtractions {
 
-    // private static final Logger log =
-    // LogManager.getLogger(EvaluateExtractions.class);
+    private static final Logger log = LogManager.getLogger(EvaluateExtractions.class);
 
     /**
      * Evaluates key phrases (for now we ignore ID and text position)
@@ -230,7 +232,11 @@ public abstract class EvaluateExtractions {
                     for (int i = 0; i < predRel.getPhrases().length; i++) {
                         if (predRel.getPhrases()[i].equals(actRel.getPhrases()[i])) {
                             truePositive = true;
-                            foundCorrectly.add(actRel);
+                            if (!foundCorrectly.contains(actRel)) {
+                                foundCorrectly.add(actRel);
+                            } else {
+                                log.error("Rel-eval: found a relation that was added twice!");
+                            }
                             break;
                         }
                     }
