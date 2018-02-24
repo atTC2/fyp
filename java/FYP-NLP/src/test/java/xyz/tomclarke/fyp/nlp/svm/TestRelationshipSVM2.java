@@ -45,10 +45,7 @@ public class TestRelationshipSVM2 extends TestOnPapers {
         testRelationSvm(Word2VecPretrained.FREEBASE_IDS);
     }
 
-<<<<<<< HEAD
-=======
     @Ignore
->>>>>>> 54cf77706cf940af1ae9003d5c390103a96301e5
     @Test
     public void testRelationSvmFN() throws Exception {
         testRelationSvm(Word2VecPretrained.FREEBASE_NAMES);

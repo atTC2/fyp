@@ -68,16 +68,24 @@ The material contained within this thesis has not previously been submitted for 
 \pagebreak
 
 \section*{Acknowledgements}
-I would like to give acknowledgement to those who helped me throughout the completion of this project.\\
+I would like to give acknowledgement to those who helped me throughout the completion of this project.\par
 
-Firstly, a thank you to Dr Mark Lee for being a supportive and informative supervisor, as well as an entertaining host during project meetings. \\
+Firstly, a thank you to Dr Mark Lee for being a supportive and informative supervisor, as well as an entertaining host during project meetings.\par
 
-I also wish to thank my friends and family in supporting me during the year leading preceding this dissertation, ensuring I kept on track and in a good frame of mind.\\
+I also wish to thank my friends and family in supporting me during the year leading preceding this dissertation, ensuring I kept on track and in a good frame of mind.\par
 
 \pagenumbering{gobble}
 \pagebreak
 
 \section*{Abstract}
+This project presents solutions developed to solve the SemEval 2017 ScienceIE task - analysis of scientific publications to extract key information. This includes three sub tasks: \textit{(A)} key phrase extraction, \textit{(B)} classification and \textit{(C)} relation extraction.\par
+
+To achieve subtask A, the text of a paper is parsed to find it's semantic tree. Then, each word in succession is tested in a Support Vector Machine (SVM), based around a words' semantic attributes to determine if it should be a, or part of a, key phrase. Each phrase generated is also sanitised to reduce excess information. Subtask B involved treating each key phrase as a Bag-Of-Words, and calculating the phrases' distance to each classification type using Word2Vec. Finally, subtask C experimented with using the Word2Vec representation of a phrase and the relative distances between phrases combined with an SVM to try too detect relations. \par
+
+*Scores of NLP go here*\par
+
+To explore how this system could be used, a website was created hosting the information. This used Spring Boot to create a Java based web project which supported not only an archive of processed papers, but also the means to search using query strings and automatic processing of submitted papers to the system (through using the most successful versions of systems described above).
+ *Evaluation summary goes here...*\par
 
 \section*{Keywords}
 Natural Language Processing, Key Phrase Extraction, Classification, Relation Extraction, Support Vector Machine, Word2Vec, Spring Boot
@@ -109,8 +117,7 @@ Natural Language Processing, Key Phrase Extraction, Classification, Relation Ext
 % References
 
 \pagebreak
-\bibliographystyle{ieeetr}
-\nocite{*}
+\bibliographystyle{agsm}
 \bibliography{fyp.bib}
 \end{document}
 
