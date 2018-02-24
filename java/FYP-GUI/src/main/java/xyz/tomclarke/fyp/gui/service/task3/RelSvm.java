@@ -18,7 +18,6 @@ import xyz.tomclarke.fyp.gui.dao.SynonymDAO;
 import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
 import xyz.tomclarke.fyp.gui.service.PaperProcessor;
-import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
@@ -55,7 +54,6 @@ public class RelSvm implements NlpProcessor {
     private SynLinkRepository synLinkRepo;
     @Autowired
     private SynonymRepository synRepo;
-    private Annotator ann;
 
     @Override
     public void loadObjects() throws Exception {
@@ -65,21 +63,19 @@ public class RelSvm implements NlpProcessor {
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
             List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class, true);
-            ann = new Annotator();
 
             // Build the SVM data
             RelationshipSVM hyp = new RelationshipSVM();
             if (!hypAvailable) {
-                hyp.generateTrainingData(trainingPapers, RelationType.HYPONYM_OF, pp.getVec(), ann);
+                hyp.generateTrainingData(trainingPapers, RelationType.HYPONYM_OF, pp.getVec());
             }
             RelationshipSVM syn = new RelationshipSVM();
             if (!synAvailable) {
-                syn.generateTrainingData(trainingPapers, RelationType.SYNONYM_OF, pp.getVec(), ann);
+                syn.generateTrainingData(trainingPapers, RelationType.SYNONYM_OF, pp.getVec());
             }
 
             // Train the SVMs, one at a time and clear the memory
             pp.setVec(null);
-            ann = null;
             System.gc();
 
             if (!hypAvailable) {
@@ -102,22 +98,19 @@ public class RelSvm implements NlpProcessor {
         // Need to reload after loadObjects()
         pp.loadVec();
 
-        if (ann == null) {
-            ann = new Annotator();
-        }
         // Load the paper
         Paper paperFromDb = pp.loadPaper(paper);
 
         // One SVM at a time, find the relations
         log.info("Hyp extraction");
         RelationshipSVM hyp = (RelationshipSVM) NlpObjectStore.loadNlpObj(REL_SVM_HYP);
-        List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, pp.getVec(), ann);
+        List<Relationship> hypRels = hyp.predictRelationships(paperFromDb, pp.getVec());
         hyp = null;
         System.gc();
 
         log.info("Syn extraction");
         RelationshipSVM syn = (RelationshipSVM) NlpObjectStore.loadNlpObj(REL_SVM_SYN);
-        List<Relationship> synRels = syn.predictRelationships(paperFromDb, pp.getVec(), ann);
+        List<Relationship> synRels = syn.predictRelationships(paperFromDb, pp.getVec());
         syn = null;
         System.gc();
 
@@ -165,9 +158,6 @@ public class RelSvm implements NlpProcessor {
 
     @Override
     public void unload() {
-        if (ann == null) {
-            ann = null;
-        }
         System.gc();
     }
 

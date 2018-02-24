@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import libsvm.svm_node;
 import xyz.tomclarke.fyp.nlp.TestOnPapers;
-import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
@@ -104,18 +103,16 @@ public class TestRelationshipSVM extends TestOnPapers {
 
         // Generate the SVM training data
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
-        Annotator ann = new Annotator();
-        svm.generateTrainingData(trainingPapers, type, vec, ann);
+        svm.generateTrainingData(trainingPapers, type, vec);
 
         // Get the testing vectors while vec and ann still loaded
         List<List<svm_node[]>> testSvs = new ArrayList<List<svm_node[]>>();
         for (Paper paper : testPapers) {
-            testSvs.add(svm.generateTestingVectors(paper, vec, ann));
+            testSvs.add(svm.generateTestingVectors(paper, vec));
         }
 
         // Clear memory
         vec = null;
-        ann = null;
         System.gc();
 
         // Train the SVM
