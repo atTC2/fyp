@@ -42,11 +42,13 @@ public class TestRelationshipSVM extends TestOnPapers {
         testRelationSvm(Word2VecPretrained.WIKI2VEC);
     }
 
+    @Ignore
     @Test
     public void testRelationSvmFI() throws Exception {
         testRelationSvm(Word2VecPretrained.FREEBASE_IDS);
     }
 
+    @Ignore
     @Test
     public void testRelationSvmFN() throws Exception {
         testRelationSvm(Word2VecPretrained.FREEBASE_NAMES);

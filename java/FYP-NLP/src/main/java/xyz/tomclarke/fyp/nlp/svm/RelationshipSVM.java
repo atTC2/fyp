@@ -148,8 +148,8 @@ public class RelationshipSVM extends BaseSvm {
     public svm_node[] generateSupportVectors(KeyPhrase kp1, KeyPhrase kp2, Word2Vec vec, Annotator ann)
             throws Exception {
         // Get phrase vectors
-        double[] vector1 = getPhraseVectorIgnoringStopWords(kp1, vec);
-        double[] vector2 = getPhraseVectorIgnoringStopWords(kp2, vec);
+        double[] vector1 = getPhraseVector(kp1, vec);
+        double[] vector2 = getPhraseVector(kp2, vec);
 
         // Build the SVs for the given token
         svm_node[] nodes = new svm_node[numOfSVs];
@@ -176,11 +176,10 @@ public class RelationshipSVM extends BaseSvm {
 
     /**
      * Calculates a phrase vector from combining word vectors
-     * 
-     * Base results (14/12/2017): ``` Overall statistics: Accuracy: 0.99417070
-     * Precision: 0.13402062 Recall: 0.06341463 F1: 0.08609272 Specific results
-     * were: tp: 13.0 fp: 84.0 tn: 47058.0 fn: 192.0 ```
-     * 
+     *
+     * A: 0.99417070 P: 0.13402062 R: 0.06341463 F1: 0.08609272
+     * tp: 13.0 fp: 84.0 tn: 47058.0 fn: 192.
+     *
      * @param kp
      *            The key phrase
      * @param vec
@@ -189,7 +188,6 @@ public class RelationshipSVM extends BaseSvm {
      * @throws Exception
      *             If a word vector isn't the expected length.
      */
-    @SuppressWarnings("unused")
     private double[] getPhraseVector(KeyPhrase kp, Word2Vec vec) throws Exception {
         // Remove punctuation and get each word
         String[] tokens = kp.getPhrase().replaceAll("\\p{Punct}", "").split(" ");
@@ -215,11 +213,12 @@ public class RelationshipSVM extends BaseSvm {
 
     /**
      * Calculates a phrase vector from searching the base noun in Word2Vec
-     * 
-     * Base results (14/12/2017): ``` Overall statistics: Accuracy: 0.99507961
-     * Precision: 0.06666667 Recall: 0.00966184 F1: 0.01687764 Specific results
-     * were: tp: 2.0 fp: 28.0 tn: 47119.0 fn: 205.0 ```
-     * 
+     *
+     * A: 0.99507961 P: 0.06666667 R: 0.00966184 F1: 0.01687764
+     * tp: 2.0 fp: 28.0 tn: 47119.0 fn: 205.0
+     *
+     * Also, sometimes runs out of memory...
+     *
      * @param kp
      *            The key phrase
      * @param vec
@@ -272,7 +271,9 @@ public class RelationshipSVM extends BaseSvm {
     /**
      * Calculates a phrase vector from combining word vectors, ignoring stop words
      * if possible
-     * 
+     *
+     * tp: 0.0 fp: 0.0 tn: 47149.0 fn: 207.0
+     *
      * @param kp
      *            The key phrase
      * @param vec
@@ -281,6 +282,7 @@ public class RelationshipSVM extends BaseSvm {
      * @throws Exception
      *             If a word vector isn't the expected length.
      */
+    @SuppressWarnings("unused")
     private double[] getPhraseVectorIgnoringStopWords(KeyPhrase kp, Word2Vec vec) throws Exception {
         // Remove punctuation and get each word
         String[] tokens = NlpUtil.getAllTokens(kp.getPhrase());
