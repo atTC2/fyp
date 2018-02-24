@@ -9,11 +9,9 @@ import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import libsvm.svm_node;
 import xyz.tomclarke.fyp.nlp.TestOnPapers;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.EvaluateExtractions;
-import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
@@ -25,9 +23,9 @@ import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
  * @author tbc452
  *
  */
-public class TestRelationshipSVM extends TestOnPapers {
+public class TestRelationshipSVM2 extends TestOnPapers {
 
-    private static final Logger log = LogManager.getLogger(TestRelationshipSVM.class);
+    private static final Logger log = LogManager.getLogger(TestRelationshipSVM2.class);
 
     @Test
     public void testRelationSvmGN() throws Exception {
@@ -61,15 +59,16 @@ public class TestRelationshipSVM extends TestOnPapers {
      * @throws Exception
      */
     private void testRelationSvm(Word2VecPretrained set) throws Exception {
+        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
         // Get all relationships and evaluate
         List<List<Relationship>> allRels = new ArrayList<List<Relationship>>();
         log.info("RUNNING HYP SVM...");
         // Do hyp
-        allRels.addAll(trainAndUseSvm(RelationType.HYPONYM_OF, set));
+        allRels.addAll(trainAndUseSvm(RelationType.HYPONYM_OF, vec));
         System.gc();
         log.info("RUNNING SYN SVM...");
         // Do syn
-        allRels.addAll(trainAndUseSvm(RelationType.SYNONYM_OF, set));
+        allRels.addAll(trainAndUseSvm(RelationType.SYNONYM_OF, vec));
 
         log.info("CALCULATING...");
         // Evaluate
@@ -91,36 +90,25 @@ public class TestRelationshipSVM extends TestOnPapers {
      * 
      * @param type
      *            The type of SVM
-     * @param set
+     * @param vec
      *            The Word2Vec data set to use
      * @return Calculated relationships (for all test papers, in same order as test
      *         papers)
      * @throws Exception
      */
-    private List<List<Relationship>> trainAndUseSvm(RelationType type, Word2VecPretrained set) throws Exception {
+    private List<List<Relationship>> trainAndUseSvm(RelationType type, Word2Vec vec) throws Exception {
         List<List<Relationship>> allRels = new ArrayList<List<Relationship>>();
-        RelationshipSVM svm = new RelationshipSVM();
+        RelationshipSVM2 svm = new RelationshipSVM2();
 
         // Generate the SVM training data
-        Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
         svm.generateTrainingData(trainingPapers, type, vec);
-
-        // Get the testing vectors while vec and ann still loaded
-        List<List<svm_node[]>> testSvs = new ArrayList<List<svm_node[]>>();
-        for (Paper paper : testPapers) {
-            testSvs.add(svm.generateTestingVectors(paper, vec));
-        }
-
-        // Clear memory
-        vec = null;
-        System.gc();
 
         // Train the SVM
         svm.train();
 
         // Use the pre-calculated test SVs to get relations
         for (int i = 0; i < testPapers.size(); i++) {
-            allRels.add(svm.predictRelationshipsFromSvs(testPapers.get(i), testSvs.get(i)));
+            allRels.add(svm.predictRelationships(testPapers.get(i), vec));
         }
 
         return allRels;
