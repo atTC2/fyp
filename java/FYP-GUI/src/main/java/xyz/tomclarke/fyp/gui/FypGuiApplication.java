@@ -1,5 +1,7 @@
 package xyz.tomclarke.fyp.gui;
 
+import java.io.IOException;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +20,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @EnableScheduling
 public class FypGuiApplication extends WebMvcConfigurerAdapter {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         SpringApplication.run(FypGuiApplication.class, args);
     }
 

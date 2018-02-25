@@ -1,7 +1,7 @@
 package xyz.tomclarke.fyp.nlp.preprocessing;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +35,8 @@ public class LoadPapers {
      *            Whether to save information addition to disk
      * @return A list of loaded papers
      */
-    public static List<Paper> loadNewPapers(File papersList, boolean canAttemptAnnRead, boolean saveUpdatedToDisk) {
+    public static List<Paper> loadNewPapers(InputStream papersList, boolean canAttemptAnnRead,
+            boolean saveUpdatedToDisk) {
         ArrayList<Paper> papers = new ArrayList<Paper>();
         // Read through each line and try to load in the file.
         try (Scanner scanner = new Scanner(papersList)) {
@@ -51,8 +52,6 @@ public class LoadPapers {
                 // Try a single file
                 papers.addAll(loadNewPapers(paperLocation, canAttemptAnnRead, saveUpdatedToDisk));
             }
-        } catch (IOException e) {
-            log.error("Problem reading papers.txt", e);
         }
 
         return papers;

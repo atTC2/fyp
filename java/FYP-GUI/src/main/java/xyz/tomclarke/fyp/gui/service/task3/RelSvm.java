@@ -62,7 +62,7 @@ public class RelSvm implements NlpProcessor {
 
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
-            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class, true);
+            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
 
             // Build the SVM data
             RelationshipSVM hyp = new RelationshipSVM();

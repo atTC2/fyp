@@ -21,7 +21,6 @@ import xyz.tomclarke.fyp.gui.model.KPViewCloudEntity;
 import xyz.tomclarke.fyp.gui.model.KPViewRow;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
-import xyz.tomclarke.fyp.nlp.preprocessing.LoadPapers;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -48,15 +47,17 @@ public class KeyPhraseCloudCache {
     /**
      * Updates the cache every 30 minutes
      * 
+     * @throws IOException
+     * 
      * @throws Exception
      */
     @PostConstruct
-    public void updateCache() {
+    public void updateCache() throws IOException {
         log.info("Updating KP cloud cache");
         // Ensure we have the training papers
         if (trainingPapers == null) {
             // Need to ensure they're annotated
-            trainingPapers = NlpUtil.loadAndAnnotatePapers(LoadPapers.class, false);
+            trainingPapers = NlpUtil.loadAndAnnotatePapers(false);
         }
 
         // Get key phrase information from DB

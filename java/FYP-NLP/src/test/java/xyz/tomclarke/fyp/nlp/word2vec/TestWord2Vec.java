@@ -11,10 +11,10 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import xyz.tomclarke.fyp.nlp.TestOnPapers;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
-import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * A test class to let you mess around with Google News and Word2Vec (very much
@@ -23,7 +23,7 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
  * @author tbc452
  *
  */
-public class TestWord2Vec {
+public class TestWord2Vec extends TestOnPapers {
 
     private static final Logger log = LogManager.getLogger(TestWord2Vec.class);
 
@@ -53,9 +53,8 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseValues() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestWord2Vec.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-        for (Paper paper : papers) {
+        for (Paper paper : trainingPapers) {
             for (Extraction ext : paper.getExtractions()) {
                 if (!(ext instanceof KeyPhrase)) {
                     // Not a key phrase
@@ -78,9 +77,8 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseCombinedValues() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestWord2Vec.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
-        for (Paper paper : papers) {
+        for (Paper paper : trainingPapers) {
             for (Extraction ext : paper.getExtractions()) {
                 if (!(ext instanceof KeyPhrase)) {
                     // Not a key phrase
@@ -113,11 +111,10 @@ public class TestWord2Vec {
     @Ignore
     @Test
     public void calculateKeyPhraseVector() {
-        List<Paper> papers = NlpUtil.loadAndAnnotatePapers(TestWord2Vec.class, true);
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(Word2VecPretrained.GOOGLE_NEWS);
         double largest = 0.0;
         double smallest = 0.0;
-        for (Paper paper : papers) {
+        for (Paper paper : trainingPapers) {
             for (Extraction ext : paper.getExtractions()) {
                 if (!(ext instanceof KeyPhrase)) {
                     // Not a key phrase

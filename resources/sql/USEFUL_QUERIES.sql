@@ -16,3 +16,6 @@ SELECT * FROM fyp.key_phrase WHERE classification = "Task";
 SELECT * FROM fyp.paper WHERE status != 4;
 -- Finish them
 UPDATE fyp.paper SET status = -1 WHERE status != 4;
+
+SELECT * FROM paper WHERE text LIKE '%xylanases%'; # Proves default case insentivity
+SELECT * FROM paper WHERE text REGEXP 'xylanases'; # Proves regex default case insentivity

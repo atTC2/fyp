@@ -44,7 +44,7 @@ public class KpSvm implements NlpProcessor {
 
         if (svm == null) {
             // Need to build the SVM and save it
-            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class, true);
+            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
             svm = new KeyPhraseSVM();
             svm.generateTrainingData(trainingPapers, null, pp.getVec());
             svm.train();

@@ -1,9 +1,8 @@
 package xyz.tomclarke.fyp.nlp.util;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public final class NlpUtil {
         if (ignoreList == null) {
             ignoreList = new ArrayList<String>();
             try (BufferedReader br = new BufferedReader(
-                    new FileReader(NlpUtil.class.getClassLoader().getResource("ignore.txt").getFile()))) {
+                    new InputStreamReader(NlpUtil.class.getClassLoader().getResourceAsStream("ignore.txt")))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     ignoreList.add(line.toLowerCase());
@@ -70,29 +69,23 @@ public final class NlpUtil {
     /**
      * Loads papers and annotates them
      * 
-     * @param clazz
-     *            The class to load them from (if it's a test/ class, it'll load
-     *            from test/resources).
      * @param canAttemtAnnRead
      *            Specifies whether the paper object should be saved to disk
      * @return Annotated papers
      */
-    public static <T> List<Paper> loadAndAnnotatePapers(Class<T> clazz, boolean canAttemptAnnRead) {
-        return annotatePapers(LoadPapers.loadNewPapers(
-                new File(clazz.getClassLoader().getResource("papers.txt").getFile()), canAttemptAnnRead, true));
+    public static <T> List<Paper> loadAndAnnotatePapers(boolean canAttemptAnnRead) {
+        return annotatePapers(LoadPapers.loadNewPapers(NlpUtil.class.getClassLoader().getResourceAsStream("papers.txt"),
+                canAttemptAnnRead, true));
     }
 
     /**
      * Loads test papers and annotates them
      * 
-     * @param clazz
-     *            The class to load them from (if it's a test/ class, it'll load
-     *            from test/resources).
      * @return Annotated test papers
      */
-    public static <T> List<Paper> loadAndAnnotateTestPapers(Class<T> clazz) {
+    public static <T> List<Paper> loadAndAnnotateTestPapers() {
         return annotatePapers(LoadPapers
-                .loadNewPapers(new File(clazz.getClassLoader().getResource("papers_test.txt").getFile()), true, true));
+                .loadNewPapers(NlpUtil.class.getClassLoader().getResourceAsStream("papers_test.txt"), true, true));
     }
 
     /**
@@ -159,7 +152,7 @@ public final class NlpUtil {
             word = originalWord.toLowerCase();
             if (!containingPaper.getTokenCounts().containsKey(word)) {
                 // Can't handle this as its split differently
-                log.error(
+                log.debug(
                         "TF-IDF calculator can't find \"" + originalWord + "\" in paper " + containingPaper.getTitle());
 
                 // Can't find it, hm...

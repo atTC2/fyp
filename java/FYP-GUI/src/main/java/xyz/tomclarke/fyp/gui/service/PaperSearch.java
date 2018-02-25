@@ -1,5 +1,6 @@
 package xyz.tomclarke.fyp.gui.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,10 +43,12 @@ public class PaperSearch {
 
     /**
      * Load the necessary resources to run the search
+     * 
+     * @throws IOException
      */
     @PostConstruct
-    public void initialise() {
-        trainingPapers = NlpUtil.loadAndAnnotatePapers(NlpUtil.class, true);
+    public void initialise() throws IOException {
+        trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
     }
 
     /**
@@ -61,8 +64,6 @@ public class PaperSearch {
             return buildResultList(paperRepo.findAll());
         }
 
-        // LSA
-
         // Get TD-IDF of the query
         String[] queryTokens = NlpUtil.getAllTokens(search.getText());
         Map<String, Double> queryValues = new HashMap<String, Double>();
@@ -72,8 +73,37 @@ public class PaperSearch {
             queryValues.put(query, NlpUtil.calculateTfIdf(query, queryPaper, trainingPapers));
         }
 
-        // TODO find some papers
-        return buildResultList(paperRepo.findAll());
+        return buildResultList(searchByTokens(queryValues));
+    }
+
+    /**
+     * Performs a more naive search for papers based on token occurrence
+     * 
+     * @param queryValues
+     *            The query with TF-IDF values calculated
+     * @return A list of papers in order to display to the user
+     */
+    private List<PaperDAO> searchByTokens(Map<String, Double> queryValues) {
+        String regex = "";
+        for (String key : queryValues.keySet()) {
+            regex += key + "|";
+        }
+        // Remove the last |
+        regex = regex.substring(0, regex.length() - 2);
+
+        return paperRepo.findByTextWithRegex(regex);
+    }
+
+    /**
+     * Search for papers using latent semantic analysis
+     * 
+     * @param queryValues
+     *            The query with TF-IDF values calculated
+     * @return A list of papers in order to display to the user
+     */
+    @SuppressWarnings("unused")
+    private List<PaperDAO> searchUsingLsa(Map<String, Double> queryValues) {
+        return null;
     }
 
     /**

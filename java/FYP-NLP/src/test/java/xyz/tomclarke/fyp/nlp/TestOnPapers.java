@@ -8,7 +8,6 @@ import org.junit.BeforeClass;
 
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
-import xyz.tomclarke.fyp.nlp.word2vec.TestW2VClassifier;
 
 /**
  * Loads training and test papers for use in testing algorithms
@@ -26,8 +25,8 @@ public class TestOnPapers {
     @BeforeClass
     public static void initalise() {
         log.info("Loading training and test data...");
-        trainingPapers = NlpUtil.loadAndAnnotatePapers(TestW2VClassifier.class, true);
-        testPapers = NlpUtil.loadAndAnnotateTestPapers(TestW2VClassifier.class);
+        trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
+        testPapers = NlpUtil.loadAndAnnotateTestPapers();
     }
 
 }
