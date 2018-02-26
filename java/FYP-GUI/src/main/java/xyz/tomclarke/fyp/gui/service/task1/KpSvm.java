@@ -18,7 +18,6 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.svm.KeyPhraseSVM;
 import xyz.tomclarke.fyp.nlp.util.NlpObjectStore;
-import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Processes papers and finds key phrases
@@ -44,9 +43,8 @@ public class KpSvm implements NlpProcessor {
 
         if (svm == null) {
             // Need to build the SVM and save it
-            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
             svm = new KeyPhraseSVM();
-            svm.generateTrainingData(trainingPapers, null, pp.getVec());
+            svm.generateTrainingData(pp.getTrainingPapers(), null, pp.getVec());
             svm.train();
             NlpObjectStore.saveNlpObj(KP_SVM, svm);
         }

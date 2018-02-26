@@ -2,7 +2,9 @@ package xyz.tomclarke.fyp.gui.dao;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> {
 
@@ -52,5 +54,32 @@ public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> 
      * @return The number of key phrases with the given classification
      */
     Long countByClassification(String classification);
+
+    /**
+     * Finds key phrases for the paper containing the given regex
+     * 
+     * @param paper
+     *            The paper to look for key phrases of
+     * @param regex
+     *            The regex to check the texts for
+     * @return A list of matching key phrases
+     */
+    @Query(value = "SELECT * FROM key_phrase WHERE paper = :paper AND text regexp :regex", nativeQuery = true)
+    List<KeyPhraseDAO> findByPaperAndText(@Param("paper") PaperDAO paper, @Param("regex") String regex);
+
+    /**
+     * Finds key phrases for the paper containing the given regex
+     * 
+     * @param paper
+     *            The paper to look for key phrases of
+     * @param regex
+     *            The regex to check the texts for
+     * @param clazz
+     *            The classification the user is looking for
+     * @return A list of matching key phrases
+     */
+    @Query(value = "SELECT * FROM key_phrase WHERE paper = :paper AND text regexp :regex AND classification regexp :clazz", nativeQuery = true)
+    List<KeyPhraseDAO> findByPaperAndTextAndClassification(@Param("paper") PaperDAO paper, @Param("regex") String regex,
+            @Param("clazz") String clazz);
 
 }

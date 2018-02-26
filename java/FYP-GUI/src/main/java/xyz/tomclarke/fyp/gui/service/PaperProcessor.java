@@ -7,6 +7,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.models.word2vec.Word2Vec;
@@ -21,6 +23,7 @@ import xyz.tomclarke.fyp.gui.service.task1.KpSvm;
 import xyz.tomclarke.fyp.gui.service.task2.ClazzW2V;
 import xyz.tomclarke.fyp.gui.service.task3.RelSvm;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
+import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
@@ -49,6 +52,17 @@ public class PaperProcessor {
     @Autowired
     private RelSvm task3;
     private Word2Vec vec;
+    private List<Paper> trainingPapers;
+
+    /**
+     * Loads training papers
+     * 
+     * @throws IOException
+     */
+    @PostConstruct
+    public void initialise() throws IOException {
+        trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
+    }
 
     @Scheduled(fixedDelay = 60000)
     public void processWaitingPapers() throws Exception {
@@ -173,6 +187,24 @@ public class PaperProcessor {
      */
     public void setVec(Word2Vec vec) {
         this.vec = vec;
+    }
+
+    /**
+     * Gets the training papers
+     * 
+     * @return
+     */
+    public List<Paper> getTrainingPapers() {
+        return trainingPapers;
+    }
+
+    /**
+     * Sets the training papers
+     * 
+     * @param trainingPapers
+     */
+    public void setTrainingPapers(List<Paper> trainingPapers) {
+        this.trainingPapers = trainingPapers;
     }
 
 }

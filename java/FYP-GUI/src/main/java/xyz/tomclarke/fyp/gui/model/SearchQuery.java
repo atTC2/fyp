@@ -2,6 +2,8 @@ package xyz.tomclarke.fyp.gui.model;
 
 import javax.validation.constraints.Size;
 
+import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
+
 /**
  * Represents a search query
  * 
@@ -10,7 +12,7 @@ import javax.validation.constraints.Size;
  */
 public class SearchQuery {
 
-    @Size(min = 0, max = 30)
+    @Size(min = 0, max = 120)
     private String text;
     private boolean focusOnTask;
     private boolean focusOnProcess;
@@ -63,6 +65,40 @@ public class SearchQuery {
 
     public void setFocusOnMaterial(boolean focusOnMaterial) {
         this.focusOnMaterial = focusOnMaterial;
+    }
+
+    /**
+     * Finds if the user is focusing on any particular classification
+     * 
+     * @return If there is a focus to this search
+     */
+    public boolean isFocusOnAny() {
+        return focusOnTask || focusOnMaterial || focusOnProcess;
+    }
+
+    /**
+     * Builds a regex for finding matching classifications
+     * 
+     * @return
+     */
+    public String getFocusRegex() {
+        if (!isFocusOnAny()) {
+            return "";
+        }
+
+        String regex = "";
+        if (isFocusOnTask()) {
+            regex += Classification.TASK + "|";
+        }
+        if (isFocusOnProcess()) {
+            regex += Classification.PROCESS + "|";
+        }
+        if (isFocusOnMaterial()) {
+            regex += Classification.MATERIAL + "|";
+        }
+
+        regex = regex.substring(0, regex.length() - 1);
+        return regex;
     }
 
 }

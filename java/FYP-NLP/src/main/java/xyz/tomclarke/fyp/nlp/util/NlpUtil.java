@@ -129,7 +129,7 @@ public final class NlpUtil {
      * @return The sanitised string
      */
     private static String sanitiseString(String word) {
-        return word.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
+        return word.toLowerCase().replaceAll("[^a-zA-Z0-9 ]", "");
     }
 
     /**

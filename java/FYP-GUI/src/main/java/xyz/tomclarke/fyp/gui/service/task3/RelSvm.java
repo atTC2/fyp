@@ -24,7 +24,6 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
 import xyz.tomclarke.fyp.nlp.svm.RelationshipSVM;
 import xyz.tomclarke.fyp.nlp.util.NlpObjectStore;
-import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Process papers to find relationship information
@@ -62,16 +61,14 @@ public class RelSvm implements NlpProcessor {
 
         // See if we have both available
         if (!(hypAvailable && synAvailable)) {
-            List<Paper> trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
-
             // Build the SVM data
             RelationshipSVM hyp = new RelationshipSVM();
             if (!hypAvailable) {
-                hyp.generateTrainingData(trainingPapers, RelationType.HYPONYM_OF, pp.getVec());
+                hyp.generateTrainingData(pp.getTrainingPapers(), RelationType.HYPONYM_OF, pp.getVec());
             }
             RelationshipSVM syn = new RelationshipSVM();
             if (!synAvailable) {
-                syn.generateTrainingData(trainingPapers, RelationType.SYNONYM_OF, pp.getVec());
+                syn.generateTrainingData(pp.getTrainingPapers(), RelationType.SYNONYM_OF, pp.getVec());
             }
 
             // Train the SVMs, one at a time and clear the memory

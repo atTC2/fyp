@@ -28,7 +28,7 @@
 			<form:label class="control-label" path="text">Enter terms to search for and focus on task, process or material related items:</form:label>
 			<div class="form-group input-group">
 				<form:input type="text" class="form-control" path="text"
-					placeholder="Search terms or phrases" />
+					placeholder="Search terms or phrases" maxlength="120" />
 				<span class="input-group-btn"> <input class="btn btn-primary"
 					type="submit" value="Submit" />
 				</span>
