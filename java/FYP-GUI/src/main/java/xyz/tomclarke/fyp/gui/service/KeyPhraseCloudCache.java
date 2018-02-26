@@ -35,8 +35,6 @@ public class KeyPhraseCloudCache {
     private static final Logger log = LogManager.getLogger(KeyPhraseCloudCache.class);
 
     @Autowired
-    private PaperProcessor pp;
-    @Autowired
     private KeyPhraseRepository kpRepo;
     private List<KPViewCloudEntity> taskCloud;
     private List<KPViewCloudEntity> processCloud;
@@ -44,6 +42,17 @@ public class KeyPhraseCloudCache {
     private List<KPViewRow> taskRows;
     private List<KPViewRow> processRows;
     private List<KPViewRow> materialRows;
+    private List<Paper> trainingPapers;
+
+    /**
+     * Loads training papers
+     * 
+     * @throws IOException
+     */
+    @PostConstruct
+    public void initialise() throws IOException {
+        trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
+    }
 
     /**
      * Updates the cache every 30 minutes
@@ -165,8 +174,7 @@ public class KeyPhraseCloudCache {
                     if (!mapOfTokens.containsKey(token)) {
                         // Found it once, list it's TF-IDF
                         try {
-                            mapOfTokens.put(token,
-                                    NlpUtil.calculateTfIdf(token, getPaperOfKp(kp), pp.getTrainingPapers()));
+                            mapOfTokens.put(token, NlpUtil.calculateTfIdf(token, getPaperOfKp(kp), trainingPapers));
                         } catch (ClassNotFoundException | IOException e) {
                             log.error("Problem adding token to cloud", e);
                         }
