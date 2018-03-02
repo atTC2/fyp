@@ -79,7 +79,7 @@
 							<td>${result.id}</td>
 							<td><strong>${result.paper}</strong><a class="pull-right"
 								href="/view/download?paper=${result.id}"><span
-									class="glyphicon glyphicon-download"></span></a></td>
+									class="glyphicon glyphicon-download"></span></a> <br />${result.snippet}</td>
 							<td>${result.kps}&nbsp;/&nbsp;${result.rels}<a
 								class="pull-right" href="/view/extractions?paper=${result.id}"><span
 									class="glyphicon glyphicon-download"></span></a></td>

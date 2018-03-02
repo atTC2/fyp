@@ -12,6 +12,7 @@ public class SearchResult {
     private String paper;
     private Long kps;
     private Long rels;
+    private String snippet;
 
     public Long getId() {
         return id;
@@ -43,6 +44,14 @@ public class SearchResult {
 
     public void setRels(Long rels) {
         this.rels = rels;
+    }
+
+    public String getSnippet() {
+        return snippet;
+    }
+
+    public void setSnippet(String snippet) {
+        this.snippet = snippet;
     }
 
 }

@@ -30,7 +30,9 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 @Service
 public class PaperSearch {
 
-    private static final int MAX_RESULTS_PER_PAGE = 10;
+    private static final int MAX_RESULTS_PER_PAGE = 15;
+    private static final int SNIPPET_MAX_SIZE = 80;
+    private static final int SNIPPET_EXTENSION = 50;
 
     @Autowired
     private PaperProcessor pp;
@@ -53,7 +55,7 @@ public class PaperSearch {
     public List<SearchResult> search(SearchQuery search) {
         // No search result, just do all
         if (search.getText() == null || search.getText().isEmpty()) {
-            return buildResultList(paperRepo.findAll(), false);
+            return buildResultList(paperRepo.findAll(), false, null);
         }
 
         // Get TD-IDF of the query
@@ -65,7 +67,7 @@ public class PaperSearch {
             queryValues.put(query, NlpUtil.calculateTfIdf(query, queryPaper, pp.getTrainingPapers()));
         }
 
-        return buildResultList(searchByTokens(search, queryValues), true);
+        return buildResultList(searchByTokens(search, queryValues), true, search);
     }
 
     /**
@@ -85,8 +87,6 @@ public class PaperSearch {
 
         // Remove the last |
         regex = regex.substring(0, regex.length() - 1);
-
-        System.out.println("REGEX: " + regex);
 
         List<PaperDAO> matchingPapers = paperRepo.findByContentRegex(regex);
 
@@ -156,27 +156,17 @@ public class PaperSearch {
     }
 
     /**
-     * Search for papers using latent semantic analysis
-     * 
-     * @param queryValues
-     *            The query with TF-IDF values calculated
-     * @return A list of papers in order to display to the user
-     */
-    @SuppressWarnings("unused")
-    private List<PaperDAO> searchUsingLsa(Map<String, Double> queryValues) {
-        return null;
-    }
-
-    /**
      * Convert a list of found papers into search results
      * 
      * @param papers
      *            The papers to display to the user
      * @param limitResults
      *            Whether or not to limit the returned results
+     * @param search
+     *            The search information, supplied by the user
      * @return The build results list
      */
-    private List<SearchResult> buildResultList(Iterable<PaperDAO> papers, boolean limitResults) {
+    private List<SearchResult> buildResultList(Iterable<PaperDAO> papers, boolean limitResults, SearchQuery search) {
         List<SearchResult> results = new ArrayList<SearchResult>();
         int index = 0;
         for (PaperDAO paper : papers) {
@@ -196,6 +186,47 @@ public class PaperSearch {
             }
             result.setKps(kpRepo.countByPaper(paper));
             result.setRels(hypRepo.countByPaper(paper) + synLinkRepo.countByPaper(paper));
+
+            // Try and extract a snippet
+            if (search != null) {
+                String[] searchTerms = NlpUtil.getAllTokens(search.getText());
+                for (String term : searchTerms) {
+                    int tIndex = paper.getText().indexOf(term);
+                    if (tIndex > -1) {
+                        String snippet = result.getSnippet();
+                        // Is the term actually already there?
+                        if (snippet != null && snippet.contains(term)) {
+                            result.setSnippet(snippet.replaceAll(term, "<b>" + term + "</b>"));
+                            continue;
+                        }
+                        // Ok, add it to the output
+                        int sIndexStart = Math.max(0, tIndex - SNIPPET_EXTENSION);
+                        sIndexStart = Math.max(0, paper.getText().substring(0, sIndexStart).lastIndexOf(" "));
+                        int sIndexEnd = Math.min(paper.getText().length(), tIndex + SNIPPET_EXTENSION);
+                        sIndexEnd = Math.max(sIndexEnd, paper.getText().substring(sIndexEnd).indexOf(" "));
+                        if (snippet == null) {
+                            snippet = "";
+                        } else {
+                            snippet += ", ";
+                        }
+                        snippet += paper.getText().substring(sIndexStart, sIndexEnd).replaceAll(term,
+                                "<b>" + term + "</b>") + "...";
+                        result.setSnippet(snippet);
+                    }
+                }
+            }
+
+            // Make sure there's something to display
+            if (result.getSnippet() == null || result.getSnippet().isEmpty()) {
+                result.setSnippet(
+                        paper.getText().substring(0,
+                                Math.max(SNIPPET_MAX_SIZE,
+                                        paper.getText().substring(SNIPPET_MAX_SIZE).indexOf(" ") + SNIPPET_MAX_SIZE))
+                                + "...");
+                // The indexOf + SNIPPET_MAX_SIZE will either be == or larger if the substring
+                // is on a space or has a space, or 1 less as it could return -1
+            }
+
             results.add(result);
         }
         return results;
