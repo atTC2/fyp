@@ -1,13 +1,6 @@
 package xyz.tomclarke.fyp.gui.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,8 +15,6 @@ import xyz.tomclarke.fyp.gui.service.task0.PreProcessor;
 import xyz.tomclarke.fyp.gui.service.task1.KpSvm;
 import xyz.tomclarke.fyp.gui.service.task2.ClazzW2V;
 import xyz.tomclarke.fyp.gui.service.task3.RelSvm;
-import xyz.tomclarke.fyp.nlp.paper.Paper;
-import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
 
@@ -52,17 +43,6 @@ public class PaperProcessor {
     @Autowired
     private RelSvm task3;
     private Word2Vec vec;
-    private List<Paper> trainingPapers;
-
-    /**
-     * Loads training papers
-     * 
-     * @throws IOException
-     */
-    @PostConstruct
-    public void initialise() throws IOException {
-        trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
-    }
 
     @Scheduled(fixedDelay = 60000)
     public void processWaitingPapers() throws Exception {
@@ -134,44 +114,6 @@ public class PaperProcessor {
     }
 
     /**
-     * Converts a loaded Paper object to the actual object
-     * 
-     * @param paperFromDb
-     *            The object to convert back
-     * @return The Paper object loaded from the database
-     */
-    public Paper loadPaper(PaperDAO paperFromDb) {
-        if (paperFromDb != null) {
-            try {
-                ByteArrayInputStream bais = new ByteArrayInputStream(paperFromDb.getParse());
-                ObjectInputStream ois = new ObjectInputStream(bais);
-                return (Paper) ois.readObject();
-            } catch (ClassNotFoundException | IOException e) {
-                log.error("Could not load Paper object from database, ID " + paperFromDb.getId(), e);
-                // It broke, so try making the object again as if it wasn't found
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Converts a paper object to bytes for saving in the database
-     * 
-     * @param paper
-     *            The paper to convert
-     * @return The bytes
-     * @throws IOException
-     */
-    public byte[] getPaperBytes(Paper paper) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(paper);
-        return baos.toByteArray();
-    }
-
-    /**
      * Gets the Word2Vec instance to use
      * 
      * @return A Word2Vec model
@@ -187,24 +129,6 @@ public class PaperProcessor {
      */
     public void setVec(Word2Vec vec) {
         this.vec = vec;
-    }
-
-    /**
-     * Gets the training papers
-     * 
-     * @return
-     */
-    public List<Paper> getTrainingPapers() {
-        return trainingPapers;
-    }
-
-    /**
-     * Sets the training papers
-     * 
-     * @param trainingPapers
-     */
-    public void setTrainingPapers(List<Paper> trainingPapers) {
-        this.trainingPapers = trainingPapers;
     }
 
 }

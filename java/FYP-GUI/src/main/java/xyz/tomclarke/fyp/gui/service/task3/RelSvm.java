@@ -18,6 +18,7 @@ import xyz.tomclarke.fyp.gui.dao.SynonymDAO;
 import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
 import xyz.tomclarke.fyp.gui.service.PaperProcessor;
+import xyz.tomclarke.fyp.gui.service.PaperUtil;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
@@ -46,6 +47,8 @@ public class RelSvm implements NlpProcessor {
     @Autowired
     private PaperProcessor pp;
     @Autowired
+    private PaperUtil util;
+    @Autowired
     private KeyPhraseRepository kpRepo;
     @Autowired
     private HyponymRepository hypRepo;
@@ -64,11 +67,11 @@ public class RelSvm implements NlpProcessor {
             // Build the SVM data
             RelationshipSVM hyp = new RelationshipSVM();
             if (!hypAvailable) {
-                hyp.generateTrainingData(pp.getTrainingPapers(), RelationType.HYPONYM_OF, pp.getVec());
+                hyp.generateTrainingData(util.getTrainingPapers(), RelationType.HYPONYM_OF, pp.getVec());
             }
             RelationshipSVM syn = new RelationshipSVM();
             if (!synAvailable) {
-                syn.generateTrainingData(pp.getTrainingPapers(), RelationType.SYNONYM_OF, pp.getVec());
+                syn.generateTrainingData(util.getTrainingPapers(), RelationType.SYNONYM_OF, pp.getVec());
             }
 
             // Train the SVMs, one at a time and clear the memory
@@ -96,7 +99,7 @@ public class RelSvm implements NlpProcessor {
         pp.loadVec();
 
         // Load the paper
-        Paper paperFromDb = pp.loadPaper(paper);
+        Paper paperFromDb = util.loadPaper(paper);
 
         // One SVM at a time, find the relations
         log.info("Hyp extraction");
@@ -145,7 +148,7 @@ public class RelSvm implements NlpProcessor {
         synLinkRepo.save(synLinksToSave);
         synRepo.save(synsToSave);
         // Add the key phrases to the Paper object (will be saved upon method returning)
-        paper.setParse(pp.getPaperBytes(paperFromDb));
+        paper.setParse(util.getPaperBytes(paperFromDb));
 
         // Survived it!!!
         log.info("Relation extraction completed for paper ID " + paper.getId() + " finding " + hypRels.size()

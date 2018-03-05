@@ -21,7 +21,6 @@ import xyz.tomclarke.fyp.gui.model.KPViewCloudEntity;
 import xyz.tomclarke.fyp.gui.model.KPViewRow;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
-import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Builds and retains a cache for key phrase cloud drawing
@@ -35,6 +34,8 @@ public class KeyPhraseCloudCache {
     private static final Logger log = LogManager.getLogger(KeyPhraseCloudCache.class);
 
     @Autowired
+    private PaperUtil util;
+    @Autowired
     private KeyPhraseRepository kpRepo;
     private List<KPViewCloudEntity> taskCloud;
     private List<KPViewCloudEntity> processCloud;
@@ -42,17 +43,6 @@ public class KeyPhraseCloudCache {
     private List<KPViewRow> taskRows;
     private List<KPViewRow> processRows;
     private List<KPViewRow> materialRows;
-    private List<Paper> trainingPapers;
-
-    /**
-     * Loads training papers
-     * 
-     * @throws IOException
-     */
-    @PostConstruct
-    public void initialise() throws IOException {
-        trainingPapers = NlpUtil.loadAndAnnotatePapers(true);
-    }
 
     /**
      * Updates the cache every 30 minutes
@@ -174,7 +164,7 @@ public class KeyPhraseCloudCache {
                     if (!mapOfTokens.containsKey(token)) {
                         // Found it once, list it's TF-IDF
                         try {
-                            mapOfTokens.put(token, NlpUtil.calculateTfIdf(token, getPaperOfKp(kp), trainingPapers));
+                            mapOfTokens.put(token, util.calculateTfIdf(token, getPaperOfKp(kp)));
                         } catch (ClassNotFoundException | IOException e) {
                             log.error("Problem adding token to cloud", e);
                         }

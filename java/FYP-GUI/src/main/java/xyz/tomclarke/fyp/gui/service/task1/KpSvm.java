@@ -14,6 +14,7 @@ import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
 import xyz.tomclarke.fyp.gui.service.PaperProcessor;
+import xyz.tomclarke.fyp.gui.service.PaperUtil;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.svm.KeyPhraseSVM;
@@ -33,6 +34,8 @@ public class KpSvm implements NlpProcessor {
     @Autowired
     private PaperProcessor pp;
     @Autowired
+    private PaperUtil util;
+    @Autowired
     private KeyPhraseRepository kpRepo;
     private KeyPhraseSVM svm;
 
@@ -44,7 +47,7 @@ public class KpSvm implements NlpProcessor {
         if (svm == null) {
             // Need to build the SVM and save it
             svm = new KeyPhraseSVM();
-            svm.generateTrainingData(pp.getTrainingPapers(), null, pp.getVec());
+            svm.generateTrainingData(util.getTrainingPapers(), null, pp.getVec());
             svm.train();
             NlpObjectStore.saveNlpObj(KP_SVM, svm);
         }
@@ -52,7 +55,7 @@ public class KpSvm implements NlpProcessor {
 
     @Override
     public boolean processPaper(PaperDAO paper) throws IOException {
-        Paper paperForNlp = pp.loadPaper(paper);
+        Paper paperForNlp = util.loadPaper(paper);
         log.info("KP extraction on Paper ID " + paper.getId());
         if (paperForNlp != null) {
             // Do some processing
@@ -78,7 +81,7 @@ public class KpSvm implements NlpProcessor {
             kpRepo.save(phrasesDb);
 
             // Add the key phrases to the Paper object (will be saved upon method returning)
-            paper.setParse(pp.getPaperBytes(paperForNlp));
+            paper.setParse(util.getPaperBytes(paperForNlp));
 
             log.info("KP extraction complete for Paper ID " + paper.getId() + " found " + phrases.size() + " KPs");
             return true;

@@ -5,7 +5,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +33,13 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 @Service
 public class PaperSearch {
 
+    private static final Logger log = LogManager.getLogger(PaperSearch.class);
     private static final int MAX_RESULTS_PER_PAGE = 15;
     private static final int SNIPPET_MAX_SIZE = 80;
     private static final int SNIPPET_EXTENSION = 50;
 
     @Autowired
-    private PaperProcessor pp;
+    private PaperUtil util;
     @Autowired
     private PaperRepository paperRepo;
     @Autowired
@@ -64,7 +68,7 @@ public class PaperSearch {
         // Need a pseudo paper
         Paper queryPaper = new PseudoPaper(search.getText());
         for (String query : queryTokens) {
-            queryValues.put(query, NlpUtil.calculateTfIdf(query, queryPaper, pp.getTrainingPapers()));
+            queryValues.put(query, util.calculateTfIdf(query, queryPaper));
         }
 
         return buildResultList(searchByTokens(search, queryValues), true, search);
@@ -95,37 +99,14 @@ public class PaperSearch {
         Map<PaperDAO, Double> paperScores = new HashMap<PaperDAO, Double>();
         for (PaperDAO paper : matchingPapers) {
             double score = 0.0;
-            for (String key : queryValues.keySet()) {
-                key = key.toLowerCase();
-                if ((paper.getText() != null && paper.getText().toLowerCase().contains(key))
-                        || (paper.getTitle() != null && paper.getTitle().toLowerCase().contains(key))
-                        || (paper.getAuthor() != null && paper.getAuthor().toLowerCase().contains(key))) {
-                    // What if the string is only substring of words - worth considering? yes
-                    // Add TF-IDF of token in paper * TF-IDF of query token
-                    double tfIdfWeighting = NlpUtil.calculateTfIdf(key, pp.loadPaper(paper), pp.getTrainingPapers())
-                            * queryValues.get(key);
+            // We're not going to worry about title or author as neither are included with
+            // the current data set
 
-                    // Check if in key phrase
-                    // TODO convert this so it's one call, not the number of papers initially
-                    // returned
-                    List<KeyPhraseDAO> kps;
-                    if (!search.isFocusOnAny()) {
-                        // Don't care what classification
-                        kps = kpRepo.findByPaperAndText(paper, key);
-                    } else {
-                        kps = kpRepo.findByPaperAndTextAndClassification(paper, key, search.getFocusRegex());
-                    }
+            Map<String, String> relevantTerms = findQueryStringsInPaper(util.loadPaper(paper),
+                    NlpUtil.getAllTokens(search.getText()));
 
-                    double kpWeighting = 1.0;
-                    for (KeyPhraseDAO kp : kps) {
-                        if (kp.getText().toLowerCase().contains(key)) {
-                            // Currently doubling TF-IDF every time the key is used in a kp
-                            kpWeighting += 1.0;
-                        }
-                    }
-
-                    score += kpWeighting * tfIdfWeighting;
-                }
+            for (Entry<String, String> term : relevantTerms.entrySet()) {
+                score += calculateScoreForTermInPaper(search, queryValues, paper, term.getKey(), term.getValue());
             }
 
             // Add it to the list
@@ -152,7 +133,92 @@ public class PaperSearch {
             }
         });
 
+        log.info("paper, score");
+        for (PaperDAO paper : matchingPapers) {
+            log.info(paper.getId() + ", " + paperScores.get(paper));
+        }
+
         return matchingPapers;
+    }
+
+    /**
+     * Calculates a score for a token in paper
+     * 
+     * @param search
+     *            The original search
+     * @param queryValues
+     *            The relative values of the search tokens
+     * @param paper
+     *            The paper to create a score for
+     * @param termInPaper
+     *            The term in the paper the token is found from
+     * @param tokenInSearch
+     *            The token the term found is based upon
+     * @return The score of the term/token in the paper
+     */
+    private double calculateScoreForTermInPaper(SearchQuery search, Map<String, Double> queryValues, PaperDAO paper,
+            String termInPaper, String tokenInSearch) {
+        // Add TF-IDF of token in paper * TF-IDF of query token
+        double tfIdfWeighting = util.calculateTfIdf(termInPaper, util.loadPaper(paper))
+                * queryValues.get(tokenInSearch);
+
+        // Check if in key phrase
+        // TODO convert this so it's one call, not the number of papers initially
+        // returned
+        List<KeyPhraseDAO> kps;
+        if (!search.isFocusOnAny()) {
+            // Don't care what classification
+            kps = kpRepo.findByPaperAndText(paper, termInPaper);
+        } else {
+            kps = kpRepo.findByPaperAndTextAndClassification(paper, termInPaper, search.getFocusRegex());
+        }
+
+        double kpWeighting = 1.0;
+        for (KeyPhraseDAO kp : kps) {
+            if (kp.getText().toLowerCase().contains(termInPaper)) {
+                // Currently doubling TF-IDF every time the key is used in a kp
+                kpWeighting += 1.0;
+            }
+        }
+
+        double additionalScore = kpWeighting * tfIdfWeighting;
+        return additionalScore;
+    }
+
+    /**
+     * Finds the strings that match to the query (full strings, not substrings if
+     * the substrings are in the paper)
+     * 
+     * @param paper
+     *            The parsed paper
+     * @param tokens
+     *            The search tokens
+     * @return A map of (unique) relevant terms, and the query token the term came
+     *         from
+     */
+    private Map<String, String> findQueryStringsInPaper(Paper paper, String[] tokens) {
+        Map<String, String> relevantTerms = new HashMap<String, String>();
+        String text = paper.getText().toLowerCase();
+        for (String token : tokens) {
+            if (text.contains(token)) {
+                // Go through each instance of it
+                for (int i = text.indexOf(token); i > -1; i = text.indexOf(token, i + 1)) {
+                    // Either the start or the space before the word
+                    int wordStart = Math.max(0, text.substring(0, i).lastIndexOf(" "));
+                    // Either the full stop, the space after or just the length of the original word
+                    int wordEnd = Math.max(i + token.length(),
+                            i + Math.min(text.substring(i).indexOf(" "), text.substring(i).indexOf(".")));
+                    String newTerm = text.substring(wordStart, wordEnd);
+
+                    newTerm = NlpUtil.sanitiseString(newTerm).trim();
+                    if (!relevantTerms.containsKey(newTerm)) {
+                        relevantTerms.put(newTerm, token);
+                    }
+                }
+            }
+        }
+
+        return relevantTerms;
     }
 
     /**
@@ -191,12 +257,18 @@ public class PaperSearch {
             if (search != null) {
                 String[] searchTerms = NlpUtil.getAllTokens(search.getText());
                 for (String term : searchTerms) {
-                    int tIndex = paper.getText().indexOf(term);
+                    String termReplaceRegex = "";
+                    String caseInsensetiveRegex = "(?i)";
+                    for (char c : term.toCharArray()) {
+                        termReplaceRegex += caseInsensetiveRegex + c;
+                    }
+
+                    int tIndex = paper.getText().toLowerCase().indexOf(term);
                     if (tIndex > -1) {
                         String snippet = result.getSnippet();
                         // Is the term actually already there?
-                        if (snippet != null && snippet.contains(term)) {
-                            result.setSnippet(snippet.replaceAll(term, "<b>" + term + "</b>"));
+                        if (snippet != null && snippet.toLowerCase().contains(term)) {
+                            result.setSnippet(snippet.replaceAll(termReplaceRegex, "<b>" + term + "</b>"));
                             continue;
                         }
                         // Ok, add it to the output
@@ -209,7 +281,7 @@ public class PaperSearch {
                         } else {
                             snippet += ", ";
                         }
-                        snippet += paper.getText().substring(sIndexStart, sIndexEnd).replaceAll(term,
+                        snippet += paper.getText().substring(sIndexStart, sIndexEnd).replaceAll(termReplaceRegex,
                                 "<b>" + term + "</b>") + "...";
                         result.setSnippet(snippet);
                     }

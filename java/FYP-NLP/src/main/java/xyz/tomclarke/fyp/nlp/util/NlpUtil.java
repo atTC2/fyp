@@ -128,8 +128,9 @@ public final class NlpUtil {
      *            The word to remove punctuation from
      * @return The sanitised string
      */
-    private static String sanitiseString(String word) {
-        return word.toLowerCase().replaceAll("[^a-zA-Z0-9 ]", "");
+    public static String sanitiseString(String word) {
+        // Write tests for the for all punctuation
+        return word.toLowerCase().replaceAll(REGEX_ALL_PUNCTUATION, "");
     }
 
     /**

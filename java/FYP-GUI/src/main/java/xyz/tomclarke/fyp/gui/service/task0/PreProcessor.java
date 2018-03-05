@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.service.NlpProcessor;
-import xyz.tomclarke.fyp.gui.service.PaperProcessor;
+import xyz.tomclarke.fyp.gui.service.PaperUtil;
 import xyz.tomclarke.fyp.nlp.annotator.Annotator;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.preprocessing.LoadPapers;
@@ -28,7 +28,7 @@ public class PreProcessor implements NlpProcessor {
 
     private static final Logger log = LogManager.getLogger(PreProcessor.class);
     @Autowired
-    private PaperProcessor pp;
+    private PaperUtil util;
     @Autowired
     private PaperRepository paperRepo;
     private Annotator ann;
@@ -93,7 +93,7 @@ public class PreProcessor implements NlpProcessor {
         paper.setTitle(loadedPaper.getTitle());
         paper.setAuthor(loadedPaper.getAuthor());
         paper.setText(loadedPaper.getText());
-        paper.setParse(pp.getPaperBytes(loadedPaper));
+        paper.setParse(util.getPaperBytes(loadedPaper));
     }
 
     @Override
