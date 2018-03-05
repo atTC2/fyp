@@ -5,7 +5,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,6 +21,7 @@ import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.dao.SynLinkRepository;
 import xyz.tomclarke.fyp.gui.model.SearchQuery;
 import xyz.tomclarke.fyp.gui.model.SearchResult;
+import xyz.tomclarke.fyp.gui.model.SearchResultAndDetails;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.PseudoPaper;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
@@ -41,6 +43,8 @@ public class PaperSearch {
     @Autowired
     private PaperUtil util;
     @Autowired
+    private PaperScoreCalculator scoreCalc;
+    @Autowired
     private PaperRepository paperRepo;
     @Autowired
     private KeyPhraseRepository kpRepo;
@@ -54,24 +58,45 @@ public class PaperSearch {
      * 
      * @param search
      *            The search information, supplied by the user
-     * @return A list of relevant papers
+     * @return A list of relevant papers and some details about the search
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
-    public List<SearchResult> search(SearchQuery search) {
-        // No search result, just do all
+    public SearchResultAndDetails search(SearchQuery search) throws InterruptedException, ExecutionException {
+        SearchResultAndDetails rAndD = new SearchResultAndDetails();
+        List<PaperDAO> searchResults;
+        List<SearchResult> resultList;
+        long start = System.currentTimeMillis();
+
+        // Do searching!
         if (search.getText() == null || search.getText().isEmpty()) {
-            return buildResultList(paperRepo.findAll(), false, null);
+            // No actual search, just do all
+            Iterable<PaperDAO> papers = paperRepo.findAll();
+            searchResults = new ArrayList<PaperDAO>();
+            papers.forEach(searchResults::add);
+            resultList = buildResultList(searchResults, false, null);
+        } else {
+            // Get TD-IDF of the query
+            String[] queryTokens = NlpUtil.getAllTokens(search.getText());
+            Map<String, Double> queryValues = new HashMap<String, Double>();
+            // Need a pseudo paper
+            Paper queryPaper = new PseudoPaper(search.getText());
+            for (String query : queryTokens) {
+                queryValues.put(query, util.calculateTfIdf(query, queryPaper));
+            }
+
+            searchResults = searchByTokens(search, queryValues);
+            resultList = buildResultList(searchResults, true, search);
         }
 
-        // Get TD-IDF of the query
-        String[] queryTokens = NlpUtil.getAllTokens(search.getText());
-        Map<String, Double> queryValues = new HashMap<String, Double>();
-        // Need a pseudo paper
-        Paper queryPaper = new PseudoPaper(search.getText());
-        for (String query : queryTokens) {
-            queryValues.put(query, util.calculateTfIdf(query, queryPaper));
-        }
+        long end = System.currentTimeMillis();
 
-        return buildResultList(searchByTokens(search, queryValues), true, search);
+        // Present the results nicely
+        rAndD.setResults(resultList);
+        rAndD.setSearchTime(end - start);
+        rAndD.setResultsFound(searchResults.size());
+
+        return rAndD;
     }
 
     /**
@@ -82,8 +107,11 @@ public class PaperSearch {
      * @param queryValues
      *            The query with TF-IDF values calculated
      * @return A list of papers in order to display to the user
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
-    private List<PaperDAO> searchByTokens(SearchQuery search, Map<String, Double> queryValues) {
+    private List<PaperDAO> searchByTokens(SearchQuery search, Map<String, Double> queryValues)
+            throws InterruptedException, ExecutionException {
         String regex = "";
         for (String key : queryValues.keySet()) {
             regex += key + "|";
@@ -92,25 +120,29 @@ public class PaperSearch {
         // Remove the last |
         regex = regex.substring(0, regex.length() - 1);
 
+        // Get results from the database
         List<PaperDAO> matchingPapers = paperRepo.findByContentRegex(regex);
+        List<KeyPhraseDAO> matchingKps;
+        if (!search.isFocusOnAny()) {
+            // Don't care what classification
+            matchingKps = kpRepo.findByPaperAndText(regex);
+        } else {
+            matchingKps = kpRepo.findByPaperAndTextAndClassification(regex, search.getFocusRegex());
+        }
+        // Note: doing 1 call doesn't actually really make it much faster - definitely
+        // less than 10% (on local that is, if the database was remote it would likely
+        // be much better) - although the timings are more consistent
 
         // These papers have at least one of the terms in the query
         // Find their scores...
         Map<PaperDAO, Double> paperScores = new HashMap<PaperDAO, Double>();
+        List<CompletableFuture<Double>> futureScores = new ArrayList<CompletableFuture<Double>>();
         for (PaperDAO paper : matchingPapers) {
-            double score = 0.0;
-            // We're not going to worry about title or author as neither are included with
-            // the current data set
-
-            Map<String, String> relevantTerms = findQueryStringsInPaper(util.loadPaper(paper),
-                    NlpUtil.getAllTokens(search.getText()));
-
-            for (Entry<String, String> term : relevantTerms.entrySet()) {
-                score += calculateScoreForTermInPaper(search, queryValues, paper, term.getKey(), term.getValue());
-            }
-
-            // Add it to the list
-            paperScores.put(paper, score);
+            futureScores.add(scoreCalc.calculatePaperScore(paper, search, queryValues, matchingKps));
+        }
+        CompletableFuture.allOf(futureScores.toArray(new CompletableFuture[futureScores.size()])).join();
+        for (int i = 0; i < matchingPapers.size(); i++) {
+            paperScores.put(matchingPapers.get(i), futureScores.get(i).get());
         }
 
         // Sort according to their score
@@ -133,92 +165,12 @@ public class PaperSearch {
             }
         });
 
-        log.info("paper, score");
+        log.debug("paper, score");
         for (PaperDAO paper : matchingPapers) {
-            log.info(paper.getId() + ", " + paperScores.get(paper));
+            log.debug(paper.getId() + ", " + paperScores.get(paper));
         }
 
         return matchingPapers;
-    }
-
-    /**
-     * Calculates a score for a token in paper
-     * 
-     * @param search
-     *            The original search
-     * @param queryValues
-     *            The relative values of the search tokens
-     * @param paper
-     *            The paper to create a score for
-     * @param termInPaper
-     *            The term in the paper the token is found from
-     * @param tokenInSearch
-     *            The token the term found is based upon
-     * @return The score of the term/token in the paper
-     */
-    private double calculateScoreForTermInPaper(SearchQuery search, Map<String, Double> queryValues, PaperDAO paper,
-            String termInPaper, String tokenInSearch) {
-        // Add TF-IDF of token in paper * TF-IDF of query token
-        double tfIdfWeighting = util.calculateTfIdf(termInPaper, util.loadPaper(paper))
-                * queryValues.get(tokenInSearch);
-
-        // Check if in key phrase
-        // TODO convert this so it's one call, not the number of papers initially
-        // returned
-        List<KeyPhraseDAO> kps;
-        if (!search.isFocusOnAny()) {
-            // Don't care what classification
-            kps = kpRepo.findByPaperAndText(paper, termInPaper);
-        } else {
-            kps = kpRepo.findByPaperAndTextAndClassification(paper, termInPaper, search.getFocusRegex());
-        }
-
-        double kpWeighting = 1.0;
-        for (KeyPhraseDAO kp : kps) {
-            if (kp.getText().toLowerCase().contains(termInPaper)) {
-                // Currently doubling TF-IDF every time the key is used in a kp
-                kpWeighting += 1.0;
-            }
-        }
-
-        double additionalScore = kpWeighting * tfIdfWeighting;
-        return additionalScore;
-    }
-
-    /**
-     * Finds the strings that match to the query (full strings, not substrings if
-     * the substrings are in the paper)
-     * 
-     * @param paper
-     *            The parsed paper
-     * @param tokens
-     *            The search tokens
-     * @return A map of (unique) relevant terms, and the query token the term came
-     *         from
-     */
-    private Map<String, String> findQueryStringsInPaper(Paper paper, String[] tokens) {
-        Map<String, String> relevantTerms = new HashMap<String, String>();
-        String text = paper.getText().toLowerCase();
-        for (String token : tokens) {
-            if (text.contains(token)) {
-                // Go through each instance of it
-                for (int i = text.indexOf(token); i > -1; i = text.indexOf(token, i + 1)) {
-                    // Either the start or the space before the word
-                    int wordStart = Math.max(0, text.substring(0, i).lastIndexOf(" "));
-                    // Either the full stop, the space after or just the length of the original word
-                    int wordEnd = Math.max(i + token.length(),
-                            i + Math.min(text.substring(i).indexOf(" "), text.substring(i).indexOf(".")));
-                    String newTerm = text.substring(wordStart, wordEnd);
-
-                    newTerm = NlpUtil.sanitiseString(newTerm).trim();
-                    if (!relevantTerms.containsKey(newTerm)) {
-                        relevantTerms.put(newTerm, token);
-                    }
-                }
-            }
-        }
-
-        return relevantTerms;
     }
 
     /**

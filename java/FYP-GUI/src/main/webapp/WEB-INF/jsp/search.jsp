@@ -64,6 +64,7 @@
 
 	<c:if test="${not empty results}">
 		<div class="container">
+			<p>${resultsInfo}</p>
 			<table class="table table-striped table-hover">
 				<thead>
 					<tr>

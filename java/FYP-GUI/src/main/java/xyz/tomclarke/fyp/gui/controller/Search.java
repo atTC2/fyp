@@ -1,6 +1,6 @@
 package xyz.tomclarke.fyp.gui.controller;
 
-import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
 
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import xyz.tomclarke.fyp.gui.model.SearchQuery;
-import xyz.tomclarke.fyp.gui.model.SearchResult;
+import xyz.tomclarke.fyp.gui.model.SearchResultAndDetails;
 import xyz.tomclarke.fyp.gui.service.PaperSearch;
 
 /**
@@ -41,7 +41,8 @@ public class Search {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ModelAndView search(@Valid @ModelAttribute("search") SearchQuery search, BindingResult bindingResult) {
+    public ModelAndView search(@Valid @ModelAttribute("search") SearchQuery search, BindingResult bindingResult)
+            throws InterruptedException, ExecutionException {
         ModelAndView mv = new ModelAndView("search");
 
         if (bindingResult.hasErrors()) {
@@ -51,14 +52,22 @@ public class Search {
         }
 
         // Do the search
-        List<SearchResult> searchResults = paperSearch.search(search);
-        mv.addObject("results", searchResults);
+        SearchResultAndDetails searchRAndD = paperSearch.search(search);
+        mv.addObject("results", searchRAndD.getResults());
 
-        // Record what was searched, may be interesting
-        log.info(search + ", FOUND:" + searchResults.size());
+        // Record what was searched
+        log.info(search + ", FOUND:" + searchRAndD.getResultsFound() + ", TOOK:" + searchRAndD.getSearchTime() + "ms");
+
+        String endPartOfSearchResultString = searchRAndD.getResultsFound() > searchRAndD.getResults().size()
+                ? " (showing top " + searchRAndD.getResults().size() + " results)."
+                : ".";
+        mv.addObject("resultsInfo",
+                "Search for \"" + search.getText() + "\" completed in "
+                        + ((double) searchRAndD.getSearchTime() / 1000.0) + " seconds, finding "
+                        + searchRAndD.getResultsFound() + " papers" + endPartOfSearchResultString);
 
         // Let the user know nothing was found
-        if (searchResults.isEmpty()) {
+        if (searchRAndD.getResults().isEmpty()) {
             mv.addObject("noResults", true);
         }
 

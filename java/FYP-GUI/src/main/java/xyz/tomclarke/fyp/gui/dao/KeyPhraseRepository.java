@@ -82,4 +82,26 @@ public interface KeyPhraseRepository extends CrudRepository<KeyPhraseDAO, Long> 
     List<KeyPhraseDAO> findByPaperAndTextAndClassification(@Param("paper") PaperDAO paper, @Param("regex") String regex,
             @Param("clazz") String clazz);
 
+    /**
+     * Finds key phrases for the given regex
+     * 
+     * @param regex
+     *            The regex to check the texts for
+     * @return A list of matching key phrases
+     */
+    @Query(value = "SELECT * FROM key_phrase WHERE text regexp :regex", nativeQuery = true)
+    List<KeyPhraseDAO> findByPaperAndText(@Param("regex") String regex);
+
+    /**
+     * Finds key phrases for the given regex
+     * 
+     * @param regex
+     *            The regex to check the texts for
+     * @param clazz
+     *            The classification the user is looking for
+     * @return A list of matching key phrases
+     */
+    @Query(value = "SELECT * FROM key_phrase WHERE text regexp :regex AND classification regexp :clazz", nativeQuery = true)
+    List<KeyPhraseDAO> findByPaperAndTextAndClassification(@Param("regex") String regex, @Param("clazz") String clazz);
+
 }
