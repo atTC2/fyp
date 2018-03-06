@@ -20,6 +20,7 @@ import libsvm.svm_problem;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
+import xyz.tomclarke.fyp.nlp.util.NlpError;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -271,9 +272,15 @@ public class KeyPhraseSVM extends BaseSvm {
                             // Classification is either the one the SVm was trained with, or UNKNOWN
                             phrases.add(paper.makeKeyPhrase(kpStart, kpEnd,
                                     clazz == null ? Classification.UNKNOWN : clazz, trainingPapers));
+                        } catch (NlpError e) {
+                            // Hide most of the stupid, annoying and not very useful messages
+                            if (e.getMessage().contains("Generated Key Phrase is empty")) {
+                                log.debug(e.getMessage());
+                            } else {
+                                log.error(e.getMessage());
+                            }
                         } catch (Exception e) {
-                            // Making a new key phrase went wrong somehow...
-                            log.error(e.getMessage());
+                            log.error(e.getMessage(), e);
                         }
                     }
                 }

@@ -2,6 +2,8 @@ package xyz.tomclarke.fyp.nlp.cluster;
 
 import java.util.ArrayList;
 
+import xyz.tomclarke.fyp.nlp.util.NlpError;
+
 /**
  * A representation of a cluster
  * 
@@ -31,10 +33,10 @@ public abstract class Cluster<T> extends ArrayList<T> {
      * @param method
      *            The type of method for determining the distance
      * @return The distance
-     * @throws Exception
+     * @throws NlpError
      *             If no valid method has been chosen
      */
-    public double getDistance(Cluster<T> cluster, Linkage method) throws Exception {
+    public double getDistance(Cluster<T> cluster, Linkage method) throws NlpError {
         switch (method) {
         case SINGLE:
             return getShortestDistance(cluster);
@@ -43,7 +45,7 @@ public abstract class Cluster<T> extends ArrayList<T> {
         case COMPLETE:
             return getLargestDistance(cluster);
         default:
-            throw new Exception("No cluster linkage method selected.");
+            throw new NlpError("No cluster linkage method selected.");
         }
     }
 

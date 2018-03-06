@@ -20,6 +20,7 @@ import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatisticGroup;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
+import xyz.tomclarke.fyp.nlp.util.NlpError;
 import xyz.tomclarke.fyp.nlp.util.NlpObjectStore;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecPretrained;
 import xyz.tomclarke.fyp.nlp.word2vec.Word2VecProcessor;
@@ -79,7 +80,7 @@ public class TestKeyPhraseSVM extends TestOnPapers {
             } else if (problem.y[i] == 1.0 && !isPredictedKeyPhrase) {
                 fn++;
             } else {
-                throw new Exception("Problem label not understood: " + problem.y[i]);
+                throw new NlpError("Problem label not understood: " + problem.y[i]);
             }
         }
 
@@ -129,12 +130,12 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         log.info(ConfusionStatistic.calculateScore(tp, fp, tn, fn));
     }
 
+    @Ignore
     @Test
     public void testSvmPredictKeyPhrasesGN() throws Exception {
         testSvmPredictKeyPhrases(Word2VecPretrained.GOOGLE_NEWS);
     }
 
-    @Ignore
     @Test
     public void testSvmPredictKeyPhrasesGNAndPreBuiltSvm() throws Exception {
         testSvmPredictKeyPhrases(Word2VecPretrained.GOOGLE_NEWS, "KP_EXTRACTION_SVM");

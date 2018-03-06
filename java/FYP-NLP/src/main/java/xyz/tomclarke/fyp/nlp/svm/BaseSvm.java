@@ -10,6 +10,7 @@ import libsvm.svm_model;
 import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
+import xyz.tomclarke.fyp.nlp.util.NlpError;
 
 /**
  * Denotes some requirements of what an SVM needs to do
@@ -49,10 +50,10 @@ public abstract class BaseSvm implements Serializable {
     /**
      * Train the SVM on loaded data
      * 
-     * @throws Exception
+     * @throws NlpError
      *             If the training data isn't suitable for use
      */
-    public void train() throws Exception {
+    public void train() throws NlpError {
         log.info("Training SVM");
         String paramCheck = svm.svm_check_parameter(problem, param);
         if (paramCheck == null) {
@@ -61,7 +62,7 @@ public abstract class BaseSvm implements Serializable {
             log.info("Finished training");
         } else {
             // Something is wrong...
-            throw new Exception(paramCheck);
+            throw new NlpError(paramCheck);
         }
     }
 

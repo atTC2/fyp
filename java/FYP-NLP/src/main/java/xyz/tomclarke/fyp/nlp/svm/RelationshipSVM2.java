@@ -13,6 +13,7 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
+import xyz.tomclarke.fyp.nlp.util.NlpError;
 
 /**
  * Uses libsvm to extract relations between key phrases using Word2Vec
@@ -44,10 +45,10 @@ public class RelationshipSVM2 extends BaseSvm {
      *            The relation type
      * @param vec
      *            The Word2Vec data to use
-     * @throws Exception
+     * @throws NlpError
      *             If generating the support vectors fail
      */
-    public void generateTrainingData(List<Paper> papers, RelationType type, Word2Vec vec) throws Exception {
+    public void generateTrainingData(List<Paper> papers, RelationType type, Word2Vec vec) throws NlpError {
         log.info("Generating data for SVM for " + type.toString() + " extraction");
         this.type = type;
         // The problem to return
@@ -114,10 +115,10 @@ public class RelationshipSVM2 extends BaseSvm {
      * @param vec
      *            The Word2Vec data to use
      * @return The support vector set representing the key phrase distances
-     * @throws Exception
+     * @throws NlpError
      *             If a word vector isn't the expected length.
      */
-    public svm_node[] generateSupportVectors(KeyPhrase kp1, KeyPhrase kp2, Word2Vec vec) throws Exception {
+    public svm_node[] generateSupportVectors(KeyPhrase kp1, KeyPhrase kp2, Word2Vec vec) throws NlpError {
         // Get phrase vectors
         double[] v1 = getPhraseVector(kp1, vec);
         double[] v2 = getPhraseVector(kp2, vec);
@@ -164,10 +165,10 @@ public class RelationshipSVM2 extends BaseSvm {
      * @param vec
      *            The Word2Vec data to use
      * @return The phrase vector
-     * @throws Exception
+     * @throws NlpError
      *             If a word vector isn't the expected length.
      */
-    private double[] getPhraseVector(KeyPhrase kp, Word2Vec vec) throws Exception {
+    private double[] getPhraseVector(KeyPhrase kp, Word2Vec vec) throws NlpError {
         // Remove punctuation and get each word
         String[] tokens = kp.getPhrase().replaceAll("\\p{Punct}", "").split(" ");
 
@@ -178,7 +179,7 @@ public class RelationshipSVM2 extends BaseSvm {
             if (vec.hasWord(token)) {
                 double[] wordVector = vec.getWordVector(token);
                 if (W2V_EXPECTED_LEN != wordVector.length) {
-                    throw new Exception("Word Vector length not " + W2V_EXPECTED_LEN);
+                    throw new NlpError("Word Vector length not " + W2V_EXPECTED_LEN);
                 }
                 for (int i = 0; i < wordVector.length; i++) {
                     vector[i] += wordVector[i];

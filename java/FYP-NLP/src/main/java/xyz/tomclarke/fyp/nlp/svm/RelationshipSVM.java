@@ -16,6 +16,7 @@ import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
+import xyz.tomclarke.fyp.nlp.util.NlpError;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -182,10 +183,10 @@ public class RelationshipSVM extends BaseSvm {
      * @param vec
      *            The Word2Vec data to use
      * @return The phrase vector
-     * @throws Exception
+     * @throws NlpError
      *             If a word vector isn't the expected length.
      */
-    private double[] getPhraseVector(KeyPhrase kp, Word2Vec vec) throws Exception {
+    private double[] getPhraseVector(KeyPhrase kp, Word2Vec vec) throws NlpError {
         // Remove punctuation and get each word
         String[] tokens = kp.getPhrase().replaceAll("\\p{Punct}", "").split(" ");
 
@@ -197,7 +198,7 @@ public class RelationshipSVM extends BaseSvm {
             if (vec.hasWord(token)) {
                 double[] wordVector = vec.getWordVector(token);
                 if (expectedVectorLength != wordVector.length) {
-                    throw new Exception("Word Vector length not " + expectedVectorLength);
+                    throw new NlpError("Word Vector length not " + expectedVectorLength);
                 }
                 for (int i = 0; i < wordVector.length; i++) {
                     vector[i] += wordVector[i];
@@ -224,11 +225,11 @@ public class RelationshipSVM extends BaseSvm {
      * @param ann
      *            The annotator to use
      * @return The phrase vector
-     * @throws Exception
+     * @throws NlpError
      *             If a word vector isn't the expected length.
      */
     @SuppressWarnings("unused")
-    private double[] getPhraseVectorOfNoun(KeyPhrase kp, Word2Vec vec, Annotator ann) throws Exception {
+    private double[] getPhraseVectorOfNoun(KeyPhrase kp, Word2Vec vec, Annotator ann) throws NlpError {
         // Remove punctuation and get each word
         List<CoreMap> sentences = ann.annotate(kp.getPhrase());
         if (sentences.size() > 1) {
@@ -254,7 +255,7 @@ public class RelationshipSVM extends BaseSvm {
                 if (vec.hasWord(token)) {
                     double[] wordVector = vec.getWordVector(token);
                     if (expectedVectorLength != wordVector.length) {
-                        throw new Exception("Word Vector length not " + expectedVectorLength);
+                        throw new NlpError("Word Vector length not " + expectedVectorLength);
                     }
                     for (int i = 0; i < wordVector.length; i++) {
                         vector[i] += wordVector[i];
@@ -277,11 +278,11 @@ public class RelationshipSVM extends BaseSvm {
      * @param vec
      *            The Word2Vec data to use
      * @return The phrase vector
-     * @throws Exception
+     * @throws NlpError
      *             If a word vector isn't the expected length.
      */
     @SuppressWarnings("unused")
-    private double[] getPhraseVectorIgnoringStopWords(KeyPhrase kp, Word2Vec vec) throws Exception {
+    private double[] getPhraseVectorIgnoringStopWords(KeyPhrase kp, Word2Vec vec) throws NlpError {
         // Remove punctuation and get each word
         String[] tokens = NlpUtil.getAllTokens(kp.getPhrase());
         List<String> tokensToProcess = new ArrayList<String>();
@@ -305,7 +306,7 @@ public class RelationshipSVM extends BaseSvm {
             if (vec.hasWord(token)) {
                 double[] wordVector = vec.getWordVector(token);
                 if (expectedVectorLength != wordVector.length) {
-                    throw new Exception("Word Vector length not " + expectedVectorLength);
+                    throw new NlpError("Word Vector length not " + expectedVectorLength);
                 }
                 for (int i = 0; i < wordVector.length; i++) {
                     vector[i] += wordVector[i];

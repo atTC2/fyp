@@ -29,6 +29,7 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Position;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
+import xyz.tomclarke.fyp.nlp.util.NlpError;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
@@ -133,12 +134,12 @@ public abstract class Paper implements Serializable {
      * @param trainingPapers
      *            The training papers available, used in sanitisation
      * @return The new key phrase object (with set ID and unknown classification)
-     * @throws Exception
-     *             If the phrase is empty
+     * @throws NlpError
      */
     public KeyPhrase makeKeyPhrase(int start, int end, Classification clazz, List<Paper> trainingPapers)
-            throws Exception {
+            throws NlpError {
         int lowestAvailableId = 0;
+        String originalKp = text.substring(start, end);
 
         // Find the highest ID and add one
         for (Extraction ext : extractions) {
@@ -147,50 +148,137 @@ public abstract class Paper implements Serializable {
             }
         }
 
-        String phrase = text.substring(start, end).trim();
+        String phrase = text.substring(start, end);
 
         // If it's a mistake, it could be a blank line...
         if (phrase.isEmpty()) {
-            throw new Exception("Generated Key Phrase is empty");
+            throw new NlpError("Generated Key Phrase is empty");
         }
-        // Cater for shortening at the start of the phrase
-        start = start + text.substring(start).indexOf(phrase.charAt(0));
 
         // Sanitise!
+        boolean sanitising = true;
+        // Work on beginning of line
+        while (sanitising) {
+            int nextSpaceIndex = phrase.indexOf(" ");
+            if (nextSpaceIndex == -1) {
+                // No more spaces
+                sanitising = false;
+            } else if (nextSpaceIndex == 0) {
+                // It is a space
+                start++;
+                phrase = phrase.substring(1);
+            } else {
+                String token = phrase.substring(0, nextSpaceIndex);
+                if (!isTokenSuitableForKeyPhraseEdge(token, trainingPapers)) {
+                    // Remove it, and the following space
+                    phrase = phrase.substring(nextSpaceIndex + 1);
+                    start += nextSpaceIndex + 1;
+                } else {
+                    // Happy with the first term of the phrase
+                    sanitising = false;
+                }
+            }
+            // Remove starting stop things
+            if (phrase.length() > 2 && NlpUtil.isTokenToIgnore(phrase.substring(0, 1))) {
+                start++;
+                phrase = phrase.substring(1);
+            }
+        }
+        // Work on ending of line
+        sanitising = true;
+        while (sanitising) {
+            int lastSpaceIndex = phrase.lastIndexOf(" ");
+            if (lastSpaceIndex == -1) {
+                // No more spaces
+                sanitising = false;
+            } else if (lastSpaceIndex == phrase.length() + 1) {
+                // It is a space
+                end--;
+                phrase = phrase.substring(0, phrase.length() - 1);
+            } else {
+                String token = phrase.substring(lastSpaceIndex + 1);
+                if (!isTokenSuitableForKeyPhraseEdge(token, trainingPapers)) {
+                    // Remove it, and the following space
+                    phrase = phrase.substring(0, lastSpaceIndex);
+                    end = start + phrase.length();
+                } else {
+                    // Happy with the end term of the phrase
+                    sanitising = false;
+                }
+            }
+            // Remove ending stop things
+            if (phrase.length() > 2 && NlpUtil.isTokenToIgnore(phrase.substring(phrase.length() - 1))) {
+                end--;
+                phrase = phrase.substring(0, phrase.length() - 1);
+            }
+        }
 
-        // Remove end punctuation
-        while (phrase.substring(0, 1).matches("[^a-zA-Z0-9\\[\"{(]")) {
-            phrase = phrase.substring(1);
-            start++;
+        // Sometimes, a partial reference hangs onto the key phrase... kill it
+        if (phrase.matches(".*[(][A-Z][a-z]+")) {
+            int split = phrase.lastIndexOf("(");
+            phrase = phrase.substring(0, split).trim();
+            end = start + phrase.length();
         }
-        while (phrase.substring(phrase.length() - 1).matches("[^a-zA-Z0-9)/]}\"]")) {
-            phrase = phrase.substring(0, phrase.length() - 1);
-            end--;
-        }
-
-        // Remove end tokens with low TF-IDF
-        String token;
-        int phraseSplitIndex;
-        while ((phraseSplitIndex = phrase.indexOf(" ")) > -1
-                && NlpUtil.calculateTfIdf((token = phrase.substring(0, phraseSplitIndex)), this,
-                        trainingPapers) < NlpUtil.TF_IDF_THRESHOLD_TOKEN) {
-            int tokenLenWithSpace = token.length() + 1;
-            phrase = phrase.substring(tokenLenWithSpace);
-            start += tokenLenWithSpace;
-        }
-        while ((phraseSplitIndex = phrase.lastIndexOf(" ")) > -1
-                && NlpUtil.calculateTfIdf((token = phrase.substring(phraseSplitIndex)), this,
-                        trainingPapers) < NlpUtil.TF_IDF_THRESHOLD_TOKEN) {
-            int tokenLenWithSpace = token.length() + 1;
-            phrase = phrase.substring(0, phrase.length() - tokenLenWithSpace);
-            end -= tokenLenWithSpace;
+        if (phrase.matches(".*\\[[0-9,]+]?")) {
+            int split = phrase.lastIndexOf("[");
+            phrase = phrase.substring(0, split).trim();
+            end = start + phrase.length();
         }
 
+        // Final checks
         if (phrase.isEmpty()) {
-            throw new Exception("Generated Key Phrase is empty");
+            throw new NlpError("Generated Key Phrase is empty. Original: \"" + originalKp + "\"");
+        } else if (!phrase.matches(".*[a-zA-Z0-9αρΛ≡ε∞].*")) {
+            throw new NlpError("Generated Key Phrase has no real content: \"" + phrase + "\"");
         }
+        
+        /* TODO use the following code for good, to make synonyms
+        if (phrase.contains("(")) {
+            String subPhrase = phrase.substring(0, phrase.indexOf("("));
+            subPhrase = subPhrase.replaceAll("[^A-Z]", "");
+            String subPhraseAcryonym = phrase.substring(phrase.indexOf("("));
+            if (subPhraseAcryonym.contains(")")) {
+                subPhraseAcryonym = subPhraseAcryonym.substring(0, subPhraseAcryonym.indexOf(")"));
+            }
+            subPhraseAcryonym = subPhraseAcryonym.replaceAll("[^A-Z]", "");
+            if (!subPhrase.isEmpty() && !subPhraseAcryonym.isEmpty()
+                    && (subPhrase.contains(subPhraseAcryonym) || subPhraseAcryonym.contains(subPhrase))) {
+                log.warn("ABOVE COULD BE SYNONYM");
+            }
+        }
+        */
 
         return new KeyPhrase(lowestAvailableId, phrase, new Position(start, start += phrase.length()), clazz);
+    }
+
+    /**
+     * Checks to see if the token should be included in the key phrase or not
+     * (intended for edge cases)
+     * 
+     * @param token
+     *            The token to test
+     * @param trainingPapers
+     *            The training papers available
+     * @return If it should be allowed
+     */
+    private boolean isTokenSuitableForKeyPhraseEdge(String token, List<Paper> trainingPapers) {
+        // Filter simple things
+        if (token == null || token.isEmpty() || token.equals(" ")) {
+            return false;
+        }
+
+        // Stop word/bad symbol?
+        if (NlpUtil.isTokenToIgnore(token)) {
+            return false;
+        }
+
+        // Good enough TF-IDF?
+        if (NlpUtil.calculateTfIdf(token, this, trainingPapers) < NlpUtil.TF_IDF_THRESHOLD_TOKEN) {
+            return false;
+        }
+
+        // Made it this far
+        return true;
     }
 
     /**
