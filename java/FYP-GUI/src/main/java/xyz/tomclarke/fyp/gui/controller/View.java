@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -82,6 +83,13 @@ public class View {
             }
 
             List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
+            // Make sure the KPs are in starting index order
+            kps.sort(new Comparator<KeyPhraseDAO>() {
+                @Override
+                public int compare(KeyPhraseDAO kp1, KeyPhraseDAO kp2) {
+                    return kp1.getStart() - kp2.getStart();
+                }
+            });
             List<String> kpStrings = new ArrayList<String>();
             List<String> kpClazzs = new ArrayList<String>();
             int offset = 0;
@@ -95,14 +103,6 @@ public class View {
             }
             view.setKps(kpStrings);
             view.setKpClazzs(kpClazzs);
-
-            // TODO include relationships in view
-            if (kps != null && !kps.isEmpty()) {
-                List<HyponymDAO> hyps = hypRepo.findByKpIn(kps);
-                mv.addObject("hyps", hyps);
-                List<SynonymDAO> syns = synRepo.findByKpIn(kps);
-                mv.addObject("syns", syns);
-            }
         }
 
         mv.addObject("paper", view);

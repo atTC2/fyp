@@ -19,6 +19,13 @@ public interface PaperRepository extends CrudRepository<PaperDAO, Long> {
     List<PaperDAO> findByStatus(Long status);
 
     /**
+     * Finds all papers with a parse created
+     * 
+     * @return The papers with parses
+     */
+    List<PaperDAO> findByParseNotNull();
+
+    /**
      * Finds papers with text, title or author matching the given regex (regex is
      * case insensitive). The meta data also needs to be present
      * 

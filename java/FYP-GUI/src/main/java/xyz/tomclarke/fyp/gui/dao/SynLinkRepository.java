@@ -13,7 +13,7 @@ public interface SynLinkRepository extends CrudRepository<SynLinkDAO, Long> {
      *            The paper
      * @return The number of synonyms for the paper
      */
-    @Query(value = "SELECT COUNT(DISTINCT sl.id) FROM syn_link sl, synonym s, key_phrase kp, paper p WHERE p.id = :paper AND p.id = kp.paper AND kp.id = s.kp", nativeQuery = true)
+    @Query(value = "SELECT COUNT(DISTINCT sl.id) FROM syn_link sl, synonym s, key_phrase kp, paper p WHERE p.id = :paper AND p.id = kp.paper AND kp.id = s.kp AND sl.id = s.id", nativeQuery = true)
     Long countByPaper(@Param("paper") PaperDAO paper);
 
 }

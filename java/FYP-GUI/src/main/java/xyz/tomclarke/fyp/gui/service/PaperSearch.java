@@ -71,9 +71,7 @@ public class PaperSearch {
         // Do searching!
         if (search.getText() == null || search.getText().isEmpty()) {
             // No actual search, just do all
-            Iterable<PaperDAO> papers = paperRepo.findAll();
-            searchResults = new ArrayList<PaperDAO>();
-            papers.forEach(searchResults::add);
+            searchResults = paperRepo.findByParseNotNull();
             resultList = buildResultList(searchResults, false, null);
         } else {
             // Get TD-IDF of the query
@@ -203,7 +201,8 @@ public class PaperSearch {
                 result.setPaper(paper.getLocation());
             }
             result.setKps(kpRepo.countByPaper(paper));
-            result.setRels(hypRepo.countByPaper(paper) + synLinkRepo.countByPaper(paper));
+            result.setRels(hypRepo.countByPaper(paper) + synLinkRepo.countByPaper(paper) / 2);
+            // Syns is / 2 as there are 2 records per 1 synonym (for the purposes here)
 
             // Try and extract a snippet
             if (search != null) {

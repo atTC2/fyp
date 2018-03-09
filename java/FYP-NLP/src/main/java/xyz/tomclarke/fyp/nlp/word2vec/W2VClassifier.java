@@ -60,8 +60,6 @@ public final class W2VClassifier {
             return autoClazz;
         }
 
-        log.info("Made it past teh default, value " + foundWords);
-
         // Largest number means closest
         double max = Math.max(distTask, Math.max(distProc, distMatl));
         if (max == distTask) {
