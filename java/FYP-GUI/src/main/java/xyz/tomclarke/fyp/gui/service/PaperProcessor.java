@@ -42,6 +42,7 @@ public class PaperProcessor {
     private ClazzW2V task2;
     @Autowired
     private RelSvm task3;
+    private boolean task3AbleToRun = true;
     private Word2Vec vec;
 
     @Scheduled(fixedDelay = 60000)
@@ -51,7 +52,16 @@ public class PaperProcessor {
         processWaitingPapers(0, task0);
         processWaitingPapers(1, task1);
         processWaitingPapers(2, task2);
-        processWaitingPapers(3, task3);
+        // This one takes a tonne of memory, and is also awful... so if it doesn't work
+        // - ah well
+        if (task3AbleToRun) {
+            try {
+                processWaitingPapers(3, task3);
+            } catch (OutOfMemoryError e) {
+                log.error("REL EXT out of memory, will not attempt again until reboot", e);
+                task3AbleToRun = false;
+            }
+        }
     }
 
     /**

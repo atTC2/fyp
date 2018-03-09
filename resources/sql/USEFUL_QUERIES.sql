@@ -17,6 +17,12 @@ SELECT * FROM fyp.paper WHERE status != 4;
 -- Finish them
 UPDATE fyp.paper SET status = -1 WHERE status != 4;
 
+-- Proving case insentivity
 SELECT * FROM paper WHERE text LIKE '%xylanases%'; # Proves default case insentivity
-SELECT * FROM paper WHERE text REGEXP 'xylanases'; # Proves regex default case insentivity
-SELECT * FROM key_phrase WHERE text LIKE '%['; # Should not return anything...
+SELECT * FROM paper WHERE text REGEXP 'xylanases|GALLIUM'; # Proves regex default case insentivity
+
+-- Count KPs
+SELECT COUNT(DISTINCT sl.id) FROM syn_link sl, synonym s, key_phrase kp, paper p WHERE p.id = 6 AND p.id = kp.paper AND kp.id = s.kp AND sl.id = s.id;
+
+-- Get related KPs from syonyms
+SELECT * FROM synonym WHERE kp != 1224 AND syn_link IN (SELECT syn_link FROM synonym WHERE kp = 1224);

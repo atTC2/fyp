@@ -36,6 +36,15 @@ public class KeyPhraseDAO {
         return "T" + relativeId + "\t" + classification + " " + start + " " + end + "\t" + text;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof KeyPhraseDAO)) {
+            return false;
+        }
+        // Compare the IDs
+        return ((KeyPhraseDAO) obj).getId().equals(id);
+    }
+
     public Long getId() {
         return id;
     }
