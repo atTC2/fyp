@@ -28,6 +28,7 @@ import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Position;
+import xyz.tomclarke.fyp.nlp.paper.extraction.RelationType;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Relationship;
 import xyz.tomclarke.fyp.nlp.util.NlpError;
 import xyz.tomclarke.fyp.nlp.util.NlpUtil;
@@ -138,15 +139,10 @@ public abstract class Paper implements Serializable {
      */
     public KeyPhrase makeKeyPhrase(int start, int end, Classification clazz, List<Paper> trainingPapers)
             throws NlpError {
-        int lowestAvailableId = 0;
         String originalKp = text.substring(start, end);
 
         // Find the highest ID and add one
-        for (Extraction ext : extractions) {
-            if (lowestAvailableId <= ext.getId()) {
-                lowestAvailableId = ext.getId() + 1;
-            }
-        }
+        int id = getNextKpId();
 
         String phrase = text.substring(start, end);
 
@@ -231,24 +227,133 @@ public abstract class Paper implements Serializable {
         } else if (!phrase.matches(".*[a-zA-Z0-9αρΛ≡ε∞].*")) {
             throw new NlpError("Generated Key Phrase has no real content: \"" + phrase + "\"");
         }
-        
-        /* TODO use the following code for good, to make synonyms
-        if (phrase.contains("(")) {
-            String subPhrase = phrase.substring(0, phrase.indexOf("("));
-            subPhrase = subPhrase.replaceAll("[^A-Z]", "");
-            String subPhraseAcryonym = phrase.substring(phrase.indexOf("("));
-            if (subPhraseAcryonym.contains(")")) {
-                subPhraseAcryonym = subPhraseAcryonym.substring(0, subPhraseAcryonym.indexOf(")"));
+
+        return new KeyPhrase(id, phrase, new Position(start, start += phrase.length()), clazz);
+    }
+
+    /**
+     * Scans for easy wins to get relationships from key phrases. New key phrases
+     * and changes made will be automatically made to the paper object. If a custom
+     * list of key phrases are given, changes are not committed
+     * 
+     * @param kps
+     *            Custom KPs to do this processing on (rather than this papers one)
+     *            - for testing purposes
+     * @return New or changed extractions
+     */
+    public List<Extraction> makeEasyWinsFromKeyPhrases(List<KeyPhrase> kps) {
+        List<Extraction> exts = new ArrayList<Extraction>();
+        List<Extraction> extsToRemove = new ArrayList<Extraction>();
+        int nextKpId = getNextKpId();
+        int nextRelId = getNextRelId();
+
+        boolean operatingOnThisPaper = kps == null;
+        if (operatingOnThisPaper) {
+            kps = getKeyPhrases();
+        }
+
+        /*
+         * Easy win 1: synonyms based on acronyms
+         */
+        for (KeyPhrase kp : kps) {
+            boolean isKpContainsAcronym = false;
+            String phrase = kp.getPhrase();
+            if (phrase.contains("(")) {
+                String subPhrase = phrase.substring(0, phrase.indexOf("("));
+                subPhrase = subPhrase.replaceAll("[^A-Z]", "");
+                String subPhraseAcronym = phrase.substring(phrase.indexOf("("));
+                if (subPhraseAcronym.contains(")")) {
+                    subPhraseAcronym = subPhraseAcronym.substring(0, subPhraseAcronym.indexOf(")"));
+                }
+                subPhraseAcronym = subPhraseAcronym.replaceAll("[^A-Z]", "");
+                isKpContainsAcronym = !subPhrase.isEmpty() && !subPhraseAcronym.isEmpty()
+                        && (subPhrase.contains(subPhraseAcronym) || subPhraseAcronym.contains(subPhrase));
             }
-            subPhraseAcryonym = subPhraseAcryonym.replaceAll("[^A-Z]", "");
-            if (!subPhrase.isEmpty() && !subPhraseAcryonym.isEmpty()
-                    && (subPhrase.contains(subPhraseAcryonym) || subPhraseAcryonym.contains(subPhrase))) {
-                log.warn("ABOVE COULD BE SYNONYM");
+
+            if (isKpContainsAcronym) {
+                log.info("Splitting phrase \"" + phrase + "\" to make acronym (synonym relation)");
+                // Split the original kp, make a new kp, and draw a synonym relationship between
+                // them
+                // Get the main KP
+                String mainPhrase = phrase.substring(0, phrase.indexOf("(")).trim();
+                Position pos = new Position(kp.getPosition().getStart(),
+                        kp.getPosition().getStart() + mainPhrase.length());
+                KeyPhrase mainKp = new KeyPhrase(kp.getId(), mainPhrase, pos, kp.getClazz());
+
+                // Get the acronym
+                String acrPhrase = phrase.substring(phrase.indexOf("(") + 1).trim();
+                if (acrPhrase.contains(")")) {
+                    acrPhrase = acrPhrase.substring(0, acrPhrase.indexOf(")")).trim();
+                }
+                int acrStart = pos.getStart() + phrase.indexOf(acrPhrase);
+                Position acrPos = new Position(acrStart, acrStart + acrPhrase.length());
+                KeyPhrase acrKp = new KeyPhrase(nextKpId, acrPhrase, acrPos, kp.getClazz());
+
+                // Make the relationship
+                KeyPhrase[] relKps = new KeyPhrase[2];
+                relKps[0] = mainKp;
+                relKps[1] = acrKp;
+                Relationship rel = new Relationship(nextRelId, RelationType.SYNONYM_OF, relKps);
+
+                // Queue old KP for removal
+                extsToRemove.add(kp);
+
+                // Add them to return for informative purposes
+                exts.add(mainKp);
+                exts.add(acrKp);
+                exts.add(rel);
+
+                // Increment IDs for future things
+                nextKpId++;
+                nextRelId++;
             }
         }
-        */
 
-        return new KeyPhrase(lowestAvailableId, phrase, new Position(start, start += phrase.length()), clazz);
+        /**
+         * Commit all changes (unless testing)
+         */
+        if (operatingOnThisPaper) {
+            // Remove old KPs
+            for (Extraction ext : extsToRemove) {
+                extractions.remove(ext);
+            }
+            // Add new ones
+            for (Extraction ext : exts) {
+                extractions.add(ext);
+            }
+        }
+
+        return exts;
+    }
+
+    /**
+     * Get the next available key phrase ID
+     * 
+     * @return The next key phrase ID
+     */
+    private int getNextKpId() {
+        int lowestAvailableId = 0;
+        for (KeyPhrase kp : getKeyPhrases()) {
+            if (lowestAvailableId <= kp.getId()) {
+                lowestAvailableId = kp.getId() + 1;
+            }
+        }
+        return lowestAvailableId;
+    }
+
+    /**
+     * Get the next available relation ID
+     * 
+     * @return The next relation ID
+     */
+    private int getNextRelId() {
+        int lowestAvailableId = 0;
+        for (Relationship rel : getRelationships()) {
+            if (lowestAvailableId <= rel.getId()) {
+                lowestAvailableId = rel.getId() + 1;
+            }
+        }
+        return lowestAvailableId;
     }
 
     /**

@@ -19,6 +19,7 @@ import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatisticGroup;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
+import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
 import xyz.tomclarke.fyp.nlp.util.NlpError;
 import xyz.tomclarke.fyp.nlp.util.NlpObjectStore;
@@ -202,6 +203,11 @@ public class TestKeyPhraseSVM extends TestOnPapers {
         ConfusionStatisticGroup stats = new ConfusionStatisticGroup(false);
         for (Paper paper : testPapers) {
             List<KeyPhrase> phrases = svm.predictKeyPhrases(paper, vecForSvm);
+            List<Extraction> ezExts = paper.makeEasyWinsFromKeyPhrases(phrases);
+            if (!ezExts.isEmpty()) {
+                log.info("Made " + ezExts.size() / 3 + " rels!");
+                log.debug(ezExts);
+            }
 
             // Log them
             printKP(paper, phrases);
