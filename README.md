@@ -6,10 +6,11 @@ Taking on the [ScienceIE](https://scienceie.github.io/) task.
 ### Prerequisites
 * Java 8 (64-bit)
 * Maven 3
-* For Word2Vec, some [pretrained models](https://github.com/3Top/word2vec-api) (download `Google News`, `Freebase IDs`, `Freebase Names` and `DBPedia vectors (wiki2vec)`).
+* For Word2Vec, some [pretrained models](https://github.com/3Top/word2vec-api) (download `Google News` as a minumum).
+* It likely works on other Linuxs and probably on Windows if you put enough effort in, although the development and execution was all completed on Ubuntu 16.04.
 
 ### Running the system
-The 2 Java projects under the `java` directory are `FYP-NLP`, which includes all NLP code, and `FYP-GUI`, which includes the GUI code making the project usable as a service. Scripts are provided for convenience:
+The 2 Java projects under the [`java`](java) directory are [`FYP-NLP`](java/FYP-NLP), which includes all NLP code, and [`FYP-GUI`](java/FYP-GUI), which includes the GUI code making the project usable as a service. Scripts are provided for convenience:
 
 | Java Project | Script | Description |
 |--------------|--------------------------|---------------------------------------------------------------------------------------------------------|
@@ -17,28 +18,27 @@ The 2 Java projects under the `java` directory are `FYP-NLP`, which includes all
 | FYP-NLP | `./install.sh` | Compiles the system, without running any tests, and installs the project to the local Maven repository. |
 | FYP-NLP | `./test.sh <test class>` | Compiles the system and runs the JUnit test class given. |
 | FYP-GUI | `./build.sh` | Compiles the GUI and runs all JUnit tests. |
-| FYP-GUI | `./run.sh` | Compiles the GUI, without running any tests, and launches the GUI. |
+| FYP-GUI | `./build-and-run.sh` | Compiles the GUI, without running any tests, and launches the GUI. |
+| FYP-GUI | `./run.sh` | Launches the GUI (assumes it is already built). |
 
 ## Current Status
 
 In terms of NLP...
-* For Task 1, the existing SVM is doing fine, and I think is about ready to leave alone. Official scripts give up to ~0.17 which isn't as good as the achievements at ScienceIE but good enough for me, especially when compared with my own evaluation which is a little fairer. Clustering was atempted (using Word2Vec to help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
-* For Task 2, the existing method of using Word2Vec with a simple averaging algorithm seems fairly effective (over 50% of classification on gold data is correct). The current SVM attempt is awful compared. It may be interesting to try a CRF on it and a gazetteer (trained off of existing data and WordNet potentially).
-* For Task 3, the existing SVM using Word2Vec is not very good at all. A limited number of words appear in WordNet meaning that may not be a way to work on this task either. A rule engine is expensive to build and probably unachievable, although potentially dynamic searching of Wikipedia/Freebase (resources used by the best solution at SemEval 2017) may be a good solution to at least produce some good output).
+* For Task 1, the existing SVM is doing fine, and I think is about ready to leave alone. Official scripts give up to ~0.21 which isn't as good as the achievements at ScienceIE but good enough for me, especially when compared with my own evaluation which is a little fairer. Clustering was atempted (using Word2Vec to help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
+* For Task 2, the existing method of using Word2Vec with a simple averaging algorithm seems fairly effective (over 50% of classification on gold data is correct). SVM usage was also attempted inherited from task 1, but proven to be not very good - no surprises there!.
+* For Task 3, the existing SVM using Word2Vec is not very good at all. A limited number of words appear in WordNet meaning that may not be a way to work on this task either. A rule engine is expensive to build and probably unachievable, although potentially dynamic searching of Wikipedia/Freebase (resources used by the best solution at SemEval 2017) may be a good solution to at least produce some good output. Also attempted a slightly different SVM using Word2Vec and vector distances/angels, but did not improve.
 
 In terms of making the system into a product...
-* A GUI has been constructed, allowing submission and automatic analysis of papers (although currently the paper already has to be on the local system to work, web extraction needs to be worked on).
+* A GUI has been constructed, allowing submission and automatic analysis of papers (although currently the paper already has to be on the local system to work, web extraction has not been completed).
 * Bootstrap makes it look quite nice!
-* Papers can be viewed (with key phrases drawn on) and annotations downloaded. A way to view hyponyms and synonyms needs to be implemented, although with the current relation extraction system in place there isn't much to view yet anyway.
-* The search page shows papers well, and while the search boxes are there and the back end receives anything submitted, the search information is not actually used yet and all papers in the database are shown. PageRank should be researched and implemented.
+* Papers can be viewed (with key phrases drawn on) and annotations downloaded. Hyponym/synoym viewing on the webpage isn't shown, as no good solution could be found - although it makes extremely little difference.
+* The search page shows papers well, and search is reasonably effective.
 
-## Road Map
+## The Dissertation
 
-Compared to my initial time table plan, I am still on time. I gave myself until the end of January for NLP development (with no product/GUI development up until that point) and then February to build the GUI and complete all NLP and GUI testing ready for the demo at the start of March.
+The dissertation is being completed in the [`report`](report) directory, and the [current PDF version can be viewed here](report/fyp.pdf).
 
-I think that plan is still valid and sensible. The focus now is to implement the suggestions above for the NLP by the end of January as planned and complete searching in GUI either along side or into the first week of so of February. The main write up should begin around the start of February (hence all NLP should be done in January) allowing time to complete it to draft status for around the demonstration. Given the other studies I am completing at the moment and I keep to my schedule, this should resolve in a good solution being produced very soon.
-
-## Results (as of 12/01/2018)
+## Results
 ### Task 1
 #### SVM
 
@@ -199,43 +199,39 @@ Evaluating the annotation data supplied by ScienceIE with the ScienceIE scripts 
 tom@tom-redline:~/FYP/testing$ python eval.py gold predicted rel
            precision   recall f1-score  support
 
-    Process     0.05     0.04     0.05      954
-   Material     0.05     0.07     0.06      904
-       Task     0.03     0.02     0.02      193
+    Process     0.15     0.10     0.12      954
+   Material     0.11     0.14     0.12      904
+       Task     0.03     0.04     0.03      193
 
-avg / total     0.05     0.05     0.05     2051
+avg / total     0.11     0.11     0.11     2051
 
 
 tom@tom-redline:~/FYP/testing$ python eval.py gold predicted types
            precision   recall f1-score  support
 
-KEYPHRASE-NOTYPES     0.09     0.09     0.09     2051
+KEYPHRASE-NOTYPES     0.21     0.20     0.20     2051
 
-avg / total     0.09     0.09     0.09     2051
+avg / total     0.21     0.20     0.20     2051
 
 
 tom@tom-redline:~/FYP/testing$ python eval.py gold predicted keys
-/usr/local/lib/python2.7/dist-packages/sklearn/metrics/classification.py:1135: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples.
-  'precision', 'predicted', average, warn_for)
            precision   recall f1-score  support
 
  Hyponym-of     0.00     0.00     0.00       95
- Synonym-of     0.00     0.00     0.00      112
+ Synonym-of     0.14     0.02     0.03      112
 
-avg / total     0.00     0.00     0.00      207
+avg / total     0.09     0.01     0.02      207
 
 
 tom@tom-redline:~/FYP/testing$ python eval.py gold predicted
-/usr/local/lib/python2.7/dist-packages/sklearn/metrics/classification.py:1135: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples.
-  'precision', 'predicted', average, warn_for)
            precision   recall f1-score  support
 
-    Process     0.05     0.04     0.05      954
-   Material     0.05     0.07     0.06      904
-       Task     0.03     0.02     0.02      193
- Synonym-of     0.00     0.00     0.00      112
+    Process     0.15     0.10     0.12      954
+   Material     0.11     0.14     0.12      904
+       Task     0.03     0.04     0.03      193
+ Synonym-of     0.14     0.02     0.03      112
  Hyponym-of     0.00     0.00     0.00       95
 
-avg / total     0.05     0.05     0.05     2258
+avg / total     0.11     0.10     0.11     2258
 ```
 
