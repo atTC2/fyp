@@ -1,6 +1,40 @@
 \section{Introduction}
 
+When conducting scientific study, being able to search existing literature around a subject can be vitally important. A search system which can automatically sort scientific papers into order, returning the one likely to be most useful first, can speed up the process of gathering this information. A system which can go further and extract important pieces of information from the paper to help present answers to user queries has the potential to be even more effective.
+
+At SemEval 2017\footnote{http://alt.qcri.org/semeval2017/}, a task which heavily applied to the above was presented: ScienceIE\footnote{https://scienceie.github.io/}. This natural language processing (NLP) based task was to analyse scientific papers to extract key pieces of information, classify those pieces and attempt to draw relations between them. In short, this is a information extration problem, spefically for scientific papers. The idea behind it is to support faster research as systems will be presented with information to help better gather relevant research when querying databses of existing literature.
 
 \subsection{Aims and Objectives}
 
+This project shall initially target the main goals of ScienceIE, and one of the methods of evaluation shall be through processing of the sample data and execution of the marking tools supplied as part of the task. Explicity, the overall task is split into 3 subtasks:
+
+\begin{itemize}
+	\item \textbf{A}: The identification of all the key phrases in a scientiific publication
+	\item \textbf{B}: The classification of each key phrase into one of the following categories:
+	\begin{itemize}
+		\item \textbf{Process} (scientiific models, algorithms, processes)
+		\item \textbf{Task} (an application, end goal, problem, task)
+		\item \textbf{Material} (resources, materials)
+	\end{itemize}
+	\item \textbf{C}: The identification of relationships between identified key phrases, where the relation is either none, or one of the following:
+	\begin{itemize}
+		\item \textbf{Hyponym-of} (where the semantic field of key phrase A is included in that of key phrase B's semantic field, but not vice versa)
+		\item \textbf{Synonym-of} (where the semantic field of key phrase A and B are the same)
+	\end{itemize}
+\end{itemize}
+
+Therefore, through research of the systems created during ScienceIE and other research in the field, the largest and most obvious goal of this project is to create a system where any scientiific paper can be input, some processing happens (with no time constraints) and the desired key phrase information is produced as an output, in the expected format specified for ScienceIE. This is the `brat` annotations format, which houses all of information described above about a paper in a single text document, saved seperately from the original paper. An example annotations file can be seen in APPENDIX.
+
+The above can be refered to as the \textit{NLP system} part of the project. To evaluate the NLP system, not only will the marking tools be used, but further analysis of the information extracted shall also be conducted; for instance exploring the differences in key phrases automatically extracted compared to the expected results (seeing cases where a shorter or longer key phrase was extracted and what difference this might make when using the generated data).
+
+There currently existing many search engines that specifically deal with research papers; Google Scholar\footnote{https://scholar.google.co.uk/} and ScienceDirect\footnote{https://www.sciencedirect.com/} are well known, popular choices currently. As an extension to the ScienceIE task, motivated by existing search engines publically available on the web, the secondary goal of this project is to create a \textit{product} based on the NLP system. It should use information extracted by the NLP system to present useful information to the user, given suitable input through a graphical user interface (GUI).
+
+It should maintain a collection of scientific papers that are prepared for user query to effectively help them navigate to the most useful piece of information relating to their query first. As a minimum requirement, it should host at least the test data supplied by ScienceIE. The papers should be able to be read in full, or simply have the extracted information presented (at least in the brat format described above) for the users convinience.
+
+The goal of this \textit{GUI} section of the project is to be able to explore the potential effectiveness of the extracted information in relation to a researcher trying to find relevant research and how effectively it can be presented to aid in understanding it. Evaluating this shall be from allowing academic peers to use the system to find out their experiences in its effectiveness when navigating the presented data, understanding what the data means as presented in from of them, and comparisons they can draw between this system and other products, such as Google Scholar.
+
 \subsection{Report Outline}
+
+This document begins with a background to the field, which feeds into spefification of what is to be explored annd implemented. This will cover the NLP system in detail and outline the GUI requirements, as this shall be discussed more towards the latter parts of the paper. Following that, the NLP system implementation is reported on, concluded in the next section which evaluates the strengths and weaknesses of the NLP system. One the NLP system has been discussed, the GUI concepts shall be explained in full, the implementation discussed and evaluation completed. To sum up, a final discussion section shall review the project as a whole, and reiterate the strongest positives and note some of the points for improvement or expansion.
+
+

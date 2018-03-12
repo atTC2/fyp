@@ -154,28 +154,31 @@ public class PaperSearch {
         // be an OP boost...
         String originalSearchText = search.getText();
         String searchText = search.getText();
-        List<HyponymDAO> hyps = hypRepo.findByKpIn(matchingKps);
-        List<SynonymDAO> syns = synRepo.findRelatedByKpList(matchingKps);
-        for (HyponymDAO hyp : hyps) {
-            if (kpNotInList(hyp.getKp1(), matchingKps)) {
-                searchText = updateSearchText(searchText, hyp.getKp1().getText());
-            } else {
-                // Either KP1 or KP2 must be in the list...
-                searchText = updateSearchText(searchText, hyp.getKp2().getText());
+        // Also, only do this if there are actually KPs...
+        if (matchingKps != null && !matchingKps.isEmpty()) {
+            List<HyponymDAO> hyps = hypRepo.findByKpIn(matchingKps);
+            List<SynonymDAO> syns = synRepo.findRelatedByKpList(matchingKps);
+            for (HyponymDAO hyp : hyps) {
+                if (kpNotInList(hyp.getKp1(), matchingKps)) {
+                    searchText = updateSearchText(searchText, hyp.getKp1().getText());
+                } else {
+                    // Either KP1 or KP2 must be in the list...
+                    searchText = updateSearchText(searchText, hyp.getKp2().getText());
+                }
             }
-        }
-        for (SynonymDAO syn : syns) {
-            searchText = updateSearchText(searchText, syn.getKp().getText());
-        }
-        // Refresh the values list
-        search.setText(searchText);
-        queryValues = makeQueryValues(search.getText());
-        if (!searchText.equals(originalSearchText)) {
-            log.info("Search text changed: " + originalSearchText + " -> " + searchText);
-            // Restart the search
-            List<PaperDAO> results = searchByTokens(search, queryValues);
-            search.setText(originalSearchText);
-            return results;
+            for (SynonymDAO syn : syns) {
+                searchText = updateSearchText(searchText, syn.getKp().getText());
+            }
+            // Refresh the values list
+            search.setText(searchText);
+            queryValues = makeQueryValues(search.getText());
+            if (!searchText.equals(originalSearchText)) {
+                log.info("Search text changed: " + originalSearchText + " -> " + searchText);
+                // Restart the search
+                List<PaperDAO> results = searchByTokens(search, queryValues);
+                search.setText(originalSearchText);
+                return results;
+            }
         }
 
         // These papers have at least one of the terms in the query
