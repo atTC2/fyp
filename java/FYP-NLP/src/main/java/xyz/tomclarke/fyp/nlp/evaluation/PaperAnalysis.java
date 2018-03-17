@@ -3,6 +3,7 @@ package xyz.tomclarke.fyp.nlp.evaluation;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Extraction;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
+import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 
 /**
  * Analyse a paper.
@@ -22,6 +23,7 @@ public class PaperAnalysis {
     private int maxKPWords;
     private double avgKPLength;
     private double avgKPWords;
+    private int words;
 
     public PaperAnalysis(Paper paper) {
         this.paper = paper;
@@ -29,8 +31,8 @@ public class PaperAnalysis {
 
     @Override
     public String toString() {
-        return paper.getLocation() + String.format(", %d, %d, %d, %d, %d, %d, %f, %f", numberOfKeyPhrases,
-                numberOfRelations, minKPLength, maxKPLength, minKPWords, maxKPWords, avgKPLength, avgKPWords);
+        return paper.getLocation() + String.format(", %d, %d, %d, %d, %d, %d, %f, %f, %d", numberOfKeyPhrases,
+                numberOfRelations, minKPLength, maxKPLength, minKPWords, maxKPWords, avgKPLength, avgKPWords, words);
     }
 
     /**
@@ -82,6 +84,8 @@ public class PaperAnalysis {
 
         avgKPLength /= numberOfKeyPhrases;
         avgKPWords /= numberOfKeyPhrases;
+
+        words = NlpUtil.getAllTokens(paper.getText()).length;
     }
 
 }

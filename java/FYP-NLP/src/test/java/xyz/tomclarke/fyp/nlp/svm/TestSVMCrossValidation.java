@@ -87,6 +87,7 @@ public class TestSVMCrossValidation extends TestOnPapers {
         testKeyPhraseCrossValidation(100.0, 0.5);
     }
 
+    @Ignore
     @Test
     public void testKpCv100AndQuarter() throws IOException {
         testKeyPhraseCrossValidation(100.0, 0.25);
@@ -159,19 +160,19 @@ public class TestSVMCrossValidation extends TestOnPapers {
      */
 
     @Test
-    public void testRelCv5And1() throws IOException, NlpError {
+    public void testRelCv5And1() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 5.0, 1.0);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 5.0, 1.0);
     }
 
     @Test
-    public void testRelCv5AndHalf() throws IOException, NlpError {
+    public void testRelCv5AndHalf() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 5.0, 0.5);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 5.0, 0.5);
     }
 
     @Test
-    public void testRelCv5AndQuarter() throws IOException, NlpError {
+    public void testRelCv5AndQuarter() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 5.0, 0.25);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 5.0, 0.25);
     }
@@ -181,19 +182,19 @@ public class TestSVMCrossValidation extends TestOnPapers {
      */
 
     @Test
-    public void testRelCv50And1() throws IOException, NlpError {
+    public void testRelCv50And1() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 50.0, 1.0);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 50.0, 1.0);
     }
 
     @Test
-    public void testRelCv50AndHalf() throws IOException, NlpError {
+    public void testRelCv50AndHalf() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 50.0, 0.5);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 50.0, 0.5);
     }
 
     @Test
-    public void testRelCv50AndQuarter() throws IOException, NlpError {
+    public void testRelCv50AndQuarter() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 50.0, 0.25);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 50.0, 0.25);
     }
@@ -203,21 +204,134 @@ public class TestSVMCrossValidation extends TestOnPapers {
      */
 
     @Test
-    public void testRelCv100And1() throws IOException, NlpError {
+    public void testRelCv100And1() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 100.0, 1.0);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 100.0, 1.0);
     }
 
     @Test
-    public void testRelCv100AndHalf() throws IOException, NlpError {
+    public void testRelCv100AndHalf() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 100.0, 0.5);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 100.0, 0.5);
     }
 
     @Test
-    public void testRelCv100AndQuarter() throws IOException, NlpError {
+    public void testRelCv100AndQuarter() throws Exception {
         testRelationshipCrossValidation(RelationType.HYPONYM_OF, 100.0, 0.25);
         testRelationshipCrossValidation(RelationType.SYNONYM_OF, 100.0, 0.25);
+    }
+
+    /**
+     * C = 200
+     * 
+     * @throws Exception
+     */
+
+    @Test
+    public void testRelCv200And1() throws Exception {
+        testRelationshipCrossValidation(RelationType.HYPONYM_OF, 200.0, 1.0);
+        testRelationshipCrossValidation(RelationType.SYNONYM_OF, 200.0, 1.0);
+    }
+
+    @Test
+    public void testRelCv200AndHalf() throws Exception {
+        testRelationshipCrossValidation(RelationType.HYPONYM_OF, 200.0, 0.5);
+        testRelationshipCrossValidation(RelationType.SYNONYM_OF, 200.0, 0.5);
+    }
+
+    @Test
+    public void testRelCv200AndQuarter() throws Exception {
+        testRelationshipCrossValidation(RelationType.HYPONYM_OF, 200.0, 0.25);
+        testRelationshipCrossValidation(RelationType.SYNONYM_OF, 200.0, 0.25);
+    }
+
+    /**
+     * Runs cross validation on the relation SVM (2) with given C and gamma values
+     * 
+     * @param type
+     *            The type of relationship to test
+     * @param c
+     *            The C value to use
+     * @param gamma
+     *            The gamma value to use
+     * @throws Exception
+     */
+    private void testRelationshipCrossValidation(RelationType type, double c, double gamma) throws Exception {
+        RelationshipSVM svm = new RelationshipSVM();
+        svm.generateTrainingData(trainingPapers, type, vec);
+        double accuracy = svm.doCrossValidation(c, gamma);
+        log.info("Cross Validation Accuracy = " + accuracy + "% on" + type);
+    }
+
+    /**
+     * RelationshipSVM2 tests
+     */
+
+    /**
+     * C = 5
+     */
+
+    @Test
+    public void testRel2Cv5And1() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 5.0, 1.0);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 5.0, 1.0);
+    }
+
+    @Test
+    public void testRel2Cv5AndHalf() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 5.0, 0.5);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 5.0, 0.5);
+    }
+
+    @Test
+    public void testRel2Cv5AndQuarter() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 5.0, 0.25);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 5.0, 0.25);
+    }
+
+    /**
+     * C = 50
+     */
+
+    @Test
+    public void testRel2Cv50And1() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 50.0, 1.0);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 50.0, 1.0);
+    }
+
+    @Test
+    public void testRel2Cv50AndHalf() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 50.0, 0.5);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 50.0, 0.5);
+    }
+
+    @Test
+    public void testRel2Cv50AndQuarter() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 50.0, 0.25);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 50.0, 0.25);
+    }
+
+    /**
+     * C = 100
+     */
+
+    @Test
+    public void testRel2Cv100And1() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 100.0, 1.0);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 100.0, 1.0);
+    }
+
+    @Ignore
+    @Test
+    public void testRel2Cv100AndHalf() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 100.0, 0.5);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 100.0, 0.5);
+    }
+
+    @Test
+    public void testRel2Cv100AndQuarter() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 100.0, 0.25);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 100.0, 0.25);
     }
 
     /**
@@ -225,21 +339,21 @@ public class TestSVMCrossValidation extends TestOnPapers {
      */
 
     @Test
-    public void testRelCv200And1() throws IOException, NlpError {
-        testRelationshipCrossValidation(RelationType.HYPONYM_OF, 200.0, 1.0);
-        testRelationshipCrossValidation(RelationType.SYNONYM_OF, 200.0, 1.0);
+    public void testRel2Cv200And1() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 200.0, 1.0);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 200.0, 1.0);
     }
 
     @Test
-    public void testRelCv200AndHalf() throws IOException, NlpError {
-        testRelationshipCrossValidation(RelationType.HYPONYM_OF, 200.0, 0.5);
-        testRelationshipCrossValidation(RelationType.SYNONYM_OF, 200.0, 0.5);
+    public void testRel2Cv200AndHalf() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 200.0, 0.5);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 200.0, 0.5);
     }
 
     @Test
-    public void testRelCv200AndQuarter() throws IOException, NlpError {
-        testRelationshipCrossValidation(RelationType.HYPONYM_OF, 200.0, 0.25);
-        testRelationshipCrossValidation(RelationType.SYNONYM_OF, 200.0, 0.25);
+    public void testRel2Cv200AndQuarter() throws IOException, NlpError {
+        testRelationship2CrossValidation(RelationType.HYPONYM_OF, 200.0, 0.25);
+        testRelationship2CrossValidation(RelationType.SYNONYM_OF, 200.0, 0.25);
     }
 
     /**
@@ -255,7 +369,7 @@ public class TestSVMCrossValidation extends TestOnPapers {
      *             If something goes wrong
      * @throws NlpError
      */
-    private void testRelationshipCrossValidation(RelationType type, double c, double gamma)
+    private void testRelationship2CrossValidation(RelationType type, double c, double gamma)
             throws IOException, NlpError {
         RelationshipSVM2 svm = new RelationshipSVM2();
         svm.generateTrainingData(trainingPapers, type, vec);

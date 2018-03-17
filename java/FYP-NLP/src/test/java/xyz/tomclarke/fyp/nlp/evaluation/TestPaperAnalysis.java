@@ -23,7 +23,6 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
  */
 public class TestPaperAnalysis extends TestOnPapers {
 
-    @Ignore
     @Test
     public void printPaperAnalysis() {
         for (Paper paper : trainingPapers) {
