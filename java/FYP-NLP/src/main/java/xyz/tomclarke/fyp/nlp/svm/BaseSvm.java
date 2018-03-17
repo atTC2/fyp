@@ -35,8 +35,7 @@ public abstract class BaseSvm implements Serializable {
         param = new svm_parameter();
         param.svm_type = svm_parameter.C_SVC;
         param.kernel_type = svm_parameter.RBF;
-        // 1 / number of features
-        param.gamma = 1 / 2.0;
+        param.gamma = 1 / 2.0; // 1 / number of features
         param.cache_size = 1024;
         param.eps = 0.001;
         param.C = 100.0;
@@ -96,21 +95,29 @@ public abstract class BaseSvm implements Serializable {
     }
 
     /**
-     * Performs cross validation - warning, VERY slow
+     * Perform cross-validation with set C and gamma values
+     * 
+     * @param c
+     *            The C value to test
+     * @param gamma
+     *            The gamma value to test
+     * @return The percentage accuracy
      */
-    public void doCrossValidation() {
-        // Do cross validation to find the best parameters
+    public double doCrossValidation(double c, double gamma) {
+        log.info("Problem l :" + problem.l);
+        param.C = c;
+        param.gamma = gamma;
         log.info("C: " + param.C + " gamma: " + param.gamma);
         double[] target = new double[problem.l];
         svm.svm_cross_validation(problem, param, 5, target);
-        log.info("C: " + param.C + " gamma: " + param.gamma);
         int total_correct = 0;
         for (int i = 0; i < problem.l; i++) {
             if (target[i] == problem.y[i]) {
                 ++total_correct;
             }
         }
-        // Currently 69.67793310918421% for KP extraction
-        log.info("Cross Validation Accuracy = " + 100.0 * total_correct / problem.l + "%");
+        double accuracy = 100.0 * total_correct / problem.l;
+        log.info("Cross Validation Accuracy = " + accuracy + "%");
+        return 100.0 * total_correct / problem.l;
     }
 }
