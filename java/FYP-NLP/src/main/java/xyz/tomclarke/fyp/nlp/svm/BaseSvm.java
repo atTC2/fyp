@@ -116,8 +116,6 @@ public abstract class BaseSvm implements Serializable {
                 ++total_correct;
             }
         }
-        double accuracy = 100.0 * total_correct / problem.l;
-        log.info("Cross Validation Accuracy = " + accuracy + "%");
         return 100.0 * total_correct / problem.l;
     }
 }
