@@ -1,0 +1,15 @@
+T1	Process 47 73	feature extraction methods
+T2	Material 88 118	Scale-invariant feature transf
+T3	Process 126 130	SIFT
+T4	Process 145 151	method
+T5	Material 157 164	Speeded
+T6	Process 228 235	methods
+T7	Material 257 267	depth maps
+T8	Task 293 302	left hand
+T9	Material 316 326	depth maps
+T10	Task 332 354	Microsoft Kinect camer
+T11	Task 383 388	mages
+T12	Process 398 420	Support vector machine
+T13	Material 425 428	SVM
+T14	Process 456 462	method
+T15	Task 492 525	SVM prediction on selected images

@@ -1,0 +1,22 @@
+T1	Material 22 50	on source in FIB instruments
+T2	Material 56 98	gallium (Ga) liquid metal ion source (LMIS
+T3	Material 105 112	Gallium
+T4	Process 134 143	on source
+T5	Material 156 158	ts
+T6	Material 194 223	standard atmospheric pressure
+T7	Material 271 280	materials
+T8	Material 286 297	sensitivity
+T9	Material 305 316	Ga ion beam
+T10	Material 323 334	sensitivity
+T11	Material 409 440	starting material upon exposure
+T12	Material 448 459	Ga ion beam
+T13	Material 472 500	II–V compound semiconductors
+T14	Material 518 537	materials that show
+T15	Process 565 572	milling
+T16	Material 616 649	reactions between the Ga ion beam
+T17	Material 655 669	II–V materials
+T18	Process 679 718	suggested advantage of cryo-FIB milling
+T19	Material 741 773	milling of Group III–V materials
+T20	Material 798 816	variety of present
+T21	Material 861 870	materials
+T22	Material 922 950	favorable electron transport

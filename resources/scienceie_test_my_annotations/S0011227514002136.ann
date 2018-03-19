@@ -1,0 +1,13 @@
+T1	Task 28 53	hold time of the CPA pill
+T2	Task 104 108	pill
+T3	Material 160 211	ctual temperature of the CPA crystals in comparison
+T4	Process 219 249	temperature of the cold finger
+T5	Material 285 296	temperature
+T6	Process 302 323	servo control program
+T7	Material 343 362	temperature profile
+T8	Process 374 399	recycling of the CPA pill
+T9	Task 446 455	hold time
+T10	Process 461 518	servo control program maintained the CPA pill temperature
+T11	Material 621 639	thermometry (which
+T12	Process 665 716	time of testing but which will be used for the mKCC
+T13	Process 743 863	temperature control on much faster (millisecond) timescales than the current (approximately 1s) thermometry readout used

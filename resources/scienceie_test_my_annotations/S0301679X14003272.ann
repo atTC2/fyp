@@ -1,0 +1,19 @@
+T1	Process 4 17	lateral force
+T2	Process 62 73	entire test
+T3	Material 93 121	load cell which is connected
+T4	Material 129 150	quasi-stationary LSMB
+T5	Material 156 160	LSMB
+T6	Material 175 183	flexures
+T7	Process 217 237	horizontal direction
+T8	Material 250 376	majority of the lateral force is transmitted though the much stiffer load path which contains the load cell as shown in Fig. 2
+T9	Process 383 395	displacement
+T10	Material 400 412	load sensors
+T11	Task 490 494	load
+T12	Material 499 519	displacement signals
+T13	Process 574 616	fretting cycle at all fretting frequencies
+T14	Process 677 682	loops
+T15	Material 707 729	contact slip amplitude
+T16	Material 738 768	energy coefficient of friction
+T17	Process 777 792	cycle according
+T18	Process 800 833	method suggested by Fouvry et al.
+T19	Material 901 1022	verage coefficient of friction included values associated with the initial transients in the tests as suggested by Hirsch

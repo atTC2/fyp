@@ -1,0 +1,19 @@
+T1	Material 0 29	Functionally Graded Materials
+T2	Material 101 182	heterogeneous composite materials exhibiting gradual variation in volume fraction
+T3	Material 229 237	material
+T4	Material 311 319	material
+T5	Process 326 328	de
+T6	Material 335 363	Functionally Graded Material
+T7	Material 413 450	materials which exhibit this property
+T8	Material 461 465	bone
+T9	Material 519 525	graded
+T10	Material 537 554	greatest strength
+T11	Material 562 569	outside
+T12	Material 590 609	greatest protection
+T13	Material 652 657	1980s
+T14	Process 681 683	de
+T15	Material 690 718	Functionally Graded Material
+T16	Material 787 817	materials for use in aerospace
+T17	Material 830 846	fission reactors
+T18	Material 31 35	FGMs
+*	Synonym-of T1 T18

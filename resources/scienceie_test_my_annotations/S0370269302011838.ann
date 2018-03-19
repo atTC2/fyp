@@ -1,0 +1,16 @@
+T1	Material 35 49	multiplicities
+T2	Process 51 78	evolution of multiplicities
+T3	Task 84 94	centrality
+T4	Material 105 111	ratios
+T5	Process 116 149	transverse momentum distributions
+T6	Task 178 188	collisions
+T7	Process 208 220	string model
+T8	Task 241 251	collisions
+T9	Material 340 360	produced secondaries
+T10	Material 362 376	Multiplicities
+T11	Process 387 396	evolution
+T12	Task 402 412	centrality
+T13	Process 442 475	Transverse momentum distributions
+T14	Task 576 586	centrality
+T15	Material 607 622	particle ratios
+T16	Process 687 699	model at SPS

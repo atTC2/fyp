@@ -1,0 +1,21 @@
+T1	Material 0 16	Shear horizontal
+T2	Process 50 55	waves
+T3	Material 67 98	propagation properties affected
+T4	Material 106 140	geometry of the propagation medium
+T5	Process 261 282	bulk shear wave speed
+T6	Material 296 306	properties
+T7	Material 361 382	thickness measurement
+T8	Material 441 468	thickness independent speed
+T9	Process 483 499	shear wave speed
+T10	Process 528 533	phase
+T11	Process 544 549	speed
+T12	Process 567 583	shear wave speed
+T13	Process 610 648	oscillation direction of SH ultrasound
+T14	Material 659 679	plane of the surface
+T15	Process 690 694	wave
+T16	Process 735 756	propagation direction
+T17	Material 899 920	propagation distances
+T18	Task 922 930	SH waves
+T19	Process 954 959	waves
+T20	Material 18 20	SH
+*	Synonym-of T1 T20

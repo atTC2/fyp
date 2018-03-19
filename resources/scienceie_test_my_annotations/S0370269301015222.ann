@@ -1,0 +1,25 @@
+T1	Material 114 199	power spectrum of the cosmic microwave background radiation obtained by the BOOMERANG
+T2	Material 256 278	t present the Universe
+T3	Process 297 317	ccelerated expansion
+T4	Material 357 383	Friedmann–Robertson–Walker
+T5	Material 464 472	Universe
+T6	Material 505 513	baryonic
+T7	Material 568 590	critical density ?crit
+T8	Material 645 659	energy density
+T9	Material 679 702	cosmological constant ?
+T10	Material 708 729	vacuum energy density
+T11	Material 735 739	????
+T12	Material 773 774	?
+T13	Material 806 822	critical density
+T14	Material 832 833	?
+T15	Material 834 839	?crit
+T16	Material 844 846	??
+T17	Process 918 942	deceleration parameter q
+T18	Task 987 1016	cosmological constant problem
+T19	Task 1040 1048	question
+T20	Task 1084 1122	discovery of the important role played
+T21	Process 1145 1186	emphasis toward the “coincidence problem”
+T22	Task 1192 1200	question
+T23	Task 1248 1267	magnitude precisely
+T24	Material 385 388	FRW
+*	Synonym-of T4 T24

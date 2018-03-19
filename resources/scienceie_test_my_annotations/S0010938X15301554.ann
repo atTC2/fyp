@@ -1,0 +1,30 @@
+T1	Material 22 26	lloy
+T2	Material 141 159	result from copper
+T3	Material 181 208	principal alloying elements
+T4	Material 258 285	microstructure of the alloy
+T5	Process 324 355	compositionally-distinct phases
+T6	Material 441 445	lloy
+T7	Material 475 484	corrosion
+T8	Material 540 551	pplications
+T9	Material 557 589	corrosion behaviour of the alloy
+T10	Material 622 661	presence of the intermetallic particles
+T11	Process 717 728	lloy matrix
+T12	Material 736 753	Copper-containing
+T13	Material 767 797	particles at the alloy surface
+T14	Material 834 854	corrosion resistance
+T15	Material 893 898	sites
+T16	Process 918 958	principle types of second phase particle
+T17	Material 984 1016	corrosion behaviour of the alloy
+T18	Process 1024 1050	S phase (Al2CuMg) particle
+T19	Process 1073 1090	S phase particles
+T20	Material 1126 1147	constituent particles
+T21	Material 1202 1206	lloy
+T22	Material 1252 1261	particles
+T23	Material 1301 1306	sites
+T24	Material 1328 1350	corrosion in the alloy
+T25	Process 1364 1399	dealloying of the S phase particles
+T26	Material 1408 1445	resulting enrichment of copper result
+T27	Material 1467 1495	Volta potential with respect
+T28	Process 1503 1509	matrix
+T29	Material 1524 1543	dealloyed particles
+T30	Material 1558 1572	cathodic sites

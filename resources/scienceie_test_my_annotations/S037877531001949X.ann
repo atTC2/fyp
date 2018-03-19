@@ -1,0 +1,16 @@
+T1	Process 4 33	Substrate Induced Coagulation
+T2	Material 105 112	coating
+T3	Material 212 236	conductive carbon blacks
+T4	Process 341 404	metallization process of through-holes in printed wiring boards
+T5	Material 417 451	manufacture of conducting polymers
+T6	Process 514 521	process
+T7	Material 583 592	substrate
+T8	Material 625 639	particles used
+T9	Material 648 655	coating
+T10	Process 699 746	non-aqueous SIC coating process of carbon black
+T11	Material 782 820	stabilities of non-aqueous dispersions
+T12	Material 833 844	dispersions
+T13	Material 850 854	used
+T14	Material 963 1002	content of active battery material high
+T15	Process 35 38	SIC
+*	Synonym-of T1 T15

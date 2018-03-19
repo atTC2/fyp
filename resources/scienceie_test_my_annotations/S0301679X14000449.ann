@@ -1,0 +1,28 @@
+T1	Material 18 46	wear-mode map of RH ceramics
+T2	Material 61 94	early-stage friction coefficients
+T3	Material 103 140	surface roughness of the pure surface
+T4	Material 158 204	value of the fracture toughness of RH ceramics
+T5	Material 233 246	reference dat
+T6	Material 278 295	Sc of RH ceramics
+T7	Material 313 315	Sc
+T8	Material 365 389	nitial stage of friction
+T9	Material 402 433	nitial wear mode of RH ceramics
+T10	Material 438 465	powder formation or plowing
+T11	Material 480 496	powder formation
+T12	Material 563 566	Sc?
+T13	Material 611 614	Sc?
+T14	Material 627 629	Sc
+T15	Material 662 697	Vickers hardness of RH ceramics [Pa
+T16	Material 705 736	nitial wear mode of RH ceramics
+T17	Material 755 771	powder formation
+T18	Material 849 862	wear-mode map
+T19	Material 927 930	map
+T20	Process 957 973	transition curve
+T21	Material 1005 1010	plots
+T22	Material 1015 1034	RH ceramics sliding
+T23	Material 1122 1133	RH ceramics
+T24	Material 1195 1199	wear
+T25	Material 1275 1289	wear-mode maps
+T26	Material 1309 1333	wear mode of RH ceramics
+T27	Material 1338 1366	powder formation accompanied
+T28	Material 1528 1572	catastrophic wear of RH ceramics accompanied

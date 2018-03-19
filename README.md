@@ -21,7 +21,7 @@ The 2 Java projects under the [`java`](java) directory are [`FYP-NLP`](java/FYP-
 | FYP-GUI | `./build-and-run.sh` | Compiles the GUI, without running any tests, and launches the GUI. |
 | FYP-GUI | `./run.sh` | Launches the GUI (assumes it is already built). |
 
-## Current Status
+## Current Status of Software
 
 In terms of NLP...
 * For Task 1, the existing SVM is doing fine, and I think is about ready to leave alone. Official scripts give up to ~0.21 which isn't as good as the achievements at ScienceIE but good enough for me, especially when compared with my own evaluation which is a little fairer. Clustering was atempted (using Word2Vec to help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
@@ -39,6 +39,8 @@ In terms of making the system into a product...
 The dissertation is being completed in the [`report`](report) directory, and the [current PDF version can be viewed here](report/fyp.pdf).
 
 ## Results
+The end-to-end annotationed set of ScienceIE's test data can be seen at [`resources/scienceie_test_my_annotations`](resources/scienceie_test_my_annotations)
+
 ### Task 1
 #### SVM
 

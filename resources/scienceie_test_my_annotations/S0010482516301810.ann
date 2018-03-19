@@ -1,0 +1,16 @@
+T1	Material 0 17	Three-dimensional
+T2	Material 52 103	3D-DSA) images from diagnostic cerebral angiography
+T3	Process 121 126	least
+T4	Material 178 195	raw data of 3D-DS
+T5	Process 208 212	file
+T6	Material 238 275	3D model of the target vessel segment
+T7	Process 283 286	dat
+T8	Process 352 355	dat
+T9	Process 407 423	3D visualization
+T10	Material 565 585	triangulated surface
+T11	Process 639 647	STL file
+T12	Material 674 693	3D printer (OBJET30
+T13	Process 743 753	resolution
+T14	Material 794 817	3D printed vessel model
+T15	Material 845 850	resin
+T16	Material 909 940	surface of the 3D printed model

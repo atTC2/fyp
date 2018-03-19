@@ -1,0 +1,17 @@
+T1	Material 2 50	sentence alignment model based on combined clues
+T2	Task 74 89	Matrix Matching
+T3	Process 125 130	model
+T4	Material 134 151	similarity matrix
+T5	Task 156 173	sentence aligning
+T6	Material 191 237	similarities of bilingual sentences calculated
+T7	Material 245 259	combined clues
+T8	Material 334 351	similarity matrix
+T9	Process 382 410	matrix for sentence aligning
+T10	Task 433 452	sentence alignments
+T11	Material 456 460	KEMM
+T12	Process 504 521	model outperforms
+T13	Task 531 535	Gale
+T14	Task 570 589	sentence alignments
+T15	Process 606 646	sentence alignment error rate decreasing
+T16	Task 91 95	KEMM
+*	Synonym-of T2 T16

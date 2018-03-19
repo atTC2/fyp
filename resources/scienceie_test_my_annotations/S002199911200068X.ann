@@ -1,0 +1,13 @@
+T1	Process 61 88	monodomain or bidomain PDEs
+T2	Material 137 147	geometries
+T3	Process 203 229	finite element method (FEM
+T4	Material 249 299	PDEs in space on realistic cardiac geometry meshes
+T5	Process 360 429	freedom (DOF) for human heart geometries) systems of linear equations
+T6	Process 444 498	solved many thousands of times over the course of even
+T7	Process 874 913	potential of reducing the number of DOF
+T8	Material 978 1001	monodomain PDE in space
+T9	Process 1012 1131	goal of significantly improving simulation efficiency over the piecewise-linear FEM approach commonly used in the field
+T10	Material 1163 1198	polynomial degree p of the elements
+T11	Process 1228 1254	error in the approximation
+T12	Material 1277 1301	finite element p-version
+T13	Task 1310 1324	work presented

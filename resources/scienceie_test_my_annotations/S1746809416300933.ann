@@ -1,0 +1,26 @@
+T1	Process 0 68	ObjectiveElectrically evoked auditory steady-state responses (EASSRs
+T2	Process 108 146	electroencephalogram (EEG) in response
+T3	Material 224 226	CI
+T4	Material 229 235	EASSRs
+T5	Material 276 286	CI fitting
+T6	Material 297 308	EEG signals
+T7	Material 313 325	contaminated
+T8	Material 342 354	CI artifacts
+T9	Material 374 404	characterized the CI artifacts
+T10	Process 424 435	stimulation
+T11	Material 501 542	signal part contaminated with CI artifact
+T12	Material 568 576	rtifacts
+T13	Process 582 595	characterized
+T14	Process 665 682	rtifact durations
+T15	Material 714 748	contralateral recording electrodes
+T16	Material 765 785	recording electrodes
+T17	Material 787 808	CI artifact durations
+T18	Material 860 894	contralateral recording electrodes
+T19	Material 901 908	rtifact
+T20	Material 931 965	nterpulse interval across subjects
+T21	Material 1048 1054	EASSRs
+T22	Material 1080 1090	CI fitting
+T23	Material 1122 1133	CI artifact
+T24	Process 1143 1156	characterized
+T25	Material 1205 1239	contralateral recording electrodes
+T26	Process 1244 1265	stimulation at 500pps

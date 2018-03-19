@@ -1,0 +1,19 @@
+T1	Material 76 87	vary the TP
+T2	Material 111 147	fluorescent rhodamine (Rh) dyes Rh6G
+T3	Material 164 174	Rhodamines
+T4	Material 179 204	well-known xanthenes dyes
+T5	Process 275 300	single-molecule detection
+T6	Process 340 362	fluorescence labelling
+T7	Material 394 439	fluorescence over the visible spectral region
+T8	Material 465 479	rhodamine dyes
+T9	Material 484 494	well-known
+T10	Material 544 563	non-centrosymmetric
+T11	Material 581 606	centrosymmetric molecules
+T12	Material 608 610	TP
+T13	Process 643 696	transitions at one-half of the excitation frequencies
+T14	Material 711 740	non-centrosymmetric molecules
+T15	Material 774 810	single-photon absorption (SPA) peaks
+T16	Task 815 824	TPA peaks
+T17	Material 877 928	effect of solvent polarity on the correlation of SP
+T18	Task 934 943	TPA peaks
+T19	Material 956 960	dyes

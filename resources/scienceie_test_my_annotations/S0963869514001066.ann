@@ -1,0 +1,18 @@
+T1	Material 30 43	TFM) the beam
+T2	Task 91 104	target region
+T3	Process 141 148	FMC dat
+T4	Task 155 168	target region
+T5	Material 186 188	x–
+T6	Material 244 251	signals
+T7	Material 278 282	rray
+T8	Process 378 397	time domain signals
+T9	Process 451 481	ntensity of the TFM image ITFM
+T10	Process 589 596	Hilbert
+T11	Process 633 640	FMC dat
+T12	Material 653 694	x-position of the transmitting element (T
+T13	Process 710 748	x-position of the receiving element (R
+T14	Material 765 775	z-position
+T15	Material 783 791	elements
+T16	Material 815 824	summation
+T17	Material 912 931	nformation captured
+T18	Material 989 993	TFM’

@@ -1,0 +1,20 @@
+T1	Process 22 30	protocol
+T2	Process 54 58	tems
+T3	Material 77 92	mobility models
+T4	Task 125 129	work
+T5	Process 184 220	way nodes move in the physical space
+T6	Process 253 258	nodes
+T7	Material 274 321	geographical regions considered in its entirety
+T8	Material 347 368	performance potential
+T9	Process 397 422	ssessment of the protocol
+T10	Process 465 492	physical region of movement
+T11	Process 541 555	nodes mobility
+T12	Process 588 593	nodes
+T13	Process 651 677	different forwarding modes
+T14	Process 733 763	cooperation across the network
+T15	Process 769 788	push-community mode
+T16	Material 817 846	nterest-community selfishness
+T17	Material 880 896	nodes’ behaviour
+T18	Task 902 921	vulnerability (resp
+T19	Process 942 945	pro
+T20	Process 977 983	node m

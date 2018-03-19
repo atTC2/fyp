@@ -1,0 +1,25 @@
+T1	Material 0 9	Xylanases
+T2	Material 108 117	Xylanases
+T3	Process 130 145	bleaching agent
+T4	Material 153 157	pulp
+T5	Material 217 232	xylan component
+T6	Material 274 280	lignin
+T7	Material 363 367	pulp
+T8	Process 381 415	chlorine free bleaching operations
+T9	Material 486 498	xylanase act
+T10	Material 506 534	gluten fraction of the dough
+T11	Material 551 604	even redistribution of the water content of the bread
+T12	Material 629 638	Xylanases
+T13	Task 687 694	ndustry
+T14	Material 718 759	hydrolysis of non-starchy polysaccharides
+T15	Material 834 843	Xylanases
+T16	Process 872 902	maceration of vegetable matter
+T17	Material 944 955	plant cells
+T18	Material 974 980	juices
+T19	Material 1020 1035	coffee mucilage
+T20	Material 1047 1060	liquid coffee
+T21	Material 1074 1101	oil from subterranian mines
+T22	Process 1117 1124	flavors
+T23	Material 1129 1137	pigments
+T24	Material 1154 1170	starch (McCleary
+T25	Material 1197 1263	efficiency of agricultural silage production (Wong & Saddler, 1992

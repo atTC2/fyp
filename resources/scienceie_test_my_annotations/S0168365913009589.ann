@@ -1,0 +1,19 @@
+T1	Task 0 10	Ultrasound
+T2	Process 33 180	release of drugs from liposomes via an event called inertial cavitation, whereby the rarefactional phase of an ultrasound wave causes the expansion
+T3	Material 240 270	nertia of the surrounding medi
+T4	Process 329 378	stability of co-localised liposomal drug carriers
+T5	Material 461 463	US
+T6	Material 577 648	triggered drug release following an intratumoral injection of liposomes
+T7	Material 711 717	tissue
+T8	Material 728 750	US exposure parameters
+T9	Material 880 970	US pulses at pressures in the diagnostic range in the presence of pre-existing gas bubbles
+T10	Process 998 1017	cavitation stimulus
+T11	Material 1022 1034	drug release
+T12	Material 1069 1091	US exposure conditions
+T13	Material 1105 1123	US contrast agents
+T14	Process 1145 1194	context of improving the delivery of therapeutics
+T15	Material 1303 1310	pproach
+T16	Material 1330 1404	cavitation events produce distinct acoustic emissions that can be recorded
+T17	Material 1506 1524	pplications [17–19
+T18	Task 12 14	US
+*	Synonym-of T1 T18

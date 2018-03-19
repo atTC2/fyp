@@ -1,0 +1,18 @@
+T1	Process 117 153	spatially extended dynamical systems
+T2	Process 212 223	Liley model
+T3	Process 272 319	fourteen coupled Partial Differential Equations
+T4	Material 339 353	nonlinearities
+T5	Material 387 411	mean membrane potentials
+T6	Material 420 440	mean synaptic inputs
+T7	Process 446 451	model
+T8	Task 482 513	Ordinary Differential Equations
+T9	Process 541 572	spatially homogeneous solutions
+T10	Process 772 781	PDE model
+T11	Process 834 839	model
+T12	Process 920 932	bout 2500cm2
+T13	Material 938 971	size of a full-grown human cortex
+T14	Process 1114 1167	ccomplished in the open-source software package PETSc
+T15	Process 321 325	PDEs
+T16	Task 515 519	ODEs
+*	Synonym-of T3 T15
+*	Synonym-of T8 T16

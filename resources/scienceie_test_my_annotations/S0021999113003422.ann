@@ -1,0 +1,16 @@
+T1	Material 18 30	oscillations
+T2	Material 76 79	SPM
+T3	Material 109 116	kernels
+T4	Task 138 148	regularity
+T5	Material 155 187	discontinuous second derivatives
+T6	Material 239 308	mmersed structure stresses are captured in the Lagrangian description
+T7	Material 394 415	spurious oscillations
+T8	Process 443 473	kernel interpolation functions
+T9	Material 495 501	uthors
+T10	Process 545 561	kernel functions
+T11	Material 591 612	spurious oscillations
+T12	Process 618 634	kernel functions
+T13	Process 777 802	Cartesian staggered grids
+T14	Task 808 831	regularity requirements
+T15	Material 848 882	ppearance of spurious oscillations
+T16	Material 994 1005	new kernels

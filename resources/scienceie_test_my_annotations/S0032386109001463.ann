@@ -1,0 +1,11 @@
+T1	Task 67 81	junction point
+T2	Material 120 127	BC type
+T3	Material 183 271	junction points cannot be aligned on two-dimensional planes but on one-dimensional lines
+T4	Material 329 352	chain length difference
+T5	Process 375 398	rray of junction points
+T6	Process 659 688	junction points at interfaces
+T7	Process 752 771	structure formation
+T8	Material 873 878	Doter
+T9	Material 921 934	diagonal bond
+T10	Material 1023 1044	three regular tilings
+T11	Process 1141 1163	“even polygon theorem”

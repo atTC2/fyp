@@ -1,0 +1,15 @@
+T1	Material 24 55	temperature of the sample rises
+T2	Process 61 95	Lorentz mechanism remains dominant
+T3	Material 108 131	steel is reached (770°C
+T4	Material 166 200	magnetostrictive mechanism becomes
+T5	Material 269 316	ferromagnetic oxide layer on the sample surface
+T6	Material 322 329	surface
+T7	Material 352 372	bulk of the material
+T8	Material 387 392	layer
+T9	Material 410 424	magnetic field
+T10	Material 511 527	magnetic moments
+T11	Process 576 638	magnetic phase transition lowers the magnetostrictive constant
+T12	Material 645 658	ferromagnetic
+T13	Process 725 776	efficiency of electromagnetic ultrasound generation
+T14	Material 792 804	use of EMATs
+T15	Process 820 865	studying phase transitions in magnetic alloys

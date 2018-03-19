@@ -1,0 +1,28 @@
+T1	Process 26 91	mplementation of an information system in the form of ERP modules
+T2	Material 153 160	company
+T3	Process 188 212	ERP system specification
+T4	Process 240 293	doption of informal processes within the organisation
+T5	Process 301 310	processes
+T6	Process 315 370	facilitated within an informal organisational structure
+T7	Process 429 448	formal organisation
+T8	Process 489 539	emergence of the informal organisation the company
+T9	Process 563 640	energies of staff involved in informal processes towards organisational goals
+T10	Material 646 653	company
+T11	Material 686 698	capabilities
+T12	Process 717 734	hybrid ERP system
+T13	Task 782 858	formal) ERP installation with the capabilities of Enterprise Social Software
+T14	Material 878 885	company
+T15	Process 906 951	successful operation of the hybrid ERP system
+T16	Process 978 1010	changes in organisational design
+T17	Material 1117 1134	company personnel
+T18	Process 1160 1166	formal
+T19	Material 1172 1215	nformal characteristics of the organisation
+T20	Material 1280 1322	characteristics of the hybrid organisation
+T21	Process 1353 1372	hybrid organisation
+T22	Process 1374 1385	facilitated
+T23	Process 1391 1408	hybrid ERP system
+T24	Process 1424 1430	formal
+T25	Task 1436 1482	nformal behaviour towards organisational goals
+T26	Process 1518 1540	hybrid implementations
+T27	Task 860 863	ESS
+*	Synonym-of T13 T27

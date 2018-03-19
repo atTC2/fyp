@@ -1,0 +1,28 @@
+T1	Material 0 9	FabHemeLB
+T2	Process 40 64	utomate the construction
+T3	Process 83 112	ensemble simulation workflows
+T4	Material 114 123	FabHemeLB
+T5	Material 150 156	FabSim
+T6	Process 183 200	HemeLB operations
+T7	Material 207 213	FabSim
+T8	Task 218 232	FabHemeLB help
+T9	Process 237 267	utomate application deployment
+T10	Material 283 296	data analysis
+T11	Material 300 316	remote resources
+T12	Material 318 327	FabHemeLB
+T13	Material 361 367	HemeLB
+T14	Material 375 390	remote resource
+T15	Process 497 508	HemeLB jobs
+T16	Material 514 560	remote resource specifying the number of cores
+T17	Task 569 590	wall clock time limit
+T18	Process 624 628	tool
+T19	Process 657 689	queue status on remote resources
+T20	Process 708 722	completed jobs
+T21	Task 816 834	FabHemeLB commands
+T22	Process 844 863	following structure
+R1	Hyponym-of Arg1:T1 Arg2:T6
+R2	Hyponym-of Arg1:T4 Arg2:T6
+R3	Hyponym-of Arg1:T5 Arg2:T6
+R4	Hyponym-of Arg1:T7 Arg2:T6
+R5	Hyponym-of Arg1:T12 Arg2:T6
+R6	Hyponym-of Arg1:T13 Arg2:T6

@@ -1,0 +1,23 @@
+T1	Material 10 24	micro elements
+T2	Process 89 119	cumulative averaging technique
+T3	Material 172 192	spatially-oriented b
+T4	Material 203 214	y-direction
+T5	Material 239 247	velocity
+T6	Process 275 283	Velocity
+T7	Process 318 345	Cumulative Averaging Method
+T8	Task 368 387	stress tensor field
+T9	Process 411 438	rving–Kirkwood relationship
+T10	Task 447 475	least-squares polynomial fit
+T11	Process 483 486	dat
+T12	Task 658 670	macro solver
+T13	Task 674 691	least-squares fit
+T14	Material 738 773	velocity profile in the core region
+T15	Material 811 827	velocity profile
+T16	Material 835 853	constrained region
+T17	Material 979 1010	coefficients of the polynomials
+T18	Process 1023 1040	core micro region
+T19	Material 1106 1117	velocity uB
+T20	Process 1135 1149	macro solution
+T21	Material 1181 1219	compressed wall micro-element solution
+T22	Process 347 350	CAM
+*	Synonym-of T7 T22

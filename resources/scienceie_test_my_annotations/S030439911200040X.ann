@@ -1,0 +1,15 @@
+T1	Material 17 44	1D radial profiles obtained
+T2	Process 50 91	circular averaging of 2D experimental PSD
+T3	Material 107 127	elliptical averaging
+T4	Material 151 169	circular averaging
+T5	Material 181 201	neglects astigmatism
+T6	Material 204 260	stigmatism distorts the circular shape of the Thon rings
+T7	Material 310 329	obtained 1D profile
+T8	Task 363 373	stigmatism
+T9	Process 412 415	PSD
+T10	Material 440 479	rings are approximated by circular arcs
+T11	Material 531 536	rings
+T12	Material 551 571	elliptical averaging
+T13	Process 589 634	relationship between the 1D circular averages
+T14	Task 653 663	stigmatism
+T15	Process 830 846	PSD optimization

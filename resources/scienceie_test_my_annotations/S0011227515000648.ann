@@ -1,0 +1,16 @@
+T1	Process 4 34	product change between batches
+T2	Process 49 55	others
+T3	Material 87 99	test results
+T4	Process 105 113	redesign
+T5	Process 136 154	process technology
+T6	Process 167 183	pass rate at LNT
+T7	Process 237 264	ncreased incidence of erase
+T8	Process 377 394	pass rates at 88K
+T9	Process 403 410	batches
+T10	Process 447 465	process technology
+T11	Process 516 527	fabrication
+T12	Material 587 600	materials may
+T13	Material 660 669	materials
+T14	Process 685 692	process
+T15	Process 759 790	differences of technology scale
+T16	Material 843 864	transconductance/gain

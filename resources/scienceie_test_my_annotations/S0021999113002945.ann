@@ -1,0 +1,14 @@
+T1	Material 35 47	maximum-norm
+T2	Material 55 80	loosest among all p-norms
+T3	Material 100 118	loosest constraint
+T4	Process 151 174	ccuracy since the value
+T5	Material 214 220	2-norm
+T6	Material 237 249	maximum-norm
+T7	Process 271 307	largest number of possible solutions
+T8	Task 376 398	possibility of finding
+T9	Material 410 432	optimized coefficients
+T10	Material 500 517	maximum deviation
+T11	Task 546 590	checking the “distance” between the accurate
+T12	Material 652 664	space domain
+T13	Material 690 702	maximum-norm
+T14	Process 773 823	ccurate wave number coverage as widely as possible

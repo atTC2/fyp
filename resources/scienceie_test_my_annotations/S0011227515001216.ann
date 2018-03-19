@@ -1,0 +1,22 @@
+T1	Material 24 37	miniature ADR
+T2	Task 43 62	mKCC MR heat switch
+T3	Process 76 105	fully thermally characterised
+T4	Material 191 195	MSSL
+T5	Material 210 232	tungsten heat switches
+T6	Material 238 258	thermal conductivity
+T7	Material 340 363	thermal conductivity (?
+T8	Material 380 390	calculated
+T9	Material 408 425	magnetic field (B
+T10	Material 478 513	performance of the mKCC heat switch
+T11	Process 519 535	parameters in Eq
+T12	Material 566 623	measured thermal conductivity of another MSSL heat switch
+T13	Material 706 712	20,000
+T14	Material 765 769	MSSL
+T15	Material 805 851	thermal performance for tungsten heat switches
+T16	Material 927 982	therefore the performance of the 20,000 RRR heat switch
+T17	Material 1045 1095	calculated thermal conductivity of the mKCC switch
+T18	Task 1142 1154	constants b0
+T19	Material 1186 1199	values 0.0328
+T20	Material 1288 1355	calculated thermal conductivity of the mKCC switch presented in Fig
+T21	Material 1395 1462	experimental results of the miniature ADR with modelled predictions
+T22	Material 1501 1504	?(T

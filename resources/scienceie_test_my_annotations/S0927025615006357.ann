@@ -1,0 +1,25 @@
+T1	Material 15 39	crystal plasticity model
+T2	Material 61 65	XFEM
+T3	Material 93 111	cyclic deformation
+T4	Material 155 170	superalloy LSHR
+T5	Material 203 219	high temperature
+T6	Task 231 257	objective of this research
+T7	Process 305 318	element model
+T8	Material 329 341	ncorporation
+T9	Material 357 380	material microstructure
+T10	Task 393 415	objective of this work
+T11	Process 437 447	parameters
+T12	Process 453 490	crystal plasticity constitutive model
+T13	Material 507 551	cyclic deformation behaviour of the material
+T14	Material 576 613	material subroutine (UMAT) interfaced
+T15	Process 623 652	finite element package ABAQUS
+T16	Process 658 674	model parameters
+T17	Process 680 690	calibrated
+T18	Material 713 729	element analyses
+T19	Material 741 750	monotonic
+T20	Process 774 789	cyclic test dat
+T21	Task 802 811	objective
+T22	Process 833 839	growth
+T23	Process 857 871	XFEM technique
+T24	Material 880 914	calibrated crystal plasticity UMAT
+T25	Task 969 987	fracture criterion

@@ -1,0 +1,17 @@
+T1	Task 4 33	first-principles calculations
+T2	Material 58 103	Cambridge Serial Total Energy Package (CASTEP
+T3	Process 117 161	mplements the plane-wave pseudopotential DFT
+T4	Material 174 194	exchange correlation
+T5	Material 232 274	generalized gradient approximation (PBE-GG
+T6	Process 291 316	electron–ion interactions
+T7	Process 387 407	plane wave basis set
+T8	Material 436 441	400eV
+T9	Process 451 474	Brillouin-zone sampling
+T10	Process 499 520	Monkhorst-Pack scheme
+T11	Material 693 717	ferromagnetism of nickel
+T12	Process 926 938	ground state
+T13	Material 1009 1023	ferromagnetism
+T14	Process 1109 1193	calculated equilibrium lattice constants of the ? phase at various Ti concentrations
+T15	Material 1360 1362	Ti
+T16	Material 1368 1396	calculated lattice constants
+T17	Material 1496 1498	?2

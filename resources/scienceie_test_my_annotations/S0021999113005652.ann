@@ -1,0 +1,26 @@
+T1	Task 34 63	effects of the Schmidt number
+T2	Material 72 139	chemical reaction rate on the bulk-mean concentration of B in water
+T3	Process 145 148	dat
+T4	Material 204 257	environmental impacts of the degradation product of B
+T5	Material 287 292	water
+T6	Material 300 317	chemical reaction
+T7	Material 329 357	bulk-mean concentration of B
+T8	Process 416 437	effect of the Schmidt
+T9	Material 446 504	chemical reaction rate on the bulk-mean concentration CB?¯
+T10	Material 543 593	bulk-mean concentration of B reaches approximately
+T11	Material 605 627	chemical reaction rate
+T12	Process 636 659	Schmidt number increase
+T13	Task 681 694	concentration
+T14	Task 715 740	equilibrium concentration
+T15	Material 754 762	nterface
+T16	Material 807 824	chemical reaction
+T17	Material 871 876	water
+T18	Material 886 921	efficiency of the chemical reaction
+T19	Material 954 989	efficiency of the chemical reaction
+T20	Material 993 998	water
+T21	Process 1025 1058	Reynolds number of the water flow
+T22	Process 1068 1078	efficiency
+T23	Material 1101 1126	Reynolds number increases
+T24	Process 1170 1214	efficiency of the aquarium chemical reaction
+T25	Material 1319 1343	gas exchange between air
+T26	Material 1348 1353	water

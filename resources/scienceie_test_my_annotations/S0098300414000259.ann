@@ -1,0 +1,19 @@
+T1	Material 7 10	Pig
+T2	Process 38 69	MapReduce workflows with Hadoop
+T3	Process 77 86	workflows
+T4	Task 138 154	tasks that exist
+T5	Process 198 240	mplementations as series of MapReduce jobs
+T6	Material 242 251	Pig Latin
+T7	Material 259 283	procedural language used
+T8	Process 303 312	workflows
+T9	Process 346 407	declarative SQL commonly used for relational database systems
+T10	Process 433 447	SQL operations
+T11	Material 449 452	Pig
+T12	Material 541 544	Pig
+T13	Material 575 581	correl
+T14	Process 670 686	Hadoop community
+T15	Process 709 726	MapReduce towards
+T16	Material 795 831	event that future versions of Hadoop
+T17	Task 878 887	MapReduce
+T18	Material 889 900	Pig scripts
+T19	Task 980 994	MapReduce jobs

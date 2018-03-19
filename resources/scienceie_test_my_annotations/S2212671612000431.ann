@@ -1,0 +1,28 @@
+T1	Material 19 32	mplementation
+T2	Process 38 99	LBP (local binary pattern) based fast face recognition system
+T3	Process 103 119	symbian platform
+T4	Task 141 145	face
+T5	Task 225 251	pre-processing of the face
+T6	Task 271 283	eye location
+T7	Process 295 308	normalization
+T8	Process 323 336	normalization
+T9	Task 349 367	face preprocessing
+T10	Process 377 421	eye location method named ER (Eyeball Search
+T11	Process 463 474	mproved LBP
+T12	Process 490 501	recognition
+T13	Process 516 564	computational capability of the symbian platform
+T14	Process 628 644	recognition rate
+T15	Material 682 695	mplementation
+T16	Process 701 762	LBP (local binary pattern) based fast face recognition system
+T17	Process 766 782	symbian platform
+T18	Task 804 808	face
+T19	Task 888 914	pre-processing of the face
+T20	Task 934 946	eye location
+T21	Process 958 971	normalization
+T22	Process 986 999	normalization
+T23	Task 1012 1030	face preprocessing
+T24	Process 1040 1084	eye location method named ER (Eyeball Search
+T25	Process 1126 1137	mproved LBP
+T26	Process 1153 1164	recognition
+T27	Process 1179 1227	computational capability of the symbian platform
+T28	Process 1291 1307	recognition rate

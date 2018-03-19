@@ -1,0 +1,22 @@
+T1	Material 58 78	electron microscopes
+T2	Task 140 146	choice
+T3	Process 167 186	required lateral (x
+T4	Process 205 215	resolution
+T5	Material 225 258	size of the structure of interest
+T6	Material 274 311	transmission electron microscopy (TEM
+T7	Task 321 335	tool of choice
+T8	Material 371 419	biomedical specimens at sub-nanometer resolution
+T9	Process 471 481	resolution
+T10	Material 509 550	deposition of heavy metals onto membranes
+T11	Material 645 682	smallest expected feature of interest
+T12	Material 731 767	electron microscopy (SEM) technology
+T13	Material 804 820	electron imaging
+T14	Material 847 863	electron sources
+T15	Material 884 902	electron detectors
+T16	Material 1023 1043	membranes (De Winter
+T17	Material 1165 1186	membrane bilayers rem
+T18	Material 1273 1290	nteraction volume
+T19	Process 1308 1318	resolution
+T20	Material 1360 1371	volume imag
+T21	Material 1383 1395	transmission
+T22	Process 1400 1412	scanning EMs

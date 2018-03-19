@@ -1,0 +1,14 @@
+T1	Material 13 30	discrete unknowns
+T2	Task 43 61	vector of unknowns
+T3	Material 87 115	nx unknown nodal coordinates
+T4	Material 133 173	nb unknown discrete Lagrange multipliers
+T5	Process 214 255	course of the Newton-based solution of Eq
+T6	Material 278 301	displacement constraint
+T7	Process 359 425	tangent stiffness matrix of the unconstrained pseudo-solid problem
+T8	Material 495 535	mposition of the displacement constraint
+T9	Task 543 563	Lagrange multipliers
+T10	Material 590 616	proof of the LBB stability
+T11	Process 682 772	LBB stability of the Lagrange-multiplier-based imposition of Dirichlet boundary conditions
+T12	Process 836 852	Newton iteration
+T13	Material 911 944	tangent stiffness matrix relative
+T14	Process 952 986	system’s equilibrium configuration

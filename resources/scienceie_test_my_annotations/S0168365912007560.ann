@@ -1,0 +1,27 @@
+T1	Material 17 80	question whether carbohydrate coupling increased antigen uptake
+T2	Process 84 124	DCs via C-type lectin receptor targeting
+T3	Material 142 149	ntigens
+T4	Material 168 182	pHrodo Red dye
+T5	Material 208 260	specifically fluoresces as pH decreases from neutral
+T6	Material 310 315	cells
+T7	Process 350 386	cellular uptake of neoglycocomplexes
+T8	Material 423 495	cells (BMDCs) demonstrated superior ingestion of mannan-conjugates MN–Ov
+T9	Material 600 643	labeled antigen into the ear pinnae of mice
+T10	Process 646 659	ntigen uptake
+T11	Material 681 689	ear dLNs
+T12	Process 732 735	DCs
+T13	Material 806 815	MHC class
+T14	Material 901 942	uptake of pHrodo-labeled antigen (Fig. 3B
+T15	Material 1003 1009	pHrodo
+T16	Process 1020 1023	DCs
+T17	Material 1121 1149	unmodified antigens (Fig. 3C
+T18	Material 1181 1187	ntigen
+T19	Process 1212 1215	DCs
+T20	Material 1254 1260	pHrodo
+T21	Task 1262 1274	DCs compared
+T22	Material 1290 1306	ntigens (Fig. 3E
+T23	Material 1332 1349	ther the antigens
+T24	Process 1382 1385	DCs
+T25	Process 1418 1436	fferent lymphatics
+T26	Material 1507 1512	cells
+T27	Material 1520 1524	dLNs

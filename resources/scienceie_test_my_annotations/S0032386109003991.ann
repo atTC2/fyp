@@ -1,0 +1,23 @@
+T1	Process 9 23	polymerization
+T2	Process 90 97	proceed
+T3	Process 113 131	monomer conversion
+T4	Material 203 223	propagation reaction
+T5	Material 290 323	mass distribution can be obtained
+T6	Material 332 376	case of an industrial styrene polymerization
+T7	Process 472 487	radical process
+T8	Material 498 514	residual monomer
+T9	Material 523 543	molar mass oligomers
+T10	Material 602 620	nionic polystyrene
+T11	Material 711 733	nionic polystyrene (PS
+T12	Material 748 755	nterest
+T13	Material 763 782	conditions required
+T14	Process 798 812	polymerization
+T15	Process 837 843	market
+T16	Process 896 913	radical processes
+T17	Process 950 983	expensive alkyllithium initiators
+T18	Process 1015 1045	reaction temperatures required
+T19	Material 1147 1205	nionic polymerization of styrene in the absence of solvent
+T20	Process 1335 1362	cost of the anionic process
+T21	Material 1370 1376	mplied
+T22	Material 1401 1411	reactivity
+T23	Material 1430 1439	nitiating

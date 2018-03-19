@@ -1,0 +1,16 @@
+T1	Material 37 48	frequencies
+T2	Process 62 90	conventional operation range
+T3	Material 105 150	electrical resonance of an eddy current probe
+T4	Process 162 191	magnitude of impedance SNR re
+T5	Process 209 221	SNR of scans
+T6	Material 240 253	varying depth
+T7	Process 303 323	SNR measured at 1MHz
+T8	Material 325 327	Th
+T9	Process 347 387	defect-decoupling resonance-shift effect
+T10	Material 419 477	electrical resonance signal enhancement (NERSE) phenomenon
+T11	Process 479 504	NERSE frequency operation
+T12	Process 576 602	nvestigative possibilities
+T13	Material 617 629	nvestigation
+T14	Material 640 677	magnitude of the electrical impedance
+T15	Material 729 741	nvestigation
+T16	Material 825 844	NERSE effect exists

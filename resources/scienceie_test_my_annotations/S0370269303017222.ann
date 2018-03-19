@@ -1,0 +1,19 @@
+T1	Material 7 10	bag
+T2	Process 117 131	lowest P-state
+T3	Material 144 172	predicted Roper mass heavier
+T4	Material 182 218	lightest negative parity baryon mass
+T5	Process 229 256	spin-dependent interactions
+T6	Process 274 288	level ordering
+T7	Process 368 419	flavor-spin interactions produce the desired effect
+T8	Process 431 453	q3 color wave function
+T9	Process 476 509	flavor-spin-orbital wave function
+T10	Material 553 560	S-state
+T11	Process 566 591	flavor-spin wave function
+T12	Process 660 683	flavor-spin interaction
+T13	Material 706 713	P-state
+T14	Process 727 740	wave function
+T15	Process 773 798	flavor-spin wave function
+T16	Process 808 831	flavor-spin interaction
+T17	Task 861 863	SU
+T18	Material 905 920	mass splittings
+T19	Material 1008 1010	N?

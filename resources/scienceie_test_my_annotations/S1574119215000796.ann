@@ -1,0 +1,16 @@
+T1	Process 4 38	proposed multihop routing protocol
+T2	Material 40 46	PHASeR
+T3	Material 121 193	reliability of data delivery through its inherent use of multiple routes
+T4	Material 421 429	overhead
+T5	Task 519 547	ssue of the dead end problem
+T6	Material 549 555	PHASeR
+T7	Material 579 589	gradient m
+T8	Process 640 657	proactive sharing
+T9	Material 822 839	mount of overhead
+T10	Material 885 891	PHASeR
+T11	Material 924 937	encapsulation
+T12	Material 952 976	data from multiple nodes
+T13	Task 1049 1056	traffic
+T14	Process 1116 1132	routing solution
+T15	Process 1191 1207	routing protocol
+T16	Material 1238 1300	constant flow of data from sensors in highly mobile situations

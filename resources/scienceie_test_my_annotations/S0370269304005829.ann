@@ -1,0 +1,28 @@
+T1	Process 24 28	case
+T2	Process 44 50	source
+T3	Process 69 73	case
+T4	Process 94 100	source
+T5	Material 122 132	beta-beams
+T6	Material 145 160	neutrino fluxes
+T7	Material 213 248	electron–neutrino scattering events
+T8	Material 256 261	range
+T9	Material 288 291	keV
+T10	Material 298 301	keV
+T11	Task 354 386	nearest integer number of counts
+T12	Material 393 434	shape of the flux-averaged cross sections
+T13	Material 458 467	reactor c
+T14	Process 491 508	event rates shown
+T15	Material 516 523	figures
+T16	Material 578 587	keV range
+T17	Process 595 611	beta-beam source
+T18	Process 650 656	source
+T19	Material 840 853	results shown
+T20	Material 988 994	events
+T21	Material 1006 1009	MeV
+T22	Material 1015 1033	MeV range per year
+T23	Material 1040 1046	events
+T24	Material 1056 1059	keV
+T25	Material 1066 1084	keV range per year
+T26	Task 1124 1136	respectively
+T27	Process 1145 1149	case
+T28	Material 1155 1183	magnetic moment of 5×10?11?B

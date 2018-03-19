@@ -1,0 +1,22 @@
+T1	Task 22 41	downscaling problem
+T2	Task 47 83	multi-objective optimization problem
+T3	Task 107 125	following problems
+T4	Task 142 169	sum of different objectives
+T5	Process 267 276	procedure
+T6	Task 296 329	treating the objectives unequally
+T7	Process 409 422	minimum value
+T8	Process 454 479	chieved by the regression
+T9	Process 520 529	procedure
+T10	Process 579 637	relative importance of the different objectives in advance
+T11	Task 678 688	objectives
+T12	Task 714 730	fitness function
+T13	Process 771 783	optimization
+T14	Task 845 864	fitness calculation
+T15	Process 882 920	Strength Pareto Evolutionary Algorithm
+T16	Process 1036 1073	multi-objective optimization like SPE
+T17	Process 1123 1151	SPEA the fitness calculation
+T18	Process 1171 1180	procedure
+T19	Material 1219 1235	different models
+T20	Process 1295 1312	downscaling rules
+T21	Process 922 925	SPE
+*	Synonym-of T15 T21

@@ -1,0 +1,24 @@
+T1	Process 29 43	drift chambers
+T2	Material 68 88	drift time digitized
+T3	Material 101 127	nalog-to-digital converter
+T4	Material 172 205	relation between the hit position
+T5	Material 214 238	drift time (x–t relation
+T6	Material 245 257	x–t relation
+T7	Process 288 320	drift chamber simulation package
+T8	Process 404 412	chambers
+T9	Material 486 513	position deviation of wires
+T10	Task 573 587	electric field
+T11	Material 621 666	limited accuracy in the chamber manufacturing
+T12	Material 709 759	calculated x–t relation throughout the experiments
+T13	Process 765 775	correction
+T14	Material 805 807	?2
+T15	Material 815 908	fitting of straight tracks of clean muon events observed on the ground without magnetic field
+T16	Process 914 924	correction
+T17	Process 960 996	ccuracy in the chamber manufacturing
+T18	Material 1027 1039	x–t relation
+T19	Material 1060 1069	variation
+T20	Task 1077 1085	pressure
+T21	Process 1109 1120	chamber gas
+T22	Material 1187 1199	x–t relation
+T23	Material 1271 1291	x–t relation of ODCs
+T24	Material 1379 1404	variation in the pressure

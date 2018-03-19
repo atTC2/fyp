@@ -1,0 +1,17 @@
+T1	Material 42 54	DEA suitable
+T2	Task 69 95	three-dimensional problems
+T3	Process 109 120	DEA methods
+T4	Process 174 196	boundary of the region
+T5	Process 243 262	basis approximation
+T6	Process 272 320	resulting boundary phase space coordinate system
+T7	Process 340 342	th
+T8	Process 362 370	boundary
+T9	Process 421 439	ssociated momentum
+T10	Process 490 498	boundary
+T11	Process 504 509	basis
+T12	Material 521 555	suitable (scaled) univariate basis
+T13	Process 577 585	momentum
+T14	Process 605 610	basis
+T15	Material 656 680	suitable parametrisation
+T16	Material 689 702	spatial coord
+T17	Material 760 774	momentum space

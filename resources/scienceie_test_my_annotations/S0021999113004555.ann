@@ -1,0 +1,19 @@
+T1	Material 46 53	Ullrich
+T2	Material 58 68	Jablonowsk
+T3	Process 83 142	HEVI solution of the equations governing atmospheric motion
+T4	Material 161 163	RS
+T5	Process 171 187	scheme of Ascher
+T6	Material 222 226	less
+T7	Process 293 299	scheme
+T8	Task 315 331	Strang splitting
+T9	Process 347 360	mplicit stage
+T10	Process 390 436	final implicit stage of the previous time-step
+T11	Process 463 493	mplicit solution per time-step
+T12	Material 527 534	Ullrich
+T13	Material 539 549	Jablonowsk
+T14	Process 568 587	Rosenbrock solution
+T15	Material 617 649	vertical terms implicitly rather
+T16	Process 664 698	terms involved in wave propagation
+T17	Process 702 721	Rosenbrock solution
+T18	Material 780 812	time-step restriction associated
+T19	Material 818 882	vertical advection at the cost of slowing the vertical advection

@@ -1,0 +1,18 @@
+T1	Process 7 30	optimisation algorithms
+T2	Task 67 87	optimisation problem
+T3	Material 112 162	efficient in incorporating statistical information
+T4	Process 256 276	genetic algorithm (G
+T5	Process 289 361	global optimisation technique that mimics biological evolution processes
+T6	Material 382 398	particular study
+T7	Material 405 413	lgorithm
+T8	Task 450 460	population
+T9	Process 470 497	decision variable domain (X
+T10	Process 504 521	genetic algorithm
+T11	Task 547 557	population
+T12	Material 578 586	lgorithm
+T13	Material 607 623	ndividual values
+T14	Task 633 651	population (parent
+T15	Process 727 742	next generation
+T16	Process 872 874	GA
+R1	Hyponym-of Arg1:T8 Arg2:T1
+R2	Hyponym-of Arg1:T11 Arg2:T1
