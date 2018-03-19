@@ -130,7 +130,7 @@ public final class NlpUtil {
      */
     public static String sanitiseString(String word) {
         // Write tests for the for all punctuation
-        return word.toLowerCase().replaceAll(REGEX_ALL_PUNCTUATION, "");
+        return word.toLowerCase().replaceAll(REGEX_ALL_PUNCTUATION, "").trim();
     }
 
     /**
