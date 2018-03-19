@@ -38,7 +38,6 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
 public class PaperSearch {
 
     private static final Logger log = LogManager.getLogger(PaperSearch.class);
-    private static final int MAX_RESULTS_PER_PAGE = 15;
     private static final int SNIPPET_MAX_SIZE = 80;
     private static final int SNIPPET_EXTENSION = 50;
 
@@ -274,16 +273,7 @@ public class PaperSearch {
      */
     private List<SearchResult> buildResultList(Iterable<PaperDAO> papers, boolean limitResults, SearchQuery search) {
         List<SearchResult> results = new ArrayList<SearchResult>();
-        int index = 0;
         for (PaperDAO paper : papers) {
-            if (limitResults) {
-                if (index < MAX_RESULTS_PER_PAGE) {
-                    index++;
-                } else {
-                    // We have MAX_RESULTS_PER_PAGE, send them back to the client
-                    return results;
-                }
-            }
             SearchResult result = new SearchResult();
             result.setId(paper.getId());
             result.setPaper(paper.getTitle());

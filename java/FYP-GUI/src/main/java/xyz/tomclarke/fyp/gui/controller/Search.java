@@ -29,6 +29,7 @@ import xyz.tomclarke.fyp.gui.service.PaperSearch;
 public class Search {
 
     private static final Logger log = LogManager.getLogger(Search.class);
+    private static final int MAX_RESULTS_SHOWN_ON_INIT = 10;
 
     @Autowired
     private PaperSearch paperSearch;
@@ -58,13 +59,12 @@ public class Search {
         // Record what was searched
         log.info(search + ", FOUND:" + searchRAndD.getResultsFound() + ", TOOK:" + searchRAndD.getSearchTime() + "ms");
 
-        String endPartOfSearchResultString = searchRAndD.getResultsFound() > searchRAndD.getResults().size()
-                ? " (showing top " + searchRAndD.getResults().size() + " results)."
-                : ".";
         mv.addObject("resultsInfo",
                 "Search for \"" + search.getText() + "\" completed in "
                         + ((double) searchRAndD.getSearchTime() / 1000.0) + " seconds, finding "
-                        + searchRAndD.getResultsFound() + " papers" + endPartOfSearchResultString);
+                        + searchRAndD.getResultsFound() + " papers.");
+        mv.addObject("MAX_RESULTS", MAX_RESULTS_SHOWN_ON_INIT);
+        mv.addObject("resultsCount", searchRAndD.getResultsFound());
 
         // Let the user know nothing was found
         if (searchRAndD.getResults().isEmpty()) {

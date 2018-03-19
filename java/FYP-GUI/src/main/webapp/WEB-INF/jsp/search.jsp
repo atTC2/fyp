@@ -74,28 +74,62 @@
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach items="${results}" var="result">
-						<tr class="clickable-row" style="cursor: pointer;"
-							data-href="view?paper=${result.id}">
-							<td>${result.id}</td>
-							<td><strong>${result.paper}</strong><a class="pull-right"
-								href="/view/download?paper=${result.id}"><span
-									class="glyphicon glyphicon-download"></span></a> <br />${result.snippet}</td>
-							<td>${result.kps}&nbsp;/&nbsp;${result.rels}<a
-								class="pull-right" href="/view/extractions?paper=${result.id}"><span
-									class="glyphicon glyphicon-download"></span></a></td>
-						</tr>
+					<c:forEach items="${results}" var="result" varStatus="loop">
+						<c:choose>
+							<c:when test="${loop.index < MAX_RESULTS}">
+								<!-- Show results -->
+								<tr class="clickable-row" style="cursor: pointer;"
+									data-href="view?paper=${result.id}">
+									<td>${result.id}</td>
+									<td><strong>${result.paper}</strong><a class="pull-right"
+										href="/view/download?paper=${result.id}"><span
+											class="glyphicon glyphicon-download"></span></a> <br />${result.snippet}</td>
+									<td>${result.kps}&nbsp;/&nbsp;${result.rels}<a
+										class="pull-right" href="/view/extractions?paper=${result.id}"><span
+											class="glyphicon glyphicon-download"></span></a></td>
+								</tr>
+							</c:when>
+							<c:otherwise>
+								<c:if test="${loop.index == MAX_RESULTS}">
+									<!-- Show 'Show more' button -->
+									<tr class="clickable-row" style="cursor: pointer;"
+										id="showMoreRow">
+										<td colspan="3" onclick="showMore()"
+											style="text-align: center;"><strong>Show
+												${resultsCount - MAX_RESULTS} more</strong></td>
+									</tr>
+								</c:if>
+								<!-- Make thing, but hidden -->
+								<tr class="clickable-row" style="cursor: pointer;"
+									data-href="view?paper=${result.id}" hidden="true">
+									<td>${result.id}</td>
+									<td><strong>${result.paper}</strong><a class="pull-right"
+										href="/view/download?paper=${result.id}"><span
+											class="glyphicon glyphicon-download"></span></a> <br />${result.snippet}</td>
+									<td>${result.kps}&nbsp;/&nbsp;${result.rels}<a
+										class="pull-right" href="/view/extractions?paper=${result.id}"><span
+											class="glyphicon glyphicon-download"></span></a></td>
+								</tr>
+							</c:otherwise>
+						</c:choose>
 					</c:forEach>
 				</tbody>
 			</table>
 		</div>
 
 		<script>
+			// Make the row items clickable so the user can go to the full papers
 			jQuery(document).ready(function($) {
 				$(".clickable-row").click(function() {
 					window.location = $(this).data("href");
 				});
 			});
+
+			// Make it so if the 'show more' button is pressed, more is shown
+			function showMore() {
+				$('#showMoreRow').remove();
+				$('tr').show();
+			}
 		</script>
 	</c:if>
 
