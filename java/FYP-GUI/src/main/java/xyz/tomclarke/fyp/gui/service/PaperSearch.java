@@ -20,8 +20,6 @@ import xyz.tomclarke.fyp.gui.dao.KeyPhraseRepository;
 import xyz.tomclarke.fyp.gui.dao.PaperDAO;
 import xyz.tomclarke.fyp.gui.dao.PaperRepository;
 import xyz.tomclarke.fyp.gui.dao.SynLinkRepository;
-import xyz.tomclarke.fyp.gui.dao.SynonymDAO;
-import xyz.tomclarke.fyp.gui.dao.SynonymRepository;
 import xyz.tomclarke.fyp.gui.model.SearchQuery;
 import xyz.tomclarke.fyp.gui.model.SearchResult;
 import xyz.tomclarke.fyp.gui.model.SearchResultAndDetails;
@@ -53,8 +51,12 @@ public class PaperSearch {
     private HyponymRepository hypRepo;
     @Autowired
     private SynLinkRepository synLinkRepo;
-    @Autowired
-    private SynonymRepository synRepo;
+    /**
+     * Synonym search disable as it allows for to many extra results (e.g.
+     * 'ultrasound' adds 'us' to the search which is too general)
+     */
+    // @Autowired
+    // private SynonymRepository synRepo;
 
     /**
      * Interpret a search query to find relevant papers
@@ -156,7 +158,7 @@ public class PaperSearch {
         // Also, only do this if there are actually KPs...
         if (matchingKps != null && !matchingKps.isEmpty()) {
             List<HyponymDAO> hyps = hypRepo.findByKpIn(matchingKps);
-            List<SynonymDAO> syns = synRepo.findRelatedByKpList(matchingKps);
+            // List<SynonymDAO> syns = synRepo.findRelatedByKpList(matchingKps);
             for (HyponymDAO hyp : hyps) {
                 if (kpNotInList(hyp.getKp1(), matchingKps)) {
                     searchText = updateSearchText(searchText, hyp.getKp1().getText());
@@ -165,9 +167,9 @@ public class PaperSearch {
                     searchText = updateSearchText(searchText, hyp.getKp2().getText());
                 }
             }
-            for (SynonymDAO syn : syns) {
-                searchText = updateSearchText(searchText, syn.getKp().getText());
-            }
+            // for (SynonymDAO syn : syns) {
+            // searchText = updateSearchText(searchText, syn.getKp().getText());
+            // }
             // Refresh the values list
             search.setText(searchText);
             queryValues = makeQueryValues(search.getText());
