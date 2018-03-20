@@ -34,9 +34,11 @@ In terms of making the system into a product...
 * Papers can be viewed (with key phrases drawn on) and annotations downloaded. Hyponym/synoym viewing on the webpage isn't shown, as no good solution could be found - although it makes extremely little difference.
 * The search page shows papers well, and search is reasonably effective.
 
-## The Dissertation
+## The Dissertation and Presentation
 
 The dissertation is being completed in the [`report`](report) directory, and the [current PDF version can be viewed here](report/fyp.pdf).
+
+The presentation is [`Presentation.pdf`](Presentation.pdf).
 
 ## Results
 The end-to-end annotationed set of ScienceIE's test data can be seen at [`resources/scienceie_test_my_annotations`](resources/scienceie_test_my_annotations)
