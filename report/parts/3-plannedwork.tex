@@ -1,2 +1,33 @@
 \section{Analysis and Specification}
 Say what I'm going to do, but probably a bad idea to have a section for this. It may work better to just have a all of the 'what im doing' in each section when we get there.
+
+\subsection{Project Architecture}
+With any large software project, it is sensible to choose a platform with all the necessary tools available so the developer can achieve their goals. 
+
+Due to the past experience of the author, Java was an obvious choice. Given extensive time working in the language during university and in industry, a thorough understanding of the programming language was already achieved, which allowed for planning of a sensible software architecture to optimise code quality and (implicitly) the potential of increased success of the systems created. 
+
+Furthermore, Java is a very popular and accessible language world wide - backed up by the active StackOverflow community (casual and professional alike) with Java being one of the most popular technologies for at least the last five years, evidenced through their user surveys 2018\footnote{https://insights.stackoverflow.com/survey/2018}, 2017\footnote{https://insights.stackoverflow.com/survey/2017} and 2016\footnote{https://insights.stackoverflow.com/survey/2016}. Due to this, Java has extensive support for many common problems people encounter, with issues being discussed and solutions proved across various forums. 
+
+Not only is Java's popularity good for increasing support availability, many libraries and utilities are available to help developers with tasks. Along side other technologies used for more specific tasks throughout completion of the NLP system and the POC system (which shall be discussed when used), common technologies used during the development of the entire project are described below. Throughout development of the project, very little issue was caused by lack of Java support for common processes or lack of Java capability when attempting to program some process.
+
+\subsection*{log4j}
+log4j 2\footnote{https://logging.apache.org/log4j/2.x/} is a popular and robust library developed under the Apache Software Foundation to do logging in Java. It's useful features include:
+\begin{itemize}
+	\item Automatic output of logs to both terminal and file: As well as immediate visual feedback, log files can be used for later processing and evidence gathering.
+	\item Timing of events: Timing is very useful as during long runs of a system (for example, some sections of the NLP task could take hours to complete) the logs can be analysed to see how long systems take to process data, which can be considered when going forward; for instance in terms of formulating efficiently timed tests plans.
+	\item Labelling of logs into levels such as 'debug', 'info', 'error' and 'fatal' messages: This can be used when analysing the logs to catch where things went wrong (filtering for error messages) and then to try to debug the system by finding information logged prior to that (with debug). During development an excellent use of this feature is to output all levels aside from 'debug' to terminal, so monitoring progress isn't overloading the executor with information, but if something does go awry the steps leading up to the bad event can be analysed in the log saved to disk.
+\end{itemize}
+
+While direct output of this will not be present in the rest of this report, it is worth noting this was an extremely useful tool for developing all of the systems to follow. 
+
+\subsection*{Maven}
+Apache Maven\footnote{https://maven.apache.org/} is another important tool. Like log4j, it is developed by the Apache foundation. 
+
+Maven is a tool to help with project management and has many uses. It is based around a 'project object model' (POM) configured in a \texttt{pom.xml} file at the root of a Java project, which itself has a structure defined by Maven. The key uses utilised in this project are:
+\begin{itemize}
+	\item Project compilation: Maven can be used to build a project and automatically run specified or all tests, with more detailed and well formatted output than compiling Java code by hand. Therefore, compilation and testing can more easily be scripted and output more clearly analysed. It also handles importing libraries used in a Java project when compiling (which can be very troublesome when completed by hand), which is discussed below.
+	\item Library import: The \texttt{pom.xml} can specify dependencies of the Java project. While custom, third party repositories exist, Maven has a central repository\footnote{http://repo.maven.apache.org/maven2/} with many libraries available. This includes log4j described above, and all other libraries used in this project. Dependencies are downloaded to the systems local Maven repository at compile time.
+	\item Library export: As discussed in the introduction, the NLP system shall be used in a POC system. Rather than combining these two systems into one large package, or doing a confusing copy of the required resources, Maven can be used to export the compiled NLP system to the local Maven repository. Then, the POC system can simply list the NLP system as a dependency, and Maven shall include it as a library when building the executable program.
+\end{itemize}
+
+Maven is used as the management backbone throughout the development of software discussed in this report. When libraries are used in a project, a link to their dependency configuration for Maven's \texttt{pom.xml} shall be included. As a good example, log4j\footnote{https://logging.apache.org/log4j/2.x/maven-artifacts.html} has an extensive page providing a detailed description of how to import the library.
