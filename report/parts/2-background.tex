@@ -40,6 +40,8 @@ Several teams from ScienceIE chose to back up key phrase extraction with a CRF. 
 
 A method not attempted at ScienceIE was unsupervised learning by clustering key phrases, a method which has potentially very accurate results that also could not only be robust again new unseen data but even different languages. The idea is that candidate key phrases are selected by some heuristic and other phrases are clustered about them. With the simplest approach, the center of a cluster is the key phrase. Various clustering methods were attempted by \cite{Liu2009} on top of a candidate selection process built on semantic term relatedness. They ran tests on relatively short articles and while at maximum they only achieved an F1 of ~0.45, there was several improvements suggested which apply to the task at hand concerning scientific papers. Firstly, an achievable improvement for this project would be to cluster directly on noun groups as they found most clusters consisted of groups of nouns anyway, which is backed up by Augenstein et al. \cite{Augenstein2017}, who reports 93\% of all key phrases are noun phrases. Furthermore, improving their initial filtering to extend it further than stop words may help reduce errors as well; improving this may be possible by employing a words TF-IDF score with some threshold. Finally, they suggested a similar algorithm be applied to longer scientific papers. ScienceIE’s test data consists of extracts of scientific texts (i.e. short paragraphs), however, any unsupervised system created for this task could be ran again entire papers and then only those sections compared for evaluation later – allowing this suggestion to be evaluated.
 
+\subsection{Word2Vec}
+
 \subsection{The Supplied Data Set}
 The ScienceIE data set consists of 50 development, 350 training and 100 test documents. 
 
@@ -66,7 +68,7 @@ Other useful and interesting characteristics about the training set, found durin
 		Number of relations & 0 & 2 & 13 & 2 \\
 		Total tokens in document & 60 & 159 & 264 & 46
 	\end{tabular}
-	\caption[Training Set Analysis]{Key phrase (KP), token and relation analysis for the ScienceIE training set.}
+	\caption[ScienceIE Training Set Analysis]{Key phrase (KP), token and relation analysis for the ScienceIE training set.}
 	\label{table:traininganalysis}
 \end{table}
 
