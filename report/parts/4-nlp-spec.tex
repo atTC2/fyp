@@ -1,14 +1,97 @@
 \section{The ScienceIE Task: Design and Implementation}
 
-To complete the ScienceIE task, three systems would need to be created to handle each sub task. 
+To complete the ScienceIE task, the plan was made to have one Java project containing three sub systems, where each of which could be called independently. As such, this section shall step through each subtask's design and implementation in order, beginning with a description of the preprocessing that was implemented, as it is generic to all subtasks.
 
 \subsection{Data Preprocessing}
+To support processing in later systems, all data (development, training and test) had to be preprocessed. The idea of this piece of computation is to prepare the data for analysis, and to also reduce computation time (doing this process once for the entire system rather than once for each sub system). To further reduce experiment run time, Java serialisation was also used to save all the following preprocessing information for later retrieval.
+
+In Java, for each paper file from ScienceIE, a \texttt{Paper} object was constructed. This held many important pieces of information about the paper in question, including location on disk, text extracted from its source file, and all preprocessing information. \texttt{Paper} itself is a \textit{plain old Java object}, only holding information and is an abstract class, with \texttt{TextPaper} and \texttt{PDFPaper} classes extending from it which could be instantiated. These extended classes inherited the data storage features and utilities from \texttt{Paper}, but their constructors are customised to extract information from their given type of file:
+
+\begin{itemize}
+	\item \texttt{TextPaper} is for \texttt{.txt} files and simply extracts the text from the document. It sees the title of the text document as the title of the paper.
+	\item \texttt{PDFPaper} is for \texttt{.pdf} files. This uses Apache PDFBox\footnote{https://pdfbox.apache.org/} (imported through Maven\footnote{https://pdfbox.apache.org/2.0/dependencies.html}) to extract the text from a PDF. The title, once again, is the title of the document. As alluded to earlier, with the ScienceIE test set not only being just text files but also being short documents, longer PDF papers was not usually used, so little development to properly sanitise PDFs happened, meaning all titles and references were also captured in this text extraction. If more PDF files were to be processed this would have been looked at, however, due to its lack of use the time needed to fix this was deemed not worth it.
+	\item It was initially planned that there would be a \textit{HTML} and \textit{WebPDF} classes although, for similar reasons to why the \texttt{PDFPaper} text extraction was not developed further, these two classes were never implemented. The main reason for wanting them was to later support the POC system, as this would allow that system to dynamically grab papers from the web and add them to itself. Importing of papers to the POC system shall be discussed later at a more relevant time.
+\end{itemize}
+
+The bulk of the preprocessing came in the form of using a parser to calculate the parse tree of a text. As discussed, many teams at ScienceIE used spaCy. As the plan for this project was to complete it in Java (creating a single, self contained system) the Stanford CoreNLP package was used \cite{Manning2014} (imported through Maven\footnote{https://stanfordnlp.github.io/CoreNLP/download.html}). While offering a range of useful NLP features, the main ones utilised by the project were tokenization and finding the parse tree of the text (which naturally included POS tagging). An \texttt{Annotator} class was constructed which accepted a \texttt{Paper} input and annotated the text contained using the CoreNLP library.
+
+Further processing on this information was also completed, where (at the time of saving the CoreNLP parse information) a token \textit{map} was created. This \textit{map}'s key set was all tokens present in the document, with the associated value being the number of times the token was in the document. This was to help when calculating TF-IDF scores later in processing.
+
+The final part of preprocessing was to load existing annotation information. Of course this was only possible for ScienceIE data, which were all supplied with the relevant \texttt{.ann} files in BRAT format. These records were loading into a list of \texttt{Extraction} abstract entities, where each entry to the list could be either of a \textit{KeyPhrase} or \textit{Relationship} extending type, which each held all the information supplied in the annotation files (including classifications, the types of relations and more).
 
 \subsection{Subtask A - Key Phrase Extraction}
-A section all about what I did for part 1
+Subtask A at ScienceIE was considered the hardest, reinforced by both the maximum and average scores for each independent subtask. This paper dedicated most of its NLP effort to this task out of the three subtasks as this is currently the hardest part of information extraction (out of the given subtasks) under current research. 
+
+Two attempts at this subtask were made. Initially, a \textit{safer} design involved a SVM which considers some of the key features about key phrases suggested in the literature around this topic. Then, an even more experimental trail shall be described which involves clustering based around Word2Vec similarities between words in a document. 
+
 \subsubsection{Method 1: Support Vector Machine}
-Go through making the SVM and what tests helped a lot. 
-As part 2 has already been described, I think it makes sense here to mention I tried adapting this slightly for task 2 but that it went terribly.
+Inspired by the highest success at ScienceIE, a SVM approach was adopted to attempt to provide a solution to subtask A. Initially, a small set of support vectors were selected and tested, with more being added as research continued.
+
+\subsubsection*{Processing Data}
+Two approaches were considered when designing the input and output data. One was based around passing each token in individually and in order, while the other was based around using the parse information obtained by using CoreNLP to pass sections of a sentence. 
+
+Working with each individual token was selected for several reasons. Firstly, it was very easy to simply iterate through every token in a document in turn. Furthermore, the CoreNLP data is still available (evidences as that is what returns the tokens of the document) and can be passed to the SVM to be used when calculating support vectors. While using sections of a sentence should help keep any key phrase extracted more semantically correct (i.e. it should avoid missing the end of a noun phrase by accident which a check could be added for anyway), it poses a large issue: Any section selected as a key phrase would likely be \textit{locked down} as such to the specific tokens inside that section, meaning there may be no way to get rid of excess information or added extra if the gold standard key phrase requires something slightly different to the key phrase chosen by the SVM. In terms of extra information needed, a system could be implemented to join adjacent key phrases but that would like see extra information over what is needed being included. If, to try and solve this issue, some system which could extend or retract by a token or two was implemented, it is getting closer to the original option anyway where the system is processing the entire document as individual phrases. Therefore, a system based around processing each token individually was decided upon.
+
+This resulted in a total of 65447 different training points (the total number of individual tokens in all of the training data).
+
+\subsubsection*{Defining Support Vectors}
+It is clear that current trends view the position of key phrases are very important in the document and should definitely be considered when trying to learn how to predict them. A tokens proximity to other tokens semantically and as part of the document as whole seem to significantly help us identify where key phrases lie. Furthermore, some attributes about individual phrases also seem to play a large part. For example, the length of the word is a valid feature to evaluate, as the average length of a key phrase token (7 characters) is slightly different to the average of all key phrases (8 characters). 
+
+\begin{table}
+	\centering
+	\begin{tabular}{ C{7cm} | c }
+		\textbf{Support Vector Description} & \textbf{Value Range} \\
+		\hline
+		The length of the token divided by the maximum token length in the training set. & \texttt{svLen} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svLen} $\leq$ 1 \\
+		\hline
+     	Whether the token is a noun (using Part-Of-Speech tagging). & \texttt{svPos} $\in$ \{0, 1\} \\
+     	\hline
+     	The TF-IDF score of the token. & \texttt{svTfIdf} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svTfIdf} $\leq$ 1 \\
+     	\hline
+     	The token index divided by the number of tokens. & \texttt{svDepth} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svDepth} $\leq$ 1 \\
+     	\hline
+     	The token index in the current sentence divided by the number of tokens in the sentence. & \texttt{svDepthSentence} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svDepthSentence} $\leq$ 1 \\
+     	\hline
+		Whether the token is in the first sentence of the paper. & \texttt{svFS} $\in$ \{0, 1\} \\
+		\hline
+     	Whether the token is in the last sentence of the paper. & \texttt{svLS} $\in$ \{0, 1\} \\
+     	\hline
+     	Whether the previous token was part of a key phrase. & \texttt{svLWKP} $\in$ \{0, 1\} \\
+	\end{tabular}
+	\caption[Initial Key Phrase Support Vectors]{Initial key phrase support vectors used. A set of these support vectors is generated for each token. When defining the value range, the variable is named as it is in the Java code.}
+	\label{table:kpinitsvs}
+\end{table}
+
+Thankfully, the idea behind using an SVM is to find what separates key phrases from just normal phrases. Therefore, I was able to create an initial range of support vectors, as defined in table \ref{table:kpinitsvs}. Here it is evident most support vectors are based around trying to gather information as to the whereabouts of the token. It also, importantly, considers the sequence of key tokens.
+
+\subsubsection*{Training}
+To train the SVM, a \textit{problem} must be created. The \textit{problem} contains an array of data points, each of which holds a set of support vectors. Each of these data points must be labelled. The label is what we are trying to predict on the test data, so here the label is where or not the token is a key phrase (\texttt{0} for \textit{normal}, or \texttt{1} for key phrase). 
+
+\subsubsection*{Model Selection}
+As the nature of the data is unknown, an educated guess can be made as to which kernel to use. A common kernel to begin working with is the \textit{Radial Basis Function} (RBF) kernel \cite{Chih-WeiHsuChih-ChungChang2008}. This is because it can handle non-linear data, which it is assumed the training data here is to be. The RGF kernel function to find the similarity between two data points is listed below:
+
+\begin{equation*}
+K\textsubscript{RBF}(x_i, x_j) = exp(-\gamma||x_i - x_j||^2)
+\end{equation*}
+
+\noindent There are two parameters which can be configured and tuned to optimise performance of the SVM:
+\begin{itemize}
+	\item The cost \textit{C} parameter. This influences the misclassification allowance, where a small value lets the SVM select a large hyper-plane for separating data but allows for more misclassification, and a large value will allow the SVM to attempt to find a smaller hyper-plane that has less misclassification. Several values will be explored, of the set \{5, 50, 100, 200\}.
+	\item The RBF kernel has a single parameter $\gamma$. From the same source that recommended the RBF kernel, as a initial value the SVM shall be configured to 0.5, as this is 1 divided by the number of features (we have 2 labels). However, other values shall be explored to attempt to find the best accuracy, and these values shall be \{0.25, 0.5, 1\}.
+\end{itemize}
+
+\subsubsection*{Development}
+Having decided on how to use the concept of an SVM, there was a need for a concrete implementation. The idea of implementing an SVM was considered, however, with a responsibly high implementation complexity and a high risk of getting something subtly wrong (therefore being hard to detect and fix) a pre-existing solution was searched for. Furthermore, with the author having never handled an SVM before, a pre-existing solution with additional usage information was desired.
+
+A popular SVM package was found in libsvm (imported through Maven\footnote{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}). Originally written in C and ported over to Java (as well as many other languages), libsvm was designed to be flexible, supporting various kernels and suitable for beginners through to advanced users. It has support for the core use of SVMs - training and predicting, but also has features to aid in parameter selection such as a cross-validation function (which will be covered in more detail shortly), a visualiser for the training data and a data scaling tool.
+
+% TODO add more about development
+
+\subsubsection*{Cross Validation}
+Cross validation is an important part when trying to optimise performance of an SVM. It allows for tuning key parameters by running repeated tests. Rather than using the testing data, which could introduce bias, the training data is split up into \textit{n} folds (or groups of data from within the training set). \textit{n = 5} folds were used in this instance. In turn, the SVM is trained with 4 of the 5 folds and then evaluated against the remaining fold. This is repeated for all combinations of folds and then the accuracy of the SVM can be calculated. A higher accuracy should mean better performance, although there is the problem of over fitting to consider. If the model is built to run perfectly on the training data, real world performance may actually suffer. This is why we cannot stop testing the SVM after just cross validation, as evaluating against the unseen test set will tell us how well it really performs. 
+
+The values discussed for \textit{C} and $\gamma$ were used in cross validation and their outputs compared. % TODO finish talking about cross validatio and add the graphs
+
 \subsubsection{Method 2: Clustering}
 Talk about the experimentation with clustering.
 

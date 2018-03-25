@@ -32,9 +32,53 @@ public class TestPaperAnalysis extends TestOnPapers {
         }
     }
 
+    @Test
+    public void printTokenAnalysis() {
+        Map<String, Integer> tokens = new HashMap<String, Integer>();
+        for (Paper paper : trainingPapers) {
+            for (String token : paper.getTokenCounts().keySet()) {
+                if (!tokens.containsKey(token)) {
+                    // Not already seen, add
+                    tokens.put(token, paper.getTokenCounts().get(token));
+                } else {
+                    // Already seen, add
+                    tokens.put(token, tokens.get(token) + paper.getTokenCounts().get(token));
+                }
+            }
+        }
+
+        int totalTokens = tokens.values().stream().reduce(0, Integer::sum);
+        int diffTokens = tokens.keySet().size();
+
+        double size = 0.0;
+        for (String token : tokens.keySet()) {
+            size += token.length();
+        }
+        size /= (double) diffTokens;
+
+        System.out.println("There are " + totalTokens + " with " + diffTokens
+                + " different tokens with the average length being " + size + ".");
+    }
+
+    @Test
+    public void printKPLengthAnalysis() {
+        double size = 0.0;
+        double count = 0.0;
+        for (Paper paper : trainingPapers) {
+            for (KeyPhrase kp : paper.getKeyPhrases()) {
+                for (String word : NlpUtil.getAllTokens(kp.getPhrase())) {
+                    size += word.length();
+                    count++;
+                }
+            }
+        }
+
+        System.out.println("Average KP length: " + size / count);
+    }
+
     @Ignore
     @Test
-    public void printTokenAnalysis() throws IOException {
+    public void printTFIDFAnalysis() throws IOException {
         Map<String, Double> tfIdfs = new HashMap<String, Double>();
         for (Paper paper : trainingPapers) {
             for (String token : paper.getTokenCounts().keySet()) {

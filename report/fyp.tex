@@ -9,6 +9,9 @@
 \usepackage{tocloft}
 \usepackage{harvard}
 \usepackage{appendix}
+\usepackage{amssymb}
+\usepackage{array}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 \renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
 \renewcommand{\cftaftertoctitle}{\hfill\hfill}
@@ -79,7 +82,7 @@ I also wish to thank my friends and family in supporting me during the year lead
 \pagebreak
 
 \section*{Abstract}
-This project presents solutions developed to solve the SemEval 2017 ScienceIE task - analysis of scientific publications to extract key information. This includes three sub tasks: \textit{(A)} key phrase extraction, \textit{(B)} classification and \textit{(C)} relation extraction.
+This project presents solutions developed to solve the SemEval 2017 ScienceIE task - analysis of scientific publications to extract key information. This includes three subtasks: \textit{(A)} key phrase extraction, \textit{(B)} classification and \textit{(C)} relation extraction.
 
 To achieve subtask A, the text of a paper is parsed to find it's semantic tree. Then, each word in succession is tested in a Support Vector Machine (SVM), based around a words' semantic attributes to determine if it should be a, or part of a, key phrase. Each phrase generated is also sanitised to reduce excess information. Subtask B involved treating each key phrase as a Bag-Of-Words, and calculating the phrases' distance to each classification type using Word2Vec. Finally, subtask C experimented with using the Word2Vec representation of a phrase and the relative distances between phrases combined with an SVM to try too detect relations.
 

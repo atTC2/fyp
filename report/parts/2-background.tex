@@ -1,15 +1,34 @@
 \section{Background and Literature Review}
 
+\subsection{Definitions and Descriptions}
+Throughout this literature review there are several key natural language processing concepts discussed. Rather than defining them as we arrive at them, a list of useful definitions is constructed here.
+
+\subsubsection*{F1 Score}
+
+\subsubsection*{Tokenization}
+
+\subsubsection*{Term Frequency - Inverse Document Frequency (TF-IDF)}
+
+\subsubsection*{Parse Trees and Part-Of-Speech (POS) Tagging}
+
+\subsubsection*{Support Vector Machine (SVM)}
+
+\subsubsection*{Neural Networks}
+
+\subsubsection*{Conditional Random Field (CRF)}
+
+\subsubsection*{Clustering}
+
 \subsection{ScienceIE Proceedings}
 Evaluating the outcome of ScienceIE at SemEval indicates potential paths for future systems and document very recent activity in the key phrase extraction area. Three papers were published from the event regarding this task.
 
-Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined \cite{Augenstein2017}, with each of sub tasks A, B and C were 0.56, 0.44 and 0.28 respectively. 
+Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined \cite{Augenstein2017}, with each of subtasks A, B and C were 0.56, 0.44 and 0.28 respectively. 
 
-For sub task A, it was evaluated that while many high scores were achieved with recurrent neural networks (NN), the highest scoring system was a support vector machine (SVM) using a well-engineered lexical feature set. SVMs and NNs were also popular choices for sub task B. For sub task C, many methods were attempted and while a convolutional NN was the most effective, various other methods (including SVM and multinomial naïve Bayes) all achieved very similar and reasonably accurate scores (the best had an F1 score of 0.64 when evaluated solely on sub task C).
+For subtask A, it was evaluated that while many high scores were achieved with recurrent neural networks, the highest scoring system was a SVM using a well-engineered lexical feature set. SVMs and NNs were also popular choices for subtask B. For subtask C, many methods were attempted and while a convolutional NN was the most effective, various other methods (including SVM and multinomial naïve Bayes) all achieved very similar and reasonably accurate scores (the best had an F1 score of 0.64 when evaluated solely on subtask C).
 
 -- Needs rewriting after this bit --
 
-The best end-to-end ScienceIE team used a long short-term memory (LSTM) approach for phrase extraction, with labelling completed by a conditional random field (CRF) based sequence tagging model \cite{Ammar2017}. Their sequence tagging model employed gazetteers built from scientific words extracted from the web. Another team \cite{Marsi2017} also had similar ideas, using CRFs to complete some of the task using WordNet\footnote{https://wordnet.princeton.edu/} as a data source for the classifier they created. Both teams here also used sensible rules to help improve their score, such as intuitively marking all instances of a key phrase as a key phrase upon finding one instance (so if ‘carbon’ is extracted and labelled as a ‘material’, then all other instances are labelled to match) and exploiting hypernym relationship’s bidirectional property (so if word 1 is a hypernym of word 2, the reverse is also true and therefore recorded). 
+The best end-to-end ScienceIE team used a long short-term memory (LSTM) approach for phrase extraction, with labelling completed by a CRF based sequence tagging model \cite{Ammar2017}. Their sequence tagging model employed gazetteers built from scientific words extracted from the web. Another team \cite{Marsi2017} also had similar ideas, using CRFs to complete some of the task using WordNet\footnote{https://wordnet.princeton.edu/} as a data source for the classifier they created. Both teams here also used sensible rules to help improve their score, such as intuitively marking all instances of a key phrase as a key phrase upon finding one instance (so if \textit{carbon} is extracted and labelled as a \textit{material}, then all other instances are labelled to match) and exploiting hypernym relationship’s bidirectional property (so if word 1 is a hypernym of word 2, the reverse is also true and therefore recorded). 
 
 Unfortunately, while extraction and classification were generally well handled, relation extraction has very low accuracy across all teams taking part with the average F1 score only being 0.15, with the highest score being 0.28. \cite{Ammar2017} achieved this using gazetteer built from Wikipedia\footnote{https://en.wikipedia.org} and freebase. This seems more appropriate than hand written rules, which may seem appealing as they can be somewhat tailored and provide high accuracy, but require much more effort from the developer and may not work well on unseen conditions providing low accuracy \cite{Manning2012}. As mentioned earlier, WordNet is also a potential source of information for building a classifier for relation extraction, and a study by \cite{Snow2013} compared building a classifier off of Wordnet and Wikipedia for hypernym-only extraction. The result of this shows that Wikipedia may be more suited to creating this type of classifier as it achieved an F1 score higher than using WordNet (the Wikipedia based classifier got 0.36 while the WordNet based classifier got 0.27). While an improvement, it is not ultimately a huge increase and there is no evidence either Wikipedia is better for the specific area of scientific papers (as the 2013 study was completed on a generic set of data).
 
@@ -38,7 +57,7 @@ Other useful and interesting characteristics about the training set, found durin
 \begin{table}
 	\centering
 	\begin{tabular}{ c | c c c c }
-		& Minimum & Average & Maximum & Standard Deviation \\
+		& \textbf{Minimum} & \textbf{Average} & \textbf{Maximum} & \textbf{Standard Deviation} \\
 		\hline
 		Nnumber of KPs & 4 & 19 & 46 & 8 \\
 		Minimum tokens per KP & 1 & 1 & 3 & 0.4 \\
@@ -47,7 +66,7 @@ Other useful and interesting characteristics about the training set, found durin
 		Number of relations & 0 & 2 & 13 & 2 \\
 		Total tokens in document & 60 & 159 & 264 & 46
 	\end{tabular}
-	\caption[Training set analysis]{Key phrase (KP), token and relation analysis for the ScienceIE training set.}
+	\caption[Training Set Analysis]{Key phrase (KP), token and relation analysis for the ScienceIE training set.}
 	\label{table:traininganalysis}
 \end{table}
 
