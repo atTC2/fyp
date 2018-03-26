@@ -186,7 +186,7 @@ public final class W2VClassifier {
      * @return The similarity value
      */
     private static double getSimilarityMaterial(Word2Vec vec, String token) {
-        return Math.max(vec.similarity(token, "resources"), vec.similarity(token, "materials"));
+        return Math.max(vec.similarity(token, "resource"), vec.similarity(token, "material"));
     }
 
 }

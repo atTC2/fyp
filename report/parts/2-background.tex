@@ -1,10 +1,10 @@
 \chapter{Background and Literature Review}
 
 \section{Definitions and Descriptions}
-Throughout this literature review there are several key natural language processing concepts discussed. Rather than defining them as we arrive at them, a list of useful definitions is constructed here.
+Throughout this literature review there are several key natural language processing and machine learning concepts discussed. Rather than defining them as we arrive at them, a list of useful definitions is constructed here.
 
 \subsubsection*{F1 Score}
-The F1 score is a metric used to evaluate predictions. A common concept to find whe evaluating binary decisions is a \textit{confusion matrix} from which ROC analysis can be completed\cite{Fawcett2006}. This is a system which records \textit{true positive} and \textit{true negative} where the gold standard and predicted data match, and \textit{false positive} and \textit{false negative} where gold and predicted data do not match. From this, various values can be calculated. 
+The F1 score is a metric used to evaluate predictions. A common concept to find whe evaluating binary decisions is a \textit{confusion matrix} from which ROC analysis can be completed \cite{Fawcett2006}. This is a system which records \textit{true positive} and \textit{true negative} where the gold standard and predicted data match, and \textit{false positive} and \textit{false negative} where gold and predicted data do not match. From this, various values can be calculated. 
 
 Accuracy is one, but often doesn't show the full story as if, on a data set where 9 out of 10 items are 'false' and just 1 item is 'true', predicting all false will get an accuracy of 90\%, but no \textit{true positive} occurrences will appear - which is bad. 
 
@@ -14,26 +14,33 @@ Two better metrics can be calculated, which are precision and recall. They look 
 Tokenizatoin is a simple concept where a document is broken down, from one long string into individual words or symbols. 
 
 \subsubsection*{Bag-Of-Words Representation}
-
+Bag-of-Words is another simple concept, where each token is considered independently of is semantic meaning. 
 
 \subsubsection*{Term Frequency - Inverse Document Frequency (TF-IDF)}
+TF-IDF is a metric for assessing how important a word is in a piece of text and has many applications in NLP, including (which will be discussed later) document query \cite{Ramos2003}. It shall also see use throughout this report.
+
+To be calculated for a given token, the document that token came from is required and a set of documents for comparison is required. The set of documents used in this project shall be the ScienceIE training set.
+
+The theory is, a word like "the" - which will likely appear many times in almost every document - should a very low TF-IDF score (close to 0). Unusual words however, such as "xylanases" which are likely very specific to the paper they are contained in will probably have a much higher TF-IDF value than that of "the".
 
 \subsubsection*{Parse Trees and Part-Of-Speech (POS) Tagging}
+A \textit{parse} of a sentence is a tree structure where the root node is a \textit{sentence}, each node below that is a \textit{POS tag} and the leaves of the tree are the words or symbols in the sentence. The POS tag tells us about the semantic meaning of that node and its children - or sub tree - where the POS tag could be \textit{verb phrase} or \textit{noun phrase} for example.
 
 \subsubsection*{Support Vector Machine (SVM)}
+A SVM is a supervised machine learning mechanism. The input to a SVM is a series of vectors generated from some original input data. Each of these vectors is a set of features - which are simply values calculated based on the original input data. For training, these data points are labelled, indicating their class. Once trained, a SVM can be used to \textit{predict} the label for a new data point.
+% todo a refernce here and improve in general
 
-\subsubsection*{Neural Networks}
-
-\subsubsection*{Conditional Random Field (CRF)}
+The training involves attempting to find a well fitting hyperplane with a maximal margin, that separates the labelled data, after mapping that data into a higher dimensional space. This involves an algorithm for finding the distance between the mapped data points, for which a \textit{kernel} can be specified. Furthermore, the hyperplane that is fitted can be allowed to make errors. This is where it allows training data points to be within the hyperplane margins (so may be miss classified if tested against). This can be tuned to increase SVM performance at the cost of run time increasing as well.
 
 \subsubsection*{Clustering}
+Clustering is simply the idea of grouping items together that are similar. The result should be a set of sets of items, where within the group there is a high average similarity, while inter-group similarity is much lower. This is often used for classification and there are a variety of clustering algorithms that can be applied, with various algorithms performing better for various applications \cite{Rai2010}.
 
 \section{ScienceIE Proceedings}
 Evaluating the outcome of ScienceIE at SemEval indicates potential paths for future systems and document very recent activity in the key phrase extraction area. Three papers were published from the event regarding this task.
 
 Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined \cite{Augenstein2017}, with each of subtasks A, B and C were 0.56, 0.44 and 0.28 respectively. 
 
-For subtask A, it was evaluated that while many high scores were achieved with recurrent neural networks, the highest scoring system was a SVM using a well-engineered lexical feature set. SVMs and NNs were also popular choices for subtask B. For subtask C, many methods were attempted and while a convolutional NN was the most effective, various other methods (including SVM and multinomial naïve Bayes) all achieved very similar and reasonably accurate scores (the best had an F1 score of 0.64 when evaluated solely on subtask C).
+For subtask A, it was evaluated that while many high scores were achieved with recurrent neural networks, the highest scoring system was a SVM using a well-engineered lexical feature set. SVMs and neural networks were also popular choices for subtask B. For subtask C, many methods were attempted and while a convolutional neural network was the most effective, various other methods (including SVM and multinomial naïve Bayes) all achieved very similar and reasonably accurate scores (the best had an F1 score of 0.64 when evaluated solely on subtask C).
 
 -- Needs rewriting after this bit --
 

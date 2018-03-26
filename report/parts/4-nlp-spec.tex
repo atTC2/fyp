@@ -11,11 +11,11 @@ In Java, for each paper file from ScienceIE, a \texttt{Paper} object was constru
 
 \begin{itemize}
 	\item \texttt{TextPaper} is for \texttt{.txt} files and simply extracts the text from the document. It sees the title of the text document as the title of the paper.
-	\item \texttt{PDFPaper} is for \texttt{.pdf} files. This uses Apache PDFBox\footnote{https://pdfbox.apache.org/} (imported through Maven\footnote{https://pdfbox.apache.org/2.0/dependencies.html}) to extract the text from a PDF. The title, once again, is the title of the document. As alluded to earlier, with the ScienceIE test set not only being just text files but also being short documents, longer PDF papers was not usually used, so little development to properly sanitise PDFs happened, meaning all titles and references were also captured in this text extraction. If more PDF files were to be processed this would have been looked at, however, due to its lack of use the time needed to fix this was deemed not worth it.
+	\item \texttt{PDFPaper} is for \texttt{.pdf} files. This uses Apache PDFBox\footnote{\href{https://pdfbox.apache.org/}{https://pdfbox.apache.org/}} (imported through Maven\footnote{\href{https://pdfbox.apache.org/2.0/dependencies.html}{https://pdfbox.apache.org/2.0/dependencies.html}}) to extract the text from a PDF. The title, once again, is the title of the document. As alluded to earlier, with the ScienceIE test set not only being just text files but also being short documents, longer PDF papers was not usually used, so little development to properly sanitise PDFs happened, meaning all titles and references were also captured in this text extraction. If more PDF files were to be processed this would have been looked at, however, due to its lack of use the time needed to fix this was deemed not worth it.
 	\item It was initially planned that there would be a \textit{HTML} and \textit{WebPDF} classes although, for similar reasons to why the \texttt{PDFPaper} text extraction was not developed further, these two classes were never implemented. The main reason for wanting them was to later support the POC system, as this would allow that system to dynamically grab papers from the web and add them to itself. Importing of papers to the POC system shall be discussed later at a more relevant time.
 \end{itemize}
 
-The bulk of the preprocessing came in the form of using a parser to calculate the parse tree of a text. As discussed, many teams at ScienceIE used spaCy. As the plan for this project was to complete it in Java (creating a single, self contained system) the Stanford CoreNLP package was used \cite{Manning2014} (imported through Maven\footnote{https://stanfordnlp.github.io/CoreNLP/download.html}). While offering a range of useful NLP features, the main ones utilised by the project were tokenization and finding the parse tree of the text (which naturally included POS tagging). An \texttt{Annotator} class was constructed which accepted a \texttt{Paper} input and annotated the text contained using the CoreNLP library.
+The bulk of the preprocessing came in the form of using a parser to calculate the parse tree of a text. As discussed, many teams at ScienceIE used spaCy. As the plan for this project was to complete it in Java (creating a single, self contained system) the Stanford CoreNLP package was used \cite{Manning2014} (imported through Maven\footnote{\href{https://stanfordnlp.github.io/CoreNLP/download.html}{https://stanfordnlp.github.io/CoreNLP/download.html}}). While offering a range of useful NLP features, the main ones utilised by the project were tokenization and finding the parse tree of the text (which naturally included POS tagging). An \texttt{Annotator} class was constructed which accepted a \texttt{Paper} input and annotated the text contained using the CoreNLP library.
 
 Further processing on this information was also completed, where (at the time of saving the CoreNLP parse information) a token \textit{map} was created. This \textit{map}'s key set was all tokens present in the document, with the associated value being the number of times the token was in the document. This was to help when calculating TF-IDF scores later in processing.
 
@@ -60,14 +60,14 @@ It is clear that current trends view the position of key phrases are very import
      	\hline
      	Whether the previous token was part of a key phrase. & \texttt{svLWKP} $\in$ \{0, 1\} \\
 	\end{tabular}
-	\caption[Initial Key Phrase Support Vectors]{Initial key phrase support vectors used. A set of these support vectors is generated for each token. When defining the value range, the variable is named as it is in the Java code.}
+	\caption[Initial Key Phrase Support Vector Features]{Initial key phrase support vector features used. A set of these features is generated for each token. When defining the value range, the variable is named as it is in the Java code.}
 	\label{table:kpinitsvs}
 \end{table}
 
-Thankfully, the idea behind using an SVM is to find what separates key phrases from just normal phrases. Therefore, I was able to create an initial range of support vectors, as defined in table \ref{table:kpinitsvs}. Here it is evident most support vectors are based around trying to gather information as to the whereabouts of the token. It also, importantly, considers the sequence of key tokens.
+Thankfully, the idea behind using an SVM is to find what separates key phrases from just normal phrases. Therefore, I was able to create an initial range of features, as defined in table \ref{table:kpinitsvs}. Here it is evident most of the features are based around trying to gather information as to the whereabouts of the token. It also, importantly, considers the sequence of key tokens.
 
 \subsubsection*{Training}
-To train the SVM, a \textit{problem} must be created. The \textit{problem} contains an array of data points, each of which holds a set of support vectors. Each of these data points must be labelled. The label is what we are trying to predict on the test data, so here the label is where or not the token is a key phrase (\texttt{0} for \textit{normal}, or \texttt{1} for key phrase). 
+To train the SVM, a \textit{problem} must be created. The \textit{problem} contains an array of vectors, where the vector is the set of features described above. Each of these data points must be labelled. The label is what we are trying to predict on the test data, so here the label is where or not the token is a key phrase (\texttt{0} for \textit{normal}, or \texttt{1} for key phrase). 
 
 \subsubsection*{Model Selection}
 As the nature of the data is unknown, an educated guess can be made as to which kernel to use. A common kernel to begin working with is the \textit{Radial Basis Function} (RBF) kernel \cite{Chih-WeiHsuChih-ChungChang2008}. This is because it can handle non-linear data, which it is assumed the training data here is to be. The RGF kernel function to find the similarity between two data points is listed below:
@@ -85,7 +85,7 @@ K\textsubscript{RBF}(x_i, x_j) = exp(-\gamma||x_i - x_j||^2)
 \subsubsection*{Development}
 Having decided on how to use the concept of an SVM, there was a need for a concrete implementation. The idea of implementing an SVM was considered, however, with a responsibly high implementation complexity and a high risk of getting something subtly wrong (therefore being hard to detect and fix) a pre-existing solution was searched for. Furthermore, with the author having never handled an SVM before, a pre-existing solution with additional usage information was desired.
 
-A popular SVM package was found in libsvm (imported through Maven\footnote{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}). Originally written in C and ported over to Java (as well as many other languages), libsvm was designed to be flexible, supporting various kernels and suitable for beginners through to advanced users. It has support for the core use of SVMs - training and predicting, but also has features to aid in parameter selection such as a cross-validation function (which will be covered in more detail shortly), a visualiser for the training data and a data scaling tool.
+A popular SVM package was found in libsvm (imported through Maven\footnote{\href{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}}). Originally written in C and ported over to Java (as well as many other languages), libsvm was designed to be flexible, supporting various kernels and suitable for beginners through to advanced users. It has support for the core use of SVMs - training and predicting, but also has features to aid in parameter selection such as a cross-validation function (which will be covered in more detail shortly), a visualiser for the training data and a data scaling tool.
 
 % TODO add more about development
 
@@ -100,7 +100,7 @@ Cross validation is an important part when trying to optimise performance of an 
 	\end{figure}
 \end{center}
 
-The values discussed for \textit{C} and $\gamma$ were used in cross validation and their outputs compared. The cross validation results can be seen in figure \ref{figure:kpsvmcv}. As show by this chart, very little change is accuracy is observed. There is a upward trend as \textit{C} and $\gamma$ increase, but this appears to plateau as higher values are evaluated. No smaller values need testing as (given the trend continues) the accuracy will significantly diminish. In terms of increasing the values, there is potential for extremely small gains; however, the return from increasing these values will be almost worthless and the training time required as the \textit{C} value increase significantly rises, as the SVM is working harder to find a better fitting hyper plane. Therefore, \text{C = 100} and \textit{$\gamma$ = 0.5} shall be used when completing full experiments. While, a \textit{C} value of 200 is 0.05\% more accurate with the same $\gamma$ value, the training time is roughly doubled (from some hours to many hours) and the reward is not deemed worth it.
+The values discussed for \textit{C} and $\gamma$ were used in cross validation and their outputs compared. The cross validation results can be seen in figure \ref{figure:kpsvmcv}. As show by this chart, very little change is accuracy is observed. There is a upward trend as \textit{C} and $\gamma$ increase, but this appears to plateau as higher values are evaluated. No smaller values need testing as (given the trend continues) the accuracy will significantly diminish. In terms of increasing the values, there is potential for extremely small gains; however, the return from increasing these values will be almost worthless and the training time required as the \textit{C} value increase significantly rises, as the SVM is working harder to find a better fitting hyperplane. Therefore, \text{C = 100} and \textit{$\gamma$ = 0.5} shall be used when completing full experiments. While, a \textit{C} value of 200 is 0.05\% more accurate with the same $\gamma$ value, the training time is roughly doubled (from some hours to many hours) and the reward is not deemed worth it.
 
 \subsection{Method 2: Clustering}
 \subsubsection*{Concept}
@@ -169,9 +169,19 @@ There is also the problem of token importance - as it is like not all tokens wil
 
 Finally, there is the question of what token to find similarity too. A simple way forward is comparing the tokens to the word identifying the class we're trying to find out about, so simply testing for similarity to "test", "process" and "material". However, if the quality of the Word2Vec model isn't very good (it could have an incorrect idea about what a \textit{task} is) the classification may be of poor quality as well. To try to solve this problem, more words based around the same concept should be tested against to try to avoid the problem of a single word being in the incorrect space in Word2Vec vector space. Therefore, when testing this algorithm the similarities will be based on the word of the defining class ("task", "process", "material") on one set of runs, and on the other set of runs the maximum similarity to words related to that of the class shall be found. The words that shall be used are defined in table \ref{table:w2vclasswords}. The original word for the class shall still be evaluated when finding the maximum similarity from a set of similar words.
 
+\subsubsection*{The Word2Vec Vocabulary Problem}
+An anticipated problem, proven through early testing, was that not every token in the scientific papers supplied by ScienceIE appeared in the Word2Vec models. With no obvious way around this issue, the unclassifiable tokens in the ScienceIE test set were checked to see their original classification, the result of which can be seen in figure \ref{figure:w2vbadtokensclasses}. While many key phrases are included in this set that cannot be directly classified by Word2Vec due to the vocabulary problem, almost two thirds of these key phrases are \textit{material} key phrases. Therefore, a default class of \textit{material} will be assigned.
+
+\begin{center}
+	\begin{figure}
+		\includegraphics[width=\textwidth]{img/w2vbadtokensclasses.png}
+		\caption[Key Phrase Classifications not in Word2Vec Model]{Gold standard key phrase classifications for key phrases that are not in the Word2Vec models used. 222 key phrases are included in this set.}
+		\label{figure:w2vbadtokensclasses}
+	\end{figure}
+\end{center}
+
 \section{Subtask C - Relation Extraction: Support Vector Machine}
 A section all about what I did for part 3
 \subsection{Many Support Vectors}
 Discuss the SVM I tried to do this with (including Word2Vec)
 \subsection{Few Support Vectors}
-
