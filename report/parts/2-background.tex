@@ -4,10 +4,17 @@
 Throughout this literature review there are several key natural language processing concepts discussed. Rather than defining them as we arrive at them, a list of useful definitions is constructed here.
 
 \subsubsection*{F1 Score}
+The F1 score is a metric used to evaluate predictions. A common concept to find whe evaluating binary decisions is a \textit{confusion matrix} from which ROC analysis can be completed\cite{Fawcett2006}. This is a system which records \textit{true positive} and \textit{true negative} where the gold standard and predicted data match, and \textit{false positive} and \textit{false negative} where gold and predicted data do not match. From this, various values can be calculated. 
+
+Accuracy is one, but often doesn't show the full story as if, on a data set where 9 out of 10 items are 'false' and just 1 item is 'true', predicting all false will get an accuracy of 90\%, but no \textit{true positive} occurances will appear - which is bad. 
+
+Two better metrics can be calculated, which are precision and recall. The look at the rates of correct and incorrect predictions, and can be combined together (and often are in the NLP world) to produce an F1 score. This is what ScienceIE's scripts calculate, given ScienceIE's gold standard data and a researchers predictions, comparing instances where the researcher has correctly evaluated key phrase boundaries, classification and relations against the gold standard data.
 
 \subsubsection*{Tokenization}
+Tokenizatoin is a simple concept where a document is broken down, from one long string into individual words or symbols. 
 
 \subsubsection*{Bag-Of-Words Representation}
+
 
 \subsubsection*{Term Frequency - Inverse Document Frequency (TF-IDF)}
 

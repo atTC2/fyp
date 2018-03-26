@@ -133,13 +133,12 @@ Actually commencing the clustering begins by splitting the document into all of 
 
 Then, the process of hierarchial clustering happens as described above. This happens for all test data, with all three linkage methods, with results being saved to disk. The output is then evalauted on a sample of the processed documents (as manually reviewing all 100 test documents cluster patterns accross 3 different linkage criteria is too much for a single reviewer to achieve) to try to evaluate where key phrases can be extracted from.
 
-\section{ScienceIE Subtask B - Key Phrase Classification}
-A section all about what I did for part 2
-\subsection{Word2Vec Classification}
-Talk about using word2vec to simply find a good way to quickly classify key phrases with decent results.
-*** Where do I fit the SVM for this, as not worth a whole section
+\section{Subtask B - Key Phrase Classification: Word2Vec}
+With a large amount of influence coming from Word2Vec, the decision was made to focus on exploting this technology to try to classify key phrases.
 
-\section{ScienceIE Subtask C - Relation Extraction}
+\section{Subtask C - Relation Extraction: Support Vector Machine}
 A section all about what I did for part 3
-\subsection{Support Vector Machine}
+\subsection{Many Support Vectors}
 Discuss the SVM I tried to do this with (including Word2Vec)
+\subsection{Few Support Vectors}
+
