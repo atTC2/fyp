@@ -1,6 +1,5 @@
 package xyz.tomclarke.fyp.nlp.word2vec;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,7 +8,6 @@ import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.junit.Test;
 
 import xyz.tomclarke.fyp.nlp.TestOnPapers;
-import xyz.tomclarke.fyp.nlp.evaluation.ConfusionStatistic;
 import xyz.tomclarke.fyp.nlp.paper.Paper;
 import xyz.tomclarke.fyp.nlp.paper.extraction.Classification;
 import xyz.tomclarke.fyp.nlp.paper.extraction.KeyPhrase;
@@ -44,27 +42,21 @@ public class TestW2VClassifier extends TestOnPapers {
     private void testAllScenarios(Word2VecPretrained set) {
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
 
-        // Average distance
-        log.info("W2V Classification - based on average distance using " + set + " with default clazz "
-                + Classification.UNKNOWN + " and stopwords " + false);
-        testGetClazzBasedOnAvgDistance(vec, Classification.UNKNOWN, false);
-        log.info("W2V Classification - based on average distance using " + set + " with default clazz "
-                + Classification.MATERIAL + " and stopwords " + false);
-        testGetClazzBasedOnAvgDistance(vec, Classification.MATERIAL, false);
-        log.info("W2V Classification - based on average distance using " + set + " with default clazz "
-                + Classification.MATERIAL + " and stopwords " + true);
-        testGetClazzBasedOnAvgDistance(vec, Classification.MATERIAL, true);
-
-        // Closest distance
-        log.info("W2V Classification - based on closest distance using " + set + " with default clazz "
-                + Classification.UNKNOWN + " and stopwords " + false);
-        testGetClazzBasedOnClosestDistance(vec, Classification.UNKNOWN, false);
-        log.info("W2V Classification - based on closest distance using " + set + " with default clazz "
-                + Classification.MATERIAL + " and stopwords " + false);
-        testGetClazzBasedOnClosestDistance(vec, Classification.MATERIAL, false);
-        log.info("W2V Classification - based on closest distance using " + set + " with default clazz "
-                + Classification.MATERIAL + " and stopwords " + true);
-        testGetClazzBasedOnClosestDistance(vec, Classification.MATERIAL, true);
+        log.info("distance metric, autoClazz, removeStopWords, useManyWords, correct, total, percentage");
+        testGetClazzBasedOnAvgDistance(vec, true, Classification.UNKNOWN, false, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, false, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, true, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, false, true);
+        testGetClazzBasedOnAvgDistance(vec, true, Classification.UNKNOWN, true, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, true, true);
+        testGetClazzBasedOnAvgDistance(vec, true, Classification.UNKNOWN, false, true);
+        testGetClazzBasedOnAvgDistance(vec, true, Classification.MATERIAL, false, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, false, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, true, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, false, true);
+        testGetClazzBasedOnAvgDistance(vec, true, Classification.MATERIAL, true, false);
+        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, true, true);
+        testGetClazzBasedOnAvgDistance(vec, true, Classification.MATERIAL, false, true);
     }
 
     /**
@@ -72,81 +64,62 @@ public class TestW2VClassifier extends TestOnPapers {
      * 
      * @param vec
      *            The pre-trained Word2Vec
+     * @param closest
+     *            If true uses closest distance, if false uses average
      * @param autoClazz
      *            The default classification to assign if none can be selected
      * @param removeStopWords
      *            Whether to remove stop words from classification
+     * @param useManyWords
+     *            Whether to use just the classification word or many (hopefully
+     *            similar) words
      */
-    private void testGetClazzBasedOnAvgDistance(Word2Vec vec, Classification autoClazz, boolean removeStopWords) {
-        List<ConfusionStatistic> overallStats = new ArrayList<ConfusionStatistic>();
+    private void testGetClazzBasedOnAvgDistance(Word2Vec vec, boolean closest, Classification autoClazz,
+            boolean removeStopWords, boolean useManyWords) {
+        int correct = 0;
+        int total = 0;
         for (Paper paper : testPapers) {
-            int tp = 0;
-            int fp = 0;
-            int tn = 0;
-            int fn = 0;
-
             List<KeyPhrase> kps = paper.getKeyPhrases();
 
             for (KeyPhrase kp : kps) {
-                Classification predClazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getPhrase(), vec, autoClazz,
-                        removeStopWords);
-                if (predClazz.equals(kp.getClazz())) {
-                    tp++;
+                Classification predClazz;
+                if (closest) {
+                    predClazz = W2VClassifier.getClazzBasedOnClosestDistance(kp.getPhrase(), vec, autoClazz,
+                            removeStopWords, useManyWords);
                 } else {
-                    fp++;
+                    predClazz = W2VClassifier.getClazzBasedOnAvgDistance(kp.getPhrase(), vec, autoClazz,
+                            removeStopWords, useManyWords);
                 }
+                if (predClazz.equals(kp.getClazz())) {
+                    correct++;
+                }
+                total++;
                 // So the others are just 0? :P
             }
-
-            overallStats.add(ConfusionStatistic.calculateScore(tp, fp, tn, fn));
         }
 
-        ConfusionStatistic stats = ConfusionStatistic.calculateScoreSum(overallStats);
-
-        log.info("Overall statistics: " + stats);
-        log.info("Specific results were: tp: " + stats.getTp() + " fp: " + stats.getFp() + " tn: " + stats.getTn()
-                + " fn: " + stats.getFn());
-    }
-
-    /**
-     * Test simple Word2Vec classification on existing KeyPhrases
-     * 
-     * @param vec
-     *            The pre-trained Word2Vec
-     * @param autoClazz
-     *            The default classification to assign if none can be selected
-     * @param removeStopWords
-     *            Whether to remove stop words from classification
-     */
-    private void testGetClazzBasedOnClosestDistance(Word2Vec vec, Classification autoClazz, boolean removeStopWords) {
-        List<ConfusionStatistic> overallStats = new ArrayList<ConfusionStatistic>();
-        for (Paper paper : testPapers) {
-            int tp = 0;
-            int fp = 0;
-            int tn = 0;
-            int fn = 0;
-
-            List<KeyPhrase> kps = paper.getKeyPhrases();
-
-            for (KeyPhrase kp : kps) {
-                Classification predClazz = W2VClassifier.getClazzBasedOnClosestDistance(kp.getPhrase(), vec, autoClazz,
-                        removeStopWords);
-                if (predClazz.equals(kp.getClazz())) {
-                    tp++;
-                } else {
-                    fp++;
-                }
-                // So the others are just 0? :P
-            }
-
-            overallStats.add(ConfusionStatistic.calculateScore(tp, fp, tn, fn));
+        // Build output
+        String output = "";
+        if (closest) {
+            output += "closest";
+        } else {
+            output += "average";
+        }
+        output += ", " + autoClazz.toString();
+        if (removeStopWords) {
+            output += ", yes";
+        } else {
+            output += ", noo";
+        }
+        if (useManyWords) {
+            output += ", yes";
+        } else {
+            output += ", noo";
         }
 
-        ConfusionStatistic stats = ConfusionStatistic.calculateScoreSum(overallStats);
+        output += ", " + correct + ", " + total + ", " + ((double) correct / (double) total * 100.0) + "%";
 
-        log.info("Overall statistics: " + stats);
-        log.info("Specific results were: tp: " + stats.getTp() + " fp: " + stats.getFp() + " tn: " + stats.getTn()
-                + " fn: " + stats.getFn());
+        log.info(output);
     }
 
 }

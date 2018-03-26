@@ -28,10 +28,13 @@ public final class W2VClassifier {
      *            The default classification to assign if none can be selected
      * @param removeStopWords
      *            Whether to remove stop words from classification
+     * @param useManyWords
+     *            Whether to use just the classification word or many (hopefully
+     *            similar) words
      * @return The classification decided on
      */
     public static Classification getClazzBasedOnAvgDistance(String kp, Word2Vec vec, Classification autoClazz,
-            boolean removeStopWords) {
+            boolean removeStopWords, boolean useManyWords) {
         String[] tokens = kp.split(" ");
         double distTask = 0;
         double distProc = 0;
@@ -46,9 +49,15 @@ public final class W2VClassifier {
 
             if (vec.hasWord(token) && !removeDueToStop) {
                 foundWords++;
-                distTask += vec.similarity(token, "task");
-                distProc += vec.similarity(token, "process");
-                distMatl += vec.similarity(token, "material");
+                if (!useManyWords) {
+                    distTask += vec.similarity(token, "task");
+                    distProc += vec.similarity(token, "process");
+                    distMatl += vec.similarity(token, "material");
+                } else {
+                    distTask += getSimilarityTask(vec, token);
+                    distProc += getSimilarityProcess(vec, token);
+                    distMatl += getSimilarityMaterial(vec, token);
+                }
             }
         }
 
@@ -86,10 +95,13 @@ public final class W2VClassifier {
      *            The default classification to assign if none can be selected
      * @param removeStopWords
      *            Whether to remove stop words from classification
+     * @param useManyWords
+     *            Whether to use just the classification word or many (hopefully
+     *            similar) words
      * @return The classification decided on
      */
     public static Classification getClazzBasedOnClosestDistance(String kp, Word2Vec vec, Classification autoClazz,
-            boolean removeStopWords) {
+            boolean removeStopWords, boolean useManyWords) {
         String[] tokens = kp.split(" ");
         double distTask = 0;
         double distProc = 0;
@@ -105,9 +117,15 @@ public final class W2VClassifier {
             if (vec.hasWord(token) && removeDueToStop) {
                 foundOneWord = true;
                 // Larger number = closer
-                distTask = Math.max(distTask, vec.similarity(token, "task"));
-                distProc = Math.max(distProc, vec.similarity(token, "process"));
-                distMatl = Math.max(distMatl, vec.similarity(token, "material"));
+                if (!useManyWords) {
+                    distTask = Math.max(distTask, vec.similarity(token, "task"));
+                    distProc = Math.max(distProc, vec.similarity(token, "process"));
+                    distMatl = Math.max(distMatl, vec.similarity(token, "material"));
+                } else {
+                    distTask = Math.max(distTask, getSimilarityTask(vec, token));
+                    distProc = Math.max(distProc, getSimilarityProcess(vec, token));
+                    distMatl = Math.max(distMatl, getSimilarityMaterial(vec, token));
+                }
             }
         }
 
@@ -128,6 +146,47 @@ public final class W2VClassifier {
             log.error("Found max which wasn't in valid numbers");
             return autoClazz;
         }
+    }
+
+    /**
+     * Finds the strongest similarity to task
+     * 
+     * @param vec
+     *            The Word2Vec model
+     * @param token
+     *            The token to find the similarity to
+     * @return The similarity value
+     */
+    private static double getSimilarityTask(Word2Vec vec, String token) {
+        return Math.max(vec.similarity(token, "task"), Math.max(vec.similarity(token, "application"),
+                Math.max(vec.similarity(token, "goal"), vec.similarity(token, "problem"))));
+    }
+
+    /**
+     * Finds the strongest similarity to process
+     * 
+     * @param vec
+     *            The Word2Vec model
+     * @param token
+     *            The token to find the similarity to
+     * @return The similarity value
+     */
+    private static double getSimilarityProcess(Word2Vec vec, String token) {
+        return Math.max(vec.similarity(token, "process"),
+                Math.max(vec.similarity(token, "model"), vec.similarity(token, "algorithm")));
+    }
+
+    /**
+     * Finds the strongest similarity to material
+     * 
+     * @param vec
+     *            The Word2Vec model
+     * @param token
+     *            The token to find the similarity to
+     * @return The similarity value
+     */
+    private static double getSimilarityMaterial(Word2Vec vec, String token) {
+        return Math.max(vec.similarity(token, "resources"), vec.similarity(token, "materials"));
     }
 
 }
