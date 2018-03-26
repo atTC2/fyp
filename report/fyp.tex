@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[a4paper]{report}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -11,6 +11,9 @@
 \usepackage{appendix}
 \usepackage{amssymb}
 \usepackage{array}
+\usepackage[hidelinks]{hyperref}
+\usepackage[open,openlevel=1]{bookmark}
+
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 \renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
@@ -19,6 +22,8 @@
 \renewcommand{\cftafterloftitle}{\hfill}
 \renewcommand{\cftlottitlefont}{\hfill\Large\bfseries}
 \renewcommand{\cftafterlottitle}{\hfill}
+
+\hypersetup{linktoc=all}
 
 \begin{document}
 
@@ -115,7 +120,7 @@ Natural Language Processing, Key Phrase Extraction, Classification, Relation Ext
 \pagebreak
 \input{parts/5-nlp-eval}
 \pagebreak
-\input{parts/6-gui}
+\input{parts/6-poc}
 \pagebreak
 \input{parts/7-discussion}
 \pagebreak

@@ -1,8 +1,10 @@
-\section{The ScienceIE Task: Design and Implementation}
+\chapter{The ScienceIE Task: Design and Implementation}
 
 To complete the ScienceIE task, the plan was made to have one Java project containing three sub systems, where each of which could be called independently. As such, this section shall step through each subtask's design and implementation in order, beginning with a description of the preprocessing that was implemented, as it is generic to all subtasks.
 
-\subsection{Data Preprocessing}
+After this section has finished describing the design and implenetation of the varous algorithms used in this project, the following section shall describe the results associated with them.
+
+\section{Data Preprocessing}
 To support processing in later systems, all data (development, training and test) had to be preprocessed. The idea of this piece of computation is to prepare the data for analysis, and to also reduce computation time (doing this process once for the entire system rather than once for each sub system). To further reduce experiment run time, Java serialisation was also used to save all the following preprocessing information for later retrieval.
 
 In Java, for each paper file from ScienceIE, a \texttt{Paper} object was constructed. This held many important pieces of information about the paper in question, including location on disk, text extracted from its source file, and all preprocessing information. \texttt{Paper} itself is a \textit{plain old Java object}, only holding information and is an abstract class, with \texttt{TextPaper} and \texttt{PDFPaper} classes extending from it which could be instantiated. These extended classes inherited the data storage features and utilities from \texttt{Paper}, but their constructors are customised to extract information from their given type of file:
@@ -19,12 +21,12 @@ Further processing on this information was also completed, where (at the time of
 
 The final part of preprocessing was to load existing annotation information. Of course this was only possible for ScienceIE data, which were all supplied with the relevant \texttt{.ann} files in BRAT format. These records were loading into a list of \texttt{Extraction} abstract entities, where each entry to the list could be either of a \textit{KeyPhrase} or \textit{Relationship} extending type, which each held all the information supplied in the annotation files (including classifications, the types of relations and more).
 
-\subsection{Subtask A - Key Phrase Extraction}
+\section{Subtask A - Key Phrase Extraction}
 Subtask A at ScienceIE was considered the hardest, reinforced by both the maximum and average scores for each independent subtask. This paper dedicated most of its NLP effort to this task out of the three subtasks as this is currently the hardest part of information extraction (out of the given subtasks) under current research. 
 
 Two attempts at this subtask were made. Initially, a \textit{safer} design involved a SVM which considers some of the key features about key phrases suggested in the literature around this topic. Then, an even more experimental trail shall be described which involves clustering based around Word2Vec similarities between words in a document. 
 
-\subsubsection{Method 1: Support Vector Machine}
+\subsection{Method 1: Support Vector Machine}
 Inspired by the highest success at ScienceIE, a SVM approach was adopted to attempt to provide a solution to subtask A. Initially, a small set of support vectors were selected and tested, with more being added as research continued.
 
 \subsubsection*{Processing Data}
@@ -94,16 +96,50 @@ The values discussed for \textit{C} and $\gamma$ were used in cross validation a
 % TODO add the kp svm cross validationgraphs
 As evident in the graph showing the results of cross validation, very little change is accuracy is observed. There is a upward trend as \textit{C} and $\gamma$ increase, but this appears to plateu as higher values are evaluated. No smaller values need testing as (given the trend continues) the accuracy will significantly deminish. In terms of inrcreasing the values, there is potential for extremely small gains; however, the return from increasing these values will be almost worthless and the training time required as the \textit{C} value increase significantly rises, as the SVM is working harder to find a better fitting hyper plane. Therefore, \text{C = 100} and \textit{$\gamma$ = 0.5} shall be used when completing full experinments. While, a \textit{C} value of 200 is 0.05\% more accurate with the same $\gamma$ value, the training time is roughly doubled (from some hours to many hours) and the reward is not deemed worth it.
 
-\subsubsection{Method 2: Clustering}
-Talk about the experimentation with clustering.
+\subsection{Method 2: Clustering}
+\subsubsection*{Concept}
+Clustering has been shown to be effective in key phrase and other information extraction. A seemingly effective method was using \textit{term relatedness} to group terms, and then find an exemplar term at the centre of the clusters which can be used as a key phrase \cite{Liu2009}. 
 
-\subsection{ScienceIE Subtask B - Key Phrase Classification}
+Inspired by this, this paper proposes a similar process, where the similarity of terms is based around their Word2Vec similarities. Conceptually, it is possible that gathering similar terms will have the effect of creating clusters of important concepts, from which key phrases can be extracted. With the most similar words at the center, these could be considered key words, and the phrase around these words could be extracted from the document. This should also exclude unimportant or stop words, as these may have large distances to the key concepts. 
+
+An important note here is that the document is treated as a \textit{bag-of-words}, where we ignore the semantic meaning of the words. Word2Vec does this anyway, as when using the library the word is simply passed as plain text with no extra information, and Word2Vec uses its own ideas about the words semantic meanings to evaluate it. Using a bag-of-words approach means words from any part of the document could be clustered together, which is ok as if both are close to the centre of a cluster, it may mean both of them are key phrase worthy and should be selected (a full phrase from their origin extracted to be a key phrase).
+
+The clusteing algorihm selected was hierarchial clustering \cite{Rai2010}. Bottom up (agglomerative) hierarchial clustering works as follows:
+\begin{enumerate}
+	\item Each element begins in their own cluster (so \textit{n} elements means initially there are \textit{n} clusters).
+	\item Given some distance metric, the distances between all clusters are calculated.
+	\item The closest two clusters are combined.
+	\item This process is repeated until a single cluster is left.
+\end{enumerate}
+\noindent This algorithm was chosen for several reasons:
+\begin{itemize}
+	\item Firstly, it is a reltively straight foward clustering algorithm to implement, so should allow results to be found quickly.
+	\item While the term similarities are based off of Word2Vec similarities, the distances between clusters could be evaluated in a number of ways. These include \textit{single} (the shortest distance between terms in each cluster), \textit{average} (the average distance between each term in one cluster to each term in another) and \textit{complete} (the largest distance between terms n each cluster). These are called the \textit{linkage criteria}.
+	\item If successful, the benefits of using clustering could be two fold. Not only might this produce effective key phrases, but it may even aid in classification. Once a number of clusters have formed key phrases, the hierarchial clustering could continue potentially all the way to producing just a few clusters where each could be classified into one of our 3 target classes. This will only be successful if the key phrase extraction is successful. If doing this clustering was purely for classifiaction, k-means clustering may be more appropriate with a \textit{k = 3} where each cluster would be a different classifiaction.
+\end{itemize}
+
+When working with hierarchial clustering, an important aspect to consider is how far to iterate through the algorithm. In theory, the algorithm should run until there is just one cluster left with every element in it - but this is not useful for anything. The more useful cluster states will be part of the way along the iterative cycle. To find this \textit{sweet spot} will require manual tuning, via inspecting the progression of the clusters to try to identify a good range where key phrase information can be extracted. In theory finding the sweet spot could be automated and learnt (by trying to extract key phrases at all levels and evaluating against the gold standard phrases to see how well the algorithm does) but to fully develop this kind of system would require a lot of time, which itself is very expensive, and if a failure it would be a big waste of time.
+
+A large difference between this and SVM usage is that this method is unsupervised learning and does not require training data, while using an SVM is supervised learning. This means that, given this method works for this testing scenario, its application may scale better in the \textit{real world} as is it not tied to the quality of the training data. Furthermore, given a suitable WOrd2Vec model, differences in key phrase output may be seen. This means that this algorithm may suffer here given the Word2Vec models currently available are not based on scientific publications, but running this algorithm on test data with similar context to the Word2Vec model may improve things, which means it may even cope with different languages.
+
+\subsubsection*{Development}
+The process of turning this theory into a practical implementatin is straight forward. To allow for future expansion if clustering was to be used again for anything, a generic abstract \texttt{Cluster} class was created, which was formed of a list (where type is specified at creation time) of items and declaration of functions to find the distance between a given cluster object and another cluster, and to create a new cluster by combining a given cluster object with another.
+
+A \texttt{Linkage} enumeration was created which could be used when testing to specify the method for finding the distance between two clusters.
+
+Actually commencing the clustering begins by splitting the document into all of its tokens, and removing duplicates. Then, all stop words and unimportant words are removed. Unimportant words are calculated based on thresholding TF-IDF scores. This threshold was manually set, by generating a list of all tokens and their TF-IDF scores and evaluating where the cut off would be to remove all words not in any key phrase. For example, "WORD" has a low TF-IDF score of SCORE, but is in the key phrase "WORDS".
+
+%TODO see if I have TF-IDF evidence for the above satement and find example
+
+Then, the process of hierarchial clustering happens as described above. This happens for all test data, with all three linkage methods, with results being saved to disk. The output is then evalauted on a sample of the processed documents (as manually reviewing all 100 test documents cluster patterns accross 3 different linkage criteria is too much for a single reviewer to achieve) to try to evaluate where key phrases can be extracted from.
+
+\section{ScienceIE Subtask B - Key Phrase Classification}
 A section all about what I did for part 2
-\subsubsection{Word2Vec Classification}
+\subsection{Word2Vec Classification}
 Talk about using word2vec to simply find a good way to quickly classify key phrases with decent results.
 *** Where do I fit the SVM for this, as not worth a whole section
 
-\subsection{ScienceIE Subtask C - Relation Extraction}
+\section{ScienceIE Subtask C - Relation Extraction}
 A section all about what I did for part 3
-\subsubsection{Support Vector Machine}
+\subsection{Support Vector Machine}
 Discuss the SVM I tried to do this with (including Word2Vec)

@@ -1,11 +1,13 @@
-\section{Background and Literature Review}
+\chapter{Background and Literature Review}
 
-\subsection{Definitions and Descriptions}
+\section{Definitions and Descriptions}
 Throughout this literature review there are several key natural language processing concepts discussed. Rather than defining them as we arrive at them, a list of useful definitions is constructed here.
 
 \subsubsection*{F1 Score}
 
 \subsubsection*{Tokenization}
+
+\subsubsection*{Bag-Of-Words Representation}
 
 \subsubsection*{Term Frequency - Inverse Document Frequency (TF-IDF)}
 
@@ -19,7 +21,7 @@ Throughout this literature review there are several key natural language process
 
 \subsubsection*{Clustering}
 
-\subsection{ScienceIE Proceedings}
+\section{ScienceIE Proceedings}
 Evaluating the outcome of ScienceIE at SemEval indicates potential paths for future systems and document very recent activity in the key phrase extraction area. Three papers were published from the event regarding this task.
 
 Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined \cite{Augenstein2017}, with each of subtasks A, B and C were 0.56, 0.44 and 0.28 respectively. 
@@ -34,15 +36,15 @@ Unfortunately, while extraction and classification were generally well handled, 
 
 The results of ScienceIE demonstrate there are several potential systems that could be implemented to answer this problem, with the best system potentially being a combination of algorithms and a voting system to select and label key phrases. The product would likely involve supervised learning and previous knowledge for some algorithms, along with unsupervised learning sections as well.
 
-\subsection{Other Revelant Background Information}
+\section{Other Revelant Background Information}
 
 Several teams from ScienceIE chose to back up key phrase extraction with a CRF. CRFs can be used for key phrase extraction alone as well \cite{Zhang2008}, and while studies imply that CRFs (shown to have F1 scores of 0.51) are more accurate than an SVM (the most accurate at ScienceIE) this paper is slightly older than papers produced at SemEval 2017 and so even if the SVM information used then was the best that was available at the time (the SVM F1 score was 0.46), the SVM implemented at ScienceIE beat both of these scores considerably achieving an F1 of 0.56 as mentioned above.
 
 A method not attempted at ScienceIE was unsupervised learning by clustering key phrases, a method which has potentially very accurate results that also could not only be robust again new unseen data but even different languages. The idea is that candidate key phrases are selected by some heuristic and other phrases are clustered about them. With the simplest approach, the center of a cluster is the key phrase. Various clustering methods were attempted by \cite{Liu2009} on top of a candidate selection process built on semantic term relatedness. They ran tests on relatively short articles and while at maximum they only achieved an F1 of ~0.45, there was several improvements suggested which apply to the task at hand concerning scientific papers. Firstly, an achievable improvement for this project would be to cluster directly on noun groups as they found most clusters consisted of groups of nouns anyway, which is backed up by Augenstein et al. \cite{Augenstein2017}, who reports 93\% of all key phrases are noun phrases. Furthermore, improving their initial filtering to extend it further than stop words may help reduce errors as well; improving this may be possible by employing a words TF-IDF score with some threshold. Finally, they suggested a similar algorithm be applied to longer scientific papers. ScienceIE’s test data consists of extracts of scientific texts (i.e. short paragraphs), however, any unsupervised system created for this task could be ran again entire papers and then only those sections compared for evaluation later – allowing this suggestion to be evaluated.
 
-\subsection{Word2Vec}
+\section{Word2Vec}
 
-\subsection{The Supplied Data Set}
+\section{The Supplied Data Set}
 The ScienceIE data set consists of 50 development, 350 training and 100 test documents. 
 
 Some analysis conducted at ScienceIE \cite{Augenstein2017} showed some characteristics of the sample key phrases included:
