@@ -1,10 +1,12 @@
 \chapter{The ScienceIE Task: Evaluation}
 
-How each section went, including test results and maybe some info on other experiments.
+With solution systems proposed for the various subtasks of ScienceIE, each were given data to train on and predict on. Below are results where the algorithms have been tested end-to-end (where they are run through in order, with the data from one being passed to the next) and independently (where they are given the gold data as a starting point, and operate on that information). There is also some self evaluation conducted, to explore the effectiveness of evaluating under conditions of varying strictness.
 
 \section{Subtask A - Key Phrase Extraction}
 
 \subsection{Method 1: Support Vector Machine}
+
+\subsubsection{Self Evaluation}
 
 \subsection{Method 2: Clustering}
 
@@ -12,8 +14,50 @@ How each section went, including test results and maybe some info on other exper
 
 \section{Subtask B - Key Phrase Classification}
 
-\subsection{Other Experinmentation}
-As a small experinment, given the SVM for subtask A had undergone quite some development, 
+\begin{table}
+	\centering
+	\begin{tabular}{ C{2.5cm} | C{2cm} | C{2cm} | C{2cm} | C{2cm} | C{2cm} }
+		\textbf{Word2Vec Model} & \textbf{Distance Metric} & \textbf{Default Class} & \textbf{Remove words?} & \textbf{Use many words?} & \textbf{Accuracy} \\
+		\hline
+		Google News & Average & Unknown & No & No & \textbf{47.90\%} \\
+		Google News & Average & Unknown & Yes & No & \textbf{47.76\%} \\
+		Google News & Average & Unknown & No & Yes & \textbf{45.47\%} \\
+		Google News & Average & Unknown & Yes & Yes & \textbf{45.47\%} \\
+		\textbf{Google News} & \textbf{Average} & \textbf{Material} & \textbf{No} & \textbf{No} & \textbf{54.58}\% \\
+		Google News & Average & Material & Yes & No & \textbf{54.43\%} \\
+		Google News & Average & Material & No & Yes & \textbf{52.14\%} \\
+		Google News & Average & Material & Yes & Yes  & \textbf{52.14\%} \\
+		Google News & Closest & Unknown & No & No & 0.00\% \\
+		Google News & Closest & Unknown & Yes & No & \textbf{45.96\%} \\
+		Google News & Closest & Unknown & No & Yes & 0.00\% \\
+		Google News & Closest & Unknown & Yes & Yes & 43.91\% \\
+		Google News & Closest & Material & No & No & 44.05\% \\
+		Google News & Closest & Material & Yes & No & \textbf{52.63\%} \\
+		Google News & Closest & Material & No & Yes & 44.05\% \\
+		Google News & Closest & Material & Yes & Yes & \textbf{50.58\%} \\
+		Freebase & N/A & Unknown & N/A & N/A & 0.00\% \\
+		Freebase & N/A & Material & N/A & N/A & 44.05\% \\
+	\end{tabular}
+	\caption[Word2Vec Classification Results]{The above table is the various configurations of the Word2Vec classifier, running with every possible configuration for the five parameters are listed. The result in bold line is the highest scoring configuration, with bold results being notable results. All Freebase results were not listed as there was no change in result other than for the \textit{default class} variable, so \textit{N/A} is present instead of each iteration of those variables. These results are based on classifying all 2052 ScienceIE key phrase test data points.}
+	\label{table:classresults}
+\end{table}
+
+Key phrase classification under the outlined Word2Vec classifier was quick to execute. After the initial, one time per system boot, wait for the Word2Vec model to be loaded into memory, the actual calculations required are very fast to execute, giving this classifier a very high throughput.
+
+In terms of result, it can be seen that several configurations allow for over 50\% of the key phrases to be classified correctly. The full range of results for each configuration can be seen on table \ref{table:classresults}.
+
+The obvious thing to note here is that all tests under Freebase without a default class and some Google News tests without default classifications have a 0\% accuracy (i.e. it didn't classify any key phrase correctly). With a little investigation, if all key phrases were labelled as a \textit{material}, the accuracy would be 44\% - which is what was achieved by all configurations with the Freebase model and a default classification of \textit{material}. Therefore, Freebase clearly isn't an effective vocabulary for working with scientific publications. 
+
+For Google News, things are less clear. In some cases where the distance metric was finding the \textit{closest} token to the target classification, the results mirror that of when using Freebase. Generally results were better when unimportant and stop words were removed, however, the best overall left all stops words in.
+
+Furthermore, using various words when finding similarity generally decreased the accuracy of classification. When using \textit{average} similarity, results were averagely 2\% higher (on runs that got higher than the base 44\%) when compared to the same configuration bar using multiple words to gauge similarity. 
+
+Google News does show some promise for good classification. In some cases where the default classification does not have a null, it can still achieve comparable and competitive results compared to configurations with a default classification. The fact that it can do this purely off matching words in its vocabulary reinforces that Freebase cannot cope with these scientific terms. 
+
+
+
+\subsection{Other Experimentation}
+As a small experiment, given the SVM for subtask A had undergone quite some development...
 
 \subsection{Conclusion}
 

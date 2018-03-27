@@ -43,20 +43,22 @@ public class TestW2VClassifier extends TestOnPapers {
         Word2Vec vec = Word2VecProcessor.loadPreTrainedData(set);
 
         log.info("distance metric, autoClazz, removeStopWords, useManyWords, correct, total, percentage");
-        testGetClazzBasedOnAvgDistance(vec, true, Classification.UNKNOWN, false, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, false, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, true, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, false, true);
-        testGetClazzBasedOnAvgDistance(vec, true, Classification.UNKNOWN, true, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.UNKNOWN, true, true);
-        testGetClazzBasedOnAvgDistance(vec, true, Classification.UNKNOWN, false, true);
-        testGetClazzBasedOnAvgDistance(vec, true, Classification.MATERIAL, false, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, false, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, true, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, false, true);
-        testGetClazzBasedOnAvgDistance(vec, true, Classification.MATERIAL, true, false);
-        testGetClazzBasedOnAvgDistance(vec, false, Classification.MATERIAL, true, true);
-        testGetClazzBasedOnAvgDistance(vec, true, Classification.MATERIAL, false, true);
+        testGetClazz(vec, true, Classification.UNKNOWN, false, false);
+        testGetClazz(vec, false, Classification.UNKNOWN, false, false);
+        testGetClazz(vec, false, Classification.UNKNOWN, true, false);
+        testGetClazz(vec, false, Classification.UNKNOWN, false, true);
+        testGetClazz(vec, true, Classification.UNKNOWN, true, false);
+        testGetClazz(vec, false, Classification.UNKNOWN, true, true);
+        testGetClazz(vec, true, Classification.UNKNOWN, false, true);
+        testGetClazz(vec, true, Classification.UNKNOWN, true, true);
+        testGetClazz(vec, true, Classification.MATERIAL, false, false);
+        testGetClazz(vec, false, Classification.MATERIAL, false, false);
+        testGetClazz(vec, false, Classification.MATERIAL, true, false);
+        testGetClazz(vec, false, Classification.MATERIAL, false, true);
+        testGetClazz(vec, true, Classification.MATERIAL, true, false);
+        testGetClazz(vec, false, Classification.MATERIAL, true, true);
+        testGetClazz(vec, true, Classification.MATERIAL, false, true);
+        testGetClazz(vec, true, Classification.MATERIAL, true, true);
     }
 
     /**
@@ -74,7 +76,7 @@ public class TestW2VClassifier extends TestOnPapers {
      *            Whether to use just the classification word or many (hopefully
      *            similar) words
      */
-    private void testGetClazzBasedOnAvgDistance(Word2Vec vec, boolean closest, Classification autoClazz,
+    private void testGetClazz(Word2Vec vec, boolean closest, Classification autoClazz,
             boolean removeStopWords, boolean useManyWords) {
         int correct = 0;
         int total = 0;

@@ -109,12 +109,12 @@ public final class W2VClassifier {
         boolean foundOneWord = false;
 
         for (String token : tokens) {
-            boolean removeDueToStop = false;
+            boolean tokenIsntIgnoreWord = true;
             if (removeStopWords) {
-                removeDueToStop = !NlpUtil.isTokenToIgnore(token);
+                tokenIsntIgnoreWord = !NlpUtil.isTokenToIgnore(token);
             }
 
-            if (vec.hasWord(token) && removeDueToStop) {
+            if (vec.hasWord(token) && tokenIsntIgnoreWord) {
                 foundOneWord = true;
                 // Larger number = closer
                 if (!useManyWords) {
