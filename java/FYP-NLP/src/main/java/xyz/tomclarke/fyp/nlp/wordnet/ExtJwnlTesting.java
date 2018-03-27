@@ -20,6 +20,7 @@ import net.sf.extjwnl.dictionary.Dictionary;
  * @author tbc452
  *
  */
+@Deprecated
 public class ExtJwnlTesting {
 
     private static final Logger log = LogManager.getLogger(ExtJwnlTesting.class);
