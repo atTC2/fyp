@@ -23,6 +23,18 @@ import xyz.tomclarke.fyp.nlp.util.NlpUtil;
  */
 public class TestPaperAnalysis extends TestOnPapers {
 
+    @Ignore
+    @Test
+    public void printKpPairsAnalysis() {
+        int totalPairs = 0;
+        for (Paper paper : trainingPapers) {
+            int kps = paper.getKeyPhrases().size();
+            totalPairs += (kps * kps) - kps;
+        }
+        System.out.println("Total KP pairs: " + totalPairs);
+    }
+
+    @Ignore
     @Test
     public void printPaperAnalysis() {
         for (Paper paper : trainingPapers) {
@@ -32,6 +44,7 @@ public class TestPaperAnalysis extends TestOnPapers {
         }
     }
 
+    @Ignore
     @Test
     public void printTokenAnalysis() {
         Map<String, Integer> tokens = new HashMap<String, Integer>();
@@ -60,6 +73,7 @@ public class TestPaperAnalysis extends TestOnPapers {
                 + " different tokens with the average length being " + size + ".");
     }
 
+    @Ignore
     @Test
     public void printKPLengthAnalysis() {
         double size = 0.0;
