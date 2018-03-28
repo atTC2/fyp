@@ -25,7 +25,61 @@ A summary of evaluation using the ScienceIE scripts, which covers all subtasks u
 
 \subsubsection{Self Evaluation}
 
+\subsubsection{Experimenting With Longer Documents}
+
 \subsection{Method 2: Clustering}
+While the SVM method showed some good results, unfortunately clustering was not as successful. 
+
+A problem encountered during development was that not every word was in the Word2Vec vocabulary, meaning not every word could be clustered. This is actually quite a major problem as, given the context of the words we'd like to cluster is scientific papers, many of these unusual words not in the corpus are likely part of the key words describing the key pieces of information in the paper. Given we want to be able to cluster based on those terms to find them in future papers to extract as key phrases, this limits the capability and robustness of the algorithm. The only thing that could be done was to continue clustering until we are left with one cluster with everything that can be clustered in, and a group of clusters with one element each, where those singular terms are not in the vocabulary of Word2Vec. This problem didn't occur for every test paper processed, but has shown some papers to have over 20 tokens that were excluded from the Word2Vec model. 
+
+Next came the problem of how the clusters formed. Ideally, we would like to see the case where, for many iterations, many clusters are present with many items each. This could then be used to split the document into many clusters with a (for instance) key phrase in each, taking the tokens at the centre of each cluster at a given level to be part of its own key phrase. What was generated instead was a pattern where, generally, two items clustered together which were there joined by a third item on the next iteration, then a fourth on the next, and so on, while no other tokens clustered together in other clusters. This is significantly less useful, as a bunch of words are grouped together in a growing group, while all others are left on their own until they are included in this large group. Very occasionally, other clusters grew to have a few items rather than immediately join the large cluster, but this was rare to see and still not very useful to draw multiple key phrases from.
+
+To aid in the understanding of what happened, an illustration is provided in figure \ref{figure:kpclusteringeg}. The left drawing is the ideal case, and the right is what commonly occurred. It didn't necessarily have to happen in token order, but the point is that aside from picking tokens that are very close together, this does not give us much insight into the key topics of the paper.
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[nodes={draw, circle}]
+	\node (a) at (-4, 0) {a};
+	\node (b) at (-3, 0) {b};
+	\node (c) at (-2, 0) {c};
+	\node (d) at (-1, 0) {d};
+	\node (e) at (0, 0) {e};
+	\node (ab) at (-3.5, 3) {};
+	\node (cd) at (-1.5, 1) {};
+	\node (cde) at (-0.75, 2) {};
+	\node (all) at (-2.125, 5) {};
+	
+	\draw  (a) |- (ab.center);
+	\draw  (b) |- (ab.center);
+	\draw  (c) |- (cd.center);
+	\draw  (d) |- (cd.center);
+	\draw  (e) |- (cde.center);
+	\draw  (cd.center) |- (cde.center);
+	\draw  (ab.center) |- (all.center);
+	\draw  (cde.center) |- (all.center);
+	
+	\node (a2) at (2 ,0) {a};
+	\node (b2) at (3, 0) {b};
+	\node (c2) at (4, 0) {c};
+	\node (d2) at (5, 0) {d};
+	\node (e2) at (6, 0) {e};
+	\node (ab2) at (2.5, 1) {};
+	\node (abc2) at (3.25, 2) {};
+	\node (abcd2) at (4.125, 3) {};
+	\node (all2) at (5.0625, 5) {};
+	
+	\draw  (a2) |- (ab2.center);
+	\draw  (b2) |- (ab2.center);
+	\draw  (c2) |- (abc2.center);
+	\draw  (d2) |- (abcd2.center);
+	\draw  (e2) |- (all2.center);
+	\draw  (ab2.center) |- (abc2.center);
+	\draw  (abc2.center) |- (abcd2.center);
+	\draw  (abcd2.center) |- (all2.center);
+	\end{tikzpicture}
+	\caption[Visual Representation of Key Phrase Clustering]{Examples of hierarchical clustering on a set of items, \textit{a}, \textit{b}, \textit{c}, \textit{d} and \textit{e}, through to when they are all in the same cluster. The left drawing is an example of ideally what we would like to have seen. The right is a representation of what was very common generated.}
+	\label{figure:kpclusteringeg}
+\end{figure}
 
 \section{Subtask B - Key Phrase Classification}
 
@@ -74,7 +128,7 @@ Using the best configuration found my testing within this paper, evaluating this
 \subsection*{Other Experimentation}
 While working on key phrase classification, having seen some decent results produced by the SVM created in subtask 1, a short experiment was conducted to see how well using position in a document could be used to determine classification.
 
-The process of trying this was very simple: re-purpose the SVM code to, when training, label data according to a class rather than to key phrase. Two versions of this were attempted:
+The process of trying this was very simple: re-purpose the subtask A SVM (with all described extensions included) code to, when training, label data according to a class rather than to key phrase. Two versions of this were attempted:
 
 \begin{itemize}
 	\item The SVM is given 4 different labels, one for each classification and one for no classification (i.e. not part of a key phrase).
@@ -86,6 +140,30 @@ Given the only real semantic meaning for a token in the SVM was based around whe
 As expected, results were terrible, with F1 scores for both versions being less than 0.1. This confirms that the position of tokens, at least as far as this paper's positional information is concerned, is not useful in classifying tokens. It may have been interesting to try again leaving out non key phrase tokens from the training data generated for the SVM to learn from, but these low results didn't encourage further study into this idea when other, more efficient and productive concepts were being worked on.
 
 \section{Subtask C - Relation Extraction}
+
+Both SVMs concepts were tested and the results for the hyponym and synonym variants combined for full evaluation.
+
+\begin{table}
+	\centering
+	\begin{tabular}{c | c | c | c | c }
+		\textbf{SVM Model} & \textbf{Vector Generation} & \textbf{True Positives} & \textbf{False Positives} & \textbf{F1 Score} \\
+		\hline
+		\textit{Many Features} & All tokens included & 13 & 84 & \textbf{0.09} \\
+		\textit{Many Features} & Root noun selected & 2 & 28 & 0.02 \\
+		\textit{Many Features} & Unimportant words removed & 0 & 0 & 0 \\
+		\textit{Few Features} & All tokens included & 0 & 0 & 0 \\
+	\end{tabular}
+	\caption[Relation Extraction Specific Results]{Results from doing relation extraction with the proposed SVMs. The results are calculated after the relations extracted by the hyponym and synonym SVMs are combined. The \textit{vector generation} column described how a vector for a key phrase was found (for example, where the unimportant words are removed). The bold result is the highest F1 score achieved.}
+	\label{table:relresults}
+\end{table}
+
+As presented in summary table \ref{table:scienceieresults}, the best overall results for this synonym extraction was an F1 score of 0.1\%. This was from using the \textit{many features} SVM with the vectors from each token in a key phrase being used to calculate a key phrases total vector. A more detailed breakdown of how well each configuration performed can be seen in table \ref{table:relresults}. 
+
+From this table is it clear to see that the \textit{many features} SVM concept performed better than the \textit{few features}. While the hope was to allow the SVM to work on information with a lower complexity to help it find a better fitting hyperplane, this clearly hasn't worked as it didn't pick any relations at all; compared to \textit{many features} with the same vector generation, which chose a total of 101 relations. 
+
+In terms of the different methods of generating vectors for key phrases, keeping all of the information in the key phrase appears to be the best method. Most true positives where found when all tokens are kept, while less true positives came from where the root nouns are selected, and no true positives were found when stop words and unimportant words were removed. This mirrors what happened in subtask B, where potentially unimportant information was removed and a decrease in the quality of results is observed; although it is more noticeable here given it is the difference between some and no relations being extracted (there was only a 0.1\% change in subtask B's results).
+
+Furthermore, while leaving more important information in the key phrase for vector generation did improve the system performance, the false positives increases a large amount as well. Selecting just the root noun saw 14 times more false positive results than true positive; compared to when all key phrase information was left in, only 6 times as many false positives to true positives were seen. Not excluding data clearly improves the system accuracy, and increases the F1 score.
 
 \section{Conclusion}
 

@@ -36,13 +36,13 @@ Working with each individual token was selected for several reasons. Firstly, it
 
 This resulted in a total of 65447 different training points (the total number of individual tokens in all of the training data).
 
-\subsubsection*{Defining Support Vectors}
+\subsubsection*{Defining Features}
 It is clear that current trends view the position of key phrases are very important in the document and should definitely be considered when trying to learn how to predict them. A tokens proximity to other tokens semantically and as part of the document as whole seem to significantly help us identify where key phrases lie. Furthermore, some attributes about individual phrases also seem to play a large part. For example, the length of the word is a valid feature to evaluate, as the average length of a key phrase token (7 characters) is slightly different to the average of all key phrases (8 characters). 
 
 \begin{table}
 	\centering
 	\begin{tabular}{ C{7cm} | c }
-		\textbf{Support Vector Description} & \textbf{Value Range} \\
+		\textbf{Feature Description} & \textbf{Value Range} \\
 		\hline
 		The length of the token divided by the maximum token length in the training set. & \texttt{svLen} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svLen} $\leq$ 1 \\
 		\hline
@@ -60,7 +60,7 @@ It is clear that current trends view the position of key phrases are very import
      	\hline
      	Whether the previous token was part of a key phrase. & \texttt{svLWKP} $\in$ \{0, 1\} \\
 	\end{tabular}
-	\caption[Initial Key Phrase Support Vector Features]{Initial key phrase support vector features used. A set of these features is generated for each token. When defining the value range, the variable is named as it is in the Java code.}
+	\caption[Initial Key Phrase SVM Features]{Initial key phrase support vector features used. A set of these features is generated for each token. When defining the value range, the variable is named as it is in the Java code.}
 	\label{table:kpinitsvs}
 \end{table}
 
@@ -70,7 +70,7 @@ Thankfully, the idea behind using an SVM is to find what separates key phrases f
 To train the SVM, a \textit{problem} must be created. The \textit{problem} contains an array of vectors, where the vector is the set of features described above. Each of these data points must be labelled. The label is what we are trying to predict on the test data, so here the label is where or not the token is a key phrase (\texttt{0} for \textit{normal}, or \texttt{1} for key phrase). 
 
 \subsubsection*{Model Selection}
-As the nature of the data is unknown, an educated guess can be made as to which kernel to use. A common kernel to begin working with is the \textit{Radial Basis Function} (RBF) kernel \cite{Chih-WeiHsuChih-ChungChang2008}. This is because it can handle non-linear data, which it is assumed the training data here is to be. The RGF kernel function to find the similarity between two data points is listed below:
+As the nature of the data is unknown, an educated guess can be made as to which kernel to use. A common kernel to begin working with is the \textit{Radial Basis Function} (RBF) kernel \cite{Chih-WeiHsuChih-ChungChang2008}. This is because it can handle non-linear data, which it is assumed the training data here is to be. The RBF kernel function to find the similarity between two data points is listed below:
 
 \begin{equation*}
 K\textsubscript{RBF}(x_i, x_j) = exp(-\gamma||x_i - x_j||^2)
@@ -87,20 +87,54 @@ Having decided on how to use the concept of an SVM, there was a need for a concr
 
 A popular SVM package was found in libsvm (imported through Maven\footnote{\href{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}}). Originally written in C and ported over to Java (as well as many other languages), libsvm was designed to be flexible, supporting various kernels and suitable for beginners through to advanced users. It has support for the core use of SVMs - training and predicting, but also has features to aid in parameter selection such as a cross-validation function (which will be covered in more detail shortly), a visualiser for the training data and a data scaling tool.
 
-% TODO add more about development
+To allow for further SVM usage, an abstract \texttt{BaseSvm} was implemented so that any SVM created as part of this project can extend from this and use these functions generic to all SVMs. This has a default configuration set, a generic training method (calling \texttt{.svm\_train(problem, configuration)}), a generic predict method and a \texttt{.makeNewNode(index, value)} method. This \textit{makeNewNode} method creates a feature for a data point in the format the SVM library can understand (a \textit{vector} is an array of \texttt{svm\_node}s). It also validates the value of the feature, setting it to 0 is somehow an infinite or \textit{NaN} has been passed in. 
+
+This base SVM class also holds a cross validation function (\texttt{.doCrossValidation(\textit{C}, $\gamma$)}), which runs the cross validation procedure and returns the accuracy as a percentage.
+
+From the above, the \texttt{KeyPhraseSVM} class was created which contained the functionality to build the required feature vectors of input data and add labels to the training data, which completed the requirements of the SVM.
+
+\subsubsection*{Additional Features}
+While working on development of the key phrase SVM, further features were considered and implemented.
+
+To evaluate how effective they were, a baseline score was achieved and then each of these were added idea by idea to test if they increased the system performance or not. The additional items, in order, are listed in table \ref{table:kpextsvs}. 
+
+\begin{table}
+	\centering
+	\begin{tabular}{ C{7cm} | c }
+		\textbf{Feature Description} & \textbf{Value Range} \\
+		\hline
+		The Word2Vec distance from the given token to "task". & \texttt{svTask} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svTask} $\leq$ 1 \\
+		\hline
+		The Word2Vec distance from the given token to "process". & \texttt{svProcess} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svProcess} $\leq$ 1 \\
+		\hline
+		The Word2Vec distance from the given token to "material". & \texttt{svMaterial} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svMaterial} $\leq$ 1 \\
+		\hline
+		The depth of the token in the parse tree for its parent sentence, divided by the maximum depth of any token in that sentence. & \texttt{svParseTreeDepth} $\in$ $\mathbb{R}$,  0 $\leq$ \texttt{svParseTreeDepth} $\leq$ 1 \\
+		\hline
+		Whether or not the token is a stop word. & \texttt{svIgnoreWord} $\in$ \{0, 1\} \\
+	\end{tabular}
+	\caption[Additional Key Phrase SVM Features]{Additional features to be calculated for each token added to the SVM. These were implemented in order and their benefit or reduction in performance is measured.}
+	\label{table:kpextsvs}
+\end{table}
+
+The initial three focus on Word2Vec's \texttt{.similarity(word1, word2)} method, which finds the distance between two words in the Word2Vec space. The distances chosen were to the three types of classification laid out in the task description. The theory behind this is: as we are looking for tasks, processes and materials, words which are closely related to these concepts may be likely to have a higher similarity to those words in Word2Vec's vector space. Including this information as a feature in the SVM may help distinguish those data points which should be selected as key phrases (as they may be particularly close to one of the three target concepts).
+
+Next, the parse depth of the token is considered. The idea of this is that if you imagine a parse tree, the leaves that are further away from the original sentence (has more branches leading to them) may generally be the more important parts of the sentence, as the other parts of the sentence (leaves less far down the tree structure) simply lead up to the key phrase and add extra information. Therefore, this should test to see if how \textit{central} a token is contributes to whether it should be seen as a key phrase.
+
+Finally, there is a flag to described whether the token is a stop word. This should work with the TF-IDF feature described earlier to help identify words that are unimportant and should not be included in key phrases.
 
 \subsubsection*{Cross Validation}
 Cross validation is an important part when trying to optimise performance of an SVM. It allows for tuning key parameters by running repeated tests. Rather than using the testing data, which could introduce bias, the training data is split up into \textit{n} folds (or groups of data from within the training set). \textit{n = 5} folds were used in this instance. In turn, the SVM is trained with 4 of the 5 folds and then evaluated against the remaining fold. This is repeated for all combinations of folds and then the accuracy of the SVM can be calculated. A higher accuracy should mean better performance, although there is the problem of over fitting to consider. If the model is built to run perfectly on the training data, real world performance may actually suffer. This is why we cannot stop testing the SVM after just cross validation, as evaluating against the unseen test set will tell us how well it really performs. 
 
+The values discussed for \textit{C} and $\gamma$ were used in cross validation and their outputs compared. The cross validation results can be seen in figure \ref{figure:kpsvmcv}. As show by this chart, very little change is accuracy is observed. There is a upward trend as \textit{C} and $\gamma$ increase, but this appears to plateau as higher values are evaluated. No smaller values need testing as (given the trend continues) the accuracy will significantly diminish. In terms of increasing the values, there is potential for extremely small gains; however, the return from increasing these values will be almost worthless and the training time required as the \textit{C} value increase significantly rises, as the SVM is working harder to find a better fitting hyperplane. Therefore, \text{C = 100} and \textit{$\gamma$ = 0.5} shall be used when completing full experiments. While, a \textit{C} value of 200 is 0.05\% more accurate with the same $\gamma$ value, the training time is roughly doubled (from some hours to many hours) and the reward is not deemed worth it.
+
 \begin{center}
 	\begin{figure}
 		\includegraphics[width=\textwidth]{img/kpsvmcrossvalidation.png}
-		\caption[Key Phrase SVM Cross Validation]{The cross validation results on the key phrase SVM.}
+		\caption[Key Phrase SVM Cross Validation]{The cross validation results on the key phrase SVM. These were completed with all initial features and all extension features in place.}
 		\label{figure:kpsvmcv}
 	\end{figure}
 \end{center}
-
-The values discussed for \textit{C} and $\gamma$ were used in cross validation and their outputs compared. The cross validation results can be seen in figure \ref{figure:kpsvmcv}. As show by this chart, very little change is accuracy is observed. There is a upward trend as \textit{C} and $\gamma$ increase, but this appears to plateau as higher values are evaluated. No smaller values need testing as (given the trend continues) the accuracy will significantly diminish. In terms of increasing the values, there is potential for extremely small gains; however, the return from increasing these values will be almost worthless and the training time required as the \textit{C} value increase significantly rises, as the SVM is working harder to find a better fitting hyperplane. Therefore, \text{C = 100} and \textit{$\gamma$ = 0.5} shall be used when completing full experiments. While, a \textit{C} value of 200 is 0.05\% more accurate with the same $\gamma$ value, the training time is roughly doubled (from some hours to many hours) and the reward is not deemed worth it.
 
 \subsection{Method 2: Clustering}
 \subsubsection*{Concept}
@@ -176,7 +210,7 @@ An anticipated problem, proven through early testing, was that not every token i
 \subsection{Development}
 As the design of this classifier is only concerned about classifying one key phrase at a time, and Word2Vec doesn't need (and can't take) more information about a word at a time, the only piece of information needed to run the classifier is the key phrase string. Therefore, only one public method needs to be exposed as part of the library to do this classificatiion, requiring the key phrase string and the Word2Vec model. The class implemented has no need to be stateful (as the method simply takes all it needs as parameters) so the implemented \texttt{W2VClassifier} cannot be instantiated and contains only \texttt{static} methods. For testing purposes, extra parameters are able to be passed to configure items like whether to use the single or multiple words for find distance to a classification, and technically two methods are exposed to the word as one is for closest distance and one is for average distance.
 
-Upon calling the method, the key phrase string is split into its individual tokens. These tokens are then individually checked, firstly to see if they are a stop word or of extremely low importance, and then to ensure they are actually in the Word2Vec model (with the convenient \texttt{.hasWord(word)} method). Given a token passes both of these checks, its similarity to the target word (or words) for each classification is found and either accumulated (if based on average distance) where the sum value is divided by the number of checked tokens at the end, or compared to the current maximum similarity found (if based on closest) and selected if larger. To find this similarity, Word2Vec has a \texttt{.similarity(word2, word2)} method, which returns the cosine similarity of the two words in vector space (where the value must be between 0 and 1). There is always one \textit{tracker} value (average accumulator or maximum similarity) per classification which is updated every time a token is processed.
+Upon calling the method, the key phrase string is split into its individual tokens. These tokens are then individually checked, firstly to see if they are a stop word or of extremely low importance, and then to ensure they are actually in the Word2Vec model (with the convenient \texttt{.hasWord(word)} method). Given a token passes both of these checks, its similarity to the target word (or words) for each classification is found and either accumulated (if based on average distance) where the sum value is divided by the number of checked tokens at the end, or compared to the current maximum similarity found (if based on closest) and selected if larger. To find this similarity, Word2Vec has a \texttt{.similarity(word1, word2)} method, which returns the cosine similarity of the two words in vector space (where the value must be between 0 and 1). There is always one \textit{tracker} value (average accumulator or maximum similarity) per classification which is updated every time a token is processed.
 
 Upon finishing checking each token, the \textit{tracker} values are compared and the largest one selected, resulting in the classifiication this value is related to be returned (rather than handling strings, there is a \texttt{Classification} enumeration class to handle this functionality better). If all of the \textit{tracker} values are 0, it means no token in the key phrase passed the initial checks; meaning we cannot classify the key phrase with Word2Vec and therefore must return a default value as discussed above.
 
@@ -214,7 +248,7 @@ To generate the training data, all key phrases were paired with all other key ph
 
 Cross validation was applied to both SVMs, however, the range of values tested did not seem much change. The top row of figure \ref{figure:relsvmcv} show the cross validation results for this set of SVMs, and do not really indicate any trend. For both hyponym and synonym of extraction, \textit{C = 5} and \textit{$\gamma$ = 1} appeared to have slightly higher accuracy, but overall very little difference can be seen. The reason the accuracy is extremely high (all results are less than 0.5\% from 100\%) is because of the low amount of \textit{true case} relationship training points compared to the whole data set: 674 total relations out of 144410 possible combinations. This may prove problematic when testing on real world data, as the SVM effectively has a lack of good training data to learn off of (so may struggle to fit a good separating hyperplane).
 
-This \textit{many features} SVM was implemented in \texttt{RelationshipSVM} in the Java project accompanying this report.
+This \textit{many features} SVM was implemented in \texttt{RelationshipSVM} (which extends from the previously described \texttt{BaseSvm}) in the Java project accompanying this report.
 
 \begin{center}
 	\begin{figure}
@@ -245,4 +279,4 @@ These two values are then used as the features of each data point. A point is ge
 
 Unfortunately, completing cross validation for this \textit{few features} SVM approach was not fruitful. The result can be seen in figure \ref{figure:relsvmcv}, with the relevant charts below that of the \textit{many features} cross validation results. Across the board for both SVMs, there is no change is accuracy with the different values tested. This likely means that no selection of relations is happening (the high accuracy is again because most of the data points should not be labelled as relationships), which does not bode well for real world tests. Given no trend has happened, it is hard to evaluate how to try to fix this issue. Theoretically, increasing the \textit{C} value may allow for the SVM to find a better hyperplane which may help, but with when \textit{C = 200}, the training time is many hours and the computer this is running on (equipped with 16 GB of memory) does not have enough memory to train further than that. Increasing \textit{C} this further simply used many gigabytes of Linux swap space on the actual disk which slows it further, and if Java is not configured to be allowed to use that much memory, it can interrupt testing as well.
 
-This \textit{few features} SVM was implemented in \texttt{RelationshipSVM2} in the Java project accompanying this report.
+This \textit{few features} SVM was implemented in \texttt{RelationshipSVM2} (which also extends from \texttt{BaseSvm}) in the Java project accompanying this report.
