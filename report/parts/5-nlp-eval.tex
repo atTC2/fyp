@@ -1,6 +1,23 @@
 \chapter{The ScienceIE Task: Evaluation}
 
+\begin{table}
+	\centering
+	\begin{tabular}{ c | C{2.7cm} | C{2.7cm} | C{2.2cm} | C{2.2cm} }
+		\multirow{2}{*}{\textbf{Subtask}} &\multicolumn{2}{c|}{\textbf{ScienceIE}} &\multicolumn{2}{c}{\textbf{This Report}} \\
+		& \textbf{Individual \newline Best / Average} & \textbf{End-To-End \newline Best / Average} & \textbf{Individual \newline Best} & \textbf{End-To-End \newline Best} \\
+		\hline
+		KP Extraction & 0.56 / 0.38 & 0.56 / 0.38 & 0.2 & 0.2 \\
+		KP Classification & 0.67 / 0.57 & 0.44 / 0.26 & 0.55 & 0.11 \\
+		Relation extraction & 0.64 / 0.43 & 0.28 / 0.07 & 0.1 & 0.02 \\
+		Overall & N/A & 0.43 / 0.25 & N/A & 0.11    
+	\end{tabular}
+	\caption[Summary of Results Evaluated With ScienceIE Scripts]{The best F1 scores achieved in this paper evaluated with the supplied ScienceIE scripts. This includes both tests for end-to-end data production, and individual subtask tests (where the gold standard data from the previous subtask is fed in). Summarised ScienceIE results are also included, extracted from the ScienceIE proceedings\cite{Augenstein2017}.}
+	\label{table:scienceieresults}
+\end{table}
+
 With solution systems proposed for the various subtasks of ScienceIE, each were given data to train on and predict on. Below are results where the algorithms have been tested end-to-end (where they are run through in order, with the data from one being passed to the next) and independently (where they are given the gold data as a starting point, and operate on that information). There is also some self evaluation conducted, to explore the effectiveness of evaluating under conditions of varying strictness.
+
+A summary of evaluation using the ScienceIE scripts, which covers all subtasks using the best algorithms found within this paper, and also includes the ScienceIE scores for comparison, is presented in table \ref{table:scienceieresults}. These will be discussed throughout this section.
 
 \section{Subtask A - Key Phrase Extraction}
 
@@ -9,8 +26,6 @@ With solution systems proposed for the various subtasks of ScienceIE, each were 
 \subsubsection{Self Evaluation}
 
 \subsection{Method 2: Clustering}
-
-\subsection{Conclusion}
 
 \section{Subtask B - Key Phrase Classification}
 
@@ -27,18 +42,18 @@ With solution systems proposed for the various subtasks of ScienceIE, each were 
 		Google News & Average & Material & Yes & No & \textbf{54.43\%} \\
 		Google News & Average & Material & No & Yes & \textbf{52.14\%} \\
 		Google News & Average & Material & Yes & Yes  & \textbf{52.14\%} \\
-		Google News & Closest & Unknown & No & No & 0.00\% \\
+		Google News & Closest & Unknown & No & No & \textbf{46.05}\% \\
 		Google News & Closest & Unknown & Yes & No & \textbf{45.96\%} \\
-		Google News & Closest & Unknown & No & Yes & 0.00\% \\
+		Google News & Closest & Unknown & No & Yes & 44.05\% \\
 		Google News & Closest & Unknown & Yes & Yes & 43.91\% \\
-		Google News & Closest & Material & No & No & 44.05\% \\
+		Google News & Closest & Material & No & No & \textbf{52.73\%} \\
 		Google News & Closest & Material & Yes & No & \textbf{52.63\%} \\
-		Google News & Closest & Material & No & Yes & 44.05\% \\
+		Google News & Closest & Material & No & Yes & \textbf{50.73}\% \\
 		Google News & Closest & Material & Yes & Yes & \textbf{50.58\%} \\
 		Freebase & N/A & Unknown & N/A & N/A & 0.00\% \\
 		Freebase & N/A & Material & N/A & N/A & 44.05\% \\
 	\end{tabular}
-	\caption[Word2Vec Classification Results]{The above table is the various configurations of the Word2Vec classifier, running with every possible configuration for the five parameters are listed. The result in bold line is the highest scoring configuration, with bold results being notable results. All Freebase results were not listed as there was no change in result other than for the \textit{default class} variable, so \textit{N/A} is present instead of each iteration of those variables. These results are based on classifying all 2052 ScienceIE key phrase test data points.}
+	\caption[Word2Vec Classification Results]{The above table is the various configurations of the Word2Vec classifier, running with every possible configuration for the five parameters are listed. The result in bold line is the highest scoring configuration, with bold results being those above the baseline score of 44.05\% which is where every key phrase is simply classified as a \textit{material}. All Freebase results were not listed as there was no change in result other than for the \textit{default class} variable, so \textit{N/A} is present instead of each iteration of those variables. These results are based on classifying all 2052 ScienceIE key phrase test data points.}
 	\label{table:classresults}
 \end{table}
 
@@ -46,22 +61,31 @@ Key phrase classification under the outlined Word2Vec classifier was quick to ex
 
 In terms of result, it can be seen that several configurations allow for over 50\% of the key phrases to be classified correctly. The full range of results for each configuration can be seen on table \ref{table:classresults}.
 
-The obvious thing to note here is that all tests under Freebase without a default class and some Google News tests without default classifications have a 0\% accuracy (i.e. it didn't classify any key phrase correctly). With a little investigation, if all key phrases were labelled as a \textit{material}, the accuracy would be 44\% - which is what was achieved by all configurations with the Freebase model and a default classification of \textit{material}. Therefore, Freebase clearly isn't an effective vocabulary for working with scientific publications. 
+The obvious thing to note here is that all tests under Freebase without a default class have a 0\% accuracy (i.e. it didn't classify any key phrase correctly). With a little investigation, if all key phrases were labelled as a \textit{material}, the accuracy would be 44\% - which is what was achieved by all configurations with the Freebase model and a default classification of \textit{material}. Therefore, Freebase clearly isn't an effective vocabulary for working with scientific publications, seemingly containing one of the supplied words. 
 
-For Google News, things are less clear. In some cases where the distance metric was finding the \textit{closest} token to the target classification, the results mirror that of when using Freebase. Generally results were better when unimportant and stop words were removed, however, the best overall left all stops words in.
+When using the Google News model, things are less clear. Generally, using this model a decent accuracy can be achieved, even without the support of a default classification. This shows the model does include many of the terms used in the publications presented. In terms of distance metric, \textit{average} was slightly better; it was part of the best configuration (scoring 54.6\%), and also the average of all of the \textit{average} distance configurations was 2\% higher than the average of the \textit{closest} configurations (50\% and 48\% respectively).
 
-Furthermore, using various words when finding similarity generally decreased the accuracy of classification. When using \textit{average} similarity, results were averagely 2\% higher (on runs that got higher than the base 44\%) when compared to the same configuration bar using multiple words to gauge similarity. 
+The configuration change that made the least difference was whether or not the unimportant and stop words were removed. This saw changes, averagely, of 0.1\% when comparing two configurations differing in only whether these words were removed. When some words were not removed the algorithm performed better, indicating that these words are more important than first thought for deciding class. This may be down to the edge cases discussed such as "He" or similar which, despite being a stop word, we would want to keep.
 
-Google News does show some promise for good classification. In some cases where the default classification does not have a null, it can still achieve comparable and competitive results compared to configurations with a default classification. The fact that it can do this purely off matching words in its vocabulary reinforces that Freebase cannot cope with these scientific terms. 
+Using various words when finding similarity decreased the accuracy of classification, and was the largest detrimental parameter. When using many words to find similarity, accuracy decreased an average of 2.2\% (50.3\% down to 48.1\%). This means the position of the target classes in the Word2Vec model are likely quite accurate when compared to words that can be used in a similar context.
 
+Using the best configuration found my testing within this paper, evaluating this classifier through the ScienceIE scripts gives an F1 score of 0.55 when evaluated individually (given the gold standard key phrases). This isn't a bad score, as it almost matches the average ScienceIE F1 score for this section done independently.
 
+\subsection*{Other Experimentation}
+While working on key phrase classification, having seen some decent results produced by the SVM created in subtask 1, a short experiment was conducted to see how well using position in a document could be used to determine classification.
 
-\subsection{Other Experimentation}
-As a small experiment, given the SVM for subtask A had undergone quite some development...
+The process of trying this was very simple: re-purpose the SVM code to, when training, label data according to a class rather than to key phrase. Two versions of this were attempted:
 
-\subsection{Conclusion}
+\begin{itemize}
+	\item The SVM is given 4 different labels, one for each classification and one for no classification (i.e. not part of a key phrase).
+	\item 3 different SVMs were trained, each only having one classification labelled.
+\end{itemize}
+
+Given the only real semantic meaning for a token in the SVM was based around whether the token was a noun, this was not expected to perform well as semantics and the specific words surrounding what we are trying to classify generally are expected to be important, rather than the position of the token in the text which gives us little context.
+
+As expected, results were terrible, with F1 scores for both versions being less than 0.1. This confirms that the position of tokens, at least as far as this paper's positional information is concerned, is not useful in classifying tokens. It may have been interesting to try again leaving out non key phrase tokens from the training data generated for the SVM to learn from, but these low results didn't encourage further study into this idea when other, more efficient and productive concepts were being worked on.
 
 \section{Subtask C - Relation Extraction}
 
-\subsection{Conclusion}
+\section{Conclusion}
 
