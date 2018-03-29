@@ -93,10 +93,10 @@ This base SVM class also holds a cross validation function (\texttt{.doCrossVali
 
 From the above, the \texttt{KeyPhraseSVM} class was created which contained the functionality to build the required feature vectors of input data and add labels to the training data, which completed the requirements of the SVM.
 
-\subsubsection*{Additional Features}
-While working on development of the key phrase SVM, further features were considered and implemented.
+To actually produce key phrases for a \texttt{Paper} object, once a token was \textit{predicted} to be part of a key phrase, its start and end position was noted. The following sequence of tokens would all have their status of key phrase or not key phrase predicted, and while there is a string of tokens predicted to be key phrases, the end position is updated to cover this range of tokens in the original document. Once a token is predicted to not be a key phrase, the \texttt{.makeKeyPhrase} method of \texttt{Paper} is called with the start and end positions of the tokens to be inside the key phrase, which creates the \texttt{KeyPhrase} object.
 
-To evaluate how effective they were, a baseline score was achieved and then each of these were added idea by idea to test if they increased the system performance or not. The additional items, in order, are listed in table \ref{table:kpextsvs}. 
+\subsubsection*{Additional Features and Post Processing}
+While working on development of the key phrase SVM, further features were considered and implemented. To evaluate how effective they were, a baseline score was achieved and then each of these were added idea by idea to test if they increased the system performance or not. The additional items, in order, are listed in table \ref{table:kpextsvs}. 
 
 \begin{table}
 	\centering
@@ -123,18 +123,57 @@ Next, the parse depth of the token is considered. The idea of this is that if yo
 
 Finally, there is a flag to described whether the token is a stop word. This should work with the TF-IDF feature described earlier to help identify words that are unimportant and should not be included in key phrases.
 
+Along side these features, the results produced as part of development and manual analysis of the key phrases created gave incentive to \textit{tidy up} the key phrases with some post processing. This was to try to remove unwanted parts of key phrases, or bad key phrases entirely, and in conjunction with the above features, the following post processes were applied:
+
+\begin{itemize}
+	\item \textit{TF-IDF filter} - In an attempt to remove key phrases which were effectively just \textit{noise}, each key phrase was treated as a candidate key phrase and would only become a true key phrase if the total TF-IDF of the tokens inside of it was above 0.02. This value was set by reviewing the key phrases produced in earlier runs, calculating their TF-IDF values, ordering them and finding the first key phrase that had suitable words (what we'd want to see in a key phrase) in it. Rounded slightly down, this value was set as a threshold and removed all extremely low TF-IDF key phrases.
+	\item \textit{Sanitisation on creation} - When a new key phrase was found by the SVM, the \texttt{.makeKeyPhrase} method is called. This method was amended to try to only produce well formed key phrases. This includes attempting to remove redundant symbols, blank space and stop words at the start and the end of the key phrase. The goal was to try to close the gap between strict and inclusive evaluation by removing some of the redundant information. Empty key phrases were also discarded.
+	\item \textit{Final sanitisation changes} - The sanitisation added to the \texttt{.makeKeyPhrase} was revisited. The previous changes were refined and improved, and it was ensured all key phrases have some content in them (including support for special scientific characters such as "$\alpha$"). A new process added here was the splitting of key phrases if there is a bracket half way through the phrase. This creates two, more semantically correct key phrases (as originally, either side of the bracket would have been from different parts of the sentence), where at least one is more likely to be correct as no gold standard key phrase go across a bracket boundary and doesn't return later. 
+\end{itemize}
+
+Through some analysis of the output, the final changes to sanitisation also gave this system the opportunity to match obvious synonyms: If the original key phrase was "Support Vector Machine (SVM", the two split phrases would be "Support Vector Machine" and "SVM". A simple check was implemented to see if the capitalised characters of the first phrase ("Support Vector Machine" would be filtered to "SVM") were part of the second and vice versa, and if so a synonym relation was drawn between the pair of key phrases. 
+
 \subsubsection*{Cross Validation}
+
+\begin{figure}
+	\includegraphics[width=\textwidth]{img/kpsvmcrossvalidation.png}
+	\caption[Key Phrase SVM Cross Validation]{The cross validation results on the key phrase SVM. These were completed with all initial features and all extension features in place.}
+	\label{figure:kpsvmcv}
+\end{figure}
+
 Cross validation is an important part when trying to optimise performance of an SVM. It allows for tuning key parameters by running repeated tests. Rather than using the testing data, which could introduce bias, the training data is split up into \textit{n} folds (or groups of data from within the training set). \textit{n = 5} folds were used in this instance. In turn, the SVM is trained with 4 of the 5 folds and then evaluated against the remaining fold. This is repeated for all combinations of folds and then the accuracy of the SVM can be calculated. A higher accuracy should mean better performance, although there is the problem of over fitting to consider. If the model is built to run perfectly on the training data, real world performance may actually suffer. This is why we cannot stop testing the SVM after just cross validation, as evaluating against the unseen test set will tell us how well it really performs. 
 
 The values discussed for \textit{C} and $\gamma$ were used in cross validation and their outputs compared. The cross validation results can be seen in figure \ref{figure:kpsvmcv}. As show by this chart, very little change is accuracy is observed. There is a upward trend as \textit{C} and $\gamma$ increase, but this appears to plateau as higher values are evaluated. No smaller values need testing as (given the trend continues) the accuracy will significantly diminish. In terms of increasing the values, there is potential for extremely small gains; however, the return from increasing these values will be almost worthless and the training time required as the \textit{C} value increase significantly rises, as the SVM is working harder to find a better fitting hyperplane. Therefore, \text{C = 100} and \textit{$\gamma$ = 0.5} shall be used when completing full experiments. While, a \textit{C} value of 200 is 0.05\% more accurate with the same $\gamma$ value, the training time is roughly doubled (from some hours to many hours) and the reward is not deemed worth it.
 
-\begin{center}
-	\begin{figure}
-		\includegraphics[width=\textwidth]{img/kpsvmcrossvalidation.png}
-		\caption[Key Phrase SVM Cross Validation]{The cross validation results on the key phrase SVM. These were completed with all initial features and all extension features in place.}
-		\label{figure:kpsvmcv}
-	\end{figure}
-\end{center}
+\subsubsection*{Self Evaluation}
+A problem referenced in the literature review was evaluation of key phrase extraction. What was discussed is how to classify good and bad systems. It is easy to accurately say how well a system performed compared to a set of gold standard data, but this paper considers whether that is enough to say whether a given extraction system is a success or not.
+
+% TODO Maybe talk abbout existing solutions in cross bracket metrics
+
+\begin{table}
+	\centering
+	\begin{tabular}{ C{3cm} | C{10cm} }
+		\textbf{Strictness} & \textbf{Description} \\
+		\hline
+		Very strict (\texttt{REALLY\_STRICT}) & Both the predicted key phrase string and its boundaries need to match the gold standard string and boundaries. This is of equivalent strictness to the \textit{BRAT} evaluation completed by the ScienceIE scripts. \\
+		\hline
+		Matching (\texttt{STRICT}) & Just the predicted key phrase string needs to match the gold standard string. \\
+		\hline
+		Inclusive matching (\texttt{INCLUSIVE}) & The predicted key phrase string must be equal too or include the gold standard string. \\
+		\hline
+		Generous matching (\texttt{GENEROUS}) & The predicted key phrase string can include the gold standard string, or the gold stand string can include the predicted. \\
+	\end{tabular}
+	\caption[Strictness Descriptions for Self Evaluation of Key Phrases]{The strictness levels used in self evaluation of key phrase extraction. The \textit{strictness} title also includes the \texttt{Strictness} enumeration value as in the Java code for reference.}
+	\label{table:strictness}
+\end{table}
+
+Therefore, in preparation for evaluation, several metrics will be used. The metric titles and descriptions can be seen in table \ref{table:strictness}. The point of these different metrics for deciding whether a prediction is good or not, is to try to capture a sense of how much of the information we are aiming to extract we actually achieve, potentially foregoing some extra information. Of course, a metric equal to that of the ScienceIE test scripts is included so we can get an expected value for when running with those scripts and a good comparison value for the other metrics used in this paper.
+
+Firstly, the \textit{matching} variant is believed to be perfectly reasonable: it results in exactly the same textual information output, it is merely less concerned with the informations original location. A higher score in this should be considered very positive, as when a reader is looking through key phrases extracted from various papers (for example when trying to pick one out that is useful to them), they likely don't care exactly which sentence the text came from. Even when looking at an individual paper as part of the ScienceIE data set, origin sentence likely doesn't matter as the documents are short and it should be easy to see where the phrase could have come from. This relaxed metric compared to the ScienceIE evaluation may be less favourable if the data set was made up of larger documents, as in a large document position makes more of a difference if trying to find information surrounding a key phrase; however, here it should be reasonable to just check successful key phrase extraction in this way.
+
+There are also two much more lenient metrics. While it is not thought these should be official ways to evaluate an extraction technique, it is worth considering what these metrics are telling us about what information has been extracted. Evaluating with the \textit{inclusive} metric will inform the reader about how many of the key pieces of information have been found, but potentially with some extra information included. This extra information lowers the quality of the key phrases, but does not stop the key pieces of information from being extracted. Therefore, if using this metric scores a high result, the extracted pieces of information is likely still very useful, even if stricter metrics return significantly lower results. The \textit{generous} metric is less useful, as it will likely allow many false positive \textit{true positives} through an evaluation system - given a \textit{true positive} can be awarded when just part of a key phrase is extracted - which does not guarantee key words within the key phrase are captured. However, similar \textit{inclusive} and \textit{exclusive} scores that are both high should mean there are very few instances where only part of a key phrase has been captured, while most key phrases predicted are with exactly right, or have some extra pieces of information attached.
+
+The evaluation described above shall be used to evaluate SVM progression as each idea is added, with the \textit{best} SVM version found there used when testing on the ScienceIE scripts.
 
 \subsection{Method 2: Clustering}
 \subsubsection*{Concept}
@@ -214,13 +253,11 @@ Upon calling the method, the key phrase string is split into its individual toke
 
 Upon finishing checking each token, the \textit{tracker} values are compared and the largest one selected, resulting in the classifiication this value is related to be returned (rather than handling strings, there is a \texttt{Classification} enumeration class to handle this functionality better). If all of the \textit{tracker} values are 0, it means no token in the key phrase passed the initial checks; meaning we cannot classify the key phrase with Word2Vec and therefore must return a default value as discussed above.
 
-\begin{center}
-	\begin{figure}
-		\includegraphics[width=\textwidth]{img/w2vbadtokensclasses.png}
-		\caption[Key Phrase Classifications not in Word2Vec Model]{Gold standard key phrase classifications for key phrases that are not in the Word2Vec models used. 222 key phrases are included in this set.}
-		\label{figure:w2vbadtokensclasses}
-	\end{figure}
-\end{center}
+\begin{figure}
+	\includegraphics[width=\textwidth]{img/w2vbadtokensclasses.png}
+	\caption[Key Phrase Classifications not in Word2Vec Model]{Gold standard key phrase classifications for key phrases that are not in the Word2Vec models used. 222 key phrases are included in this set.}
+	\label{figure:w2vbadtokensclasses}
+\end{figure}
 
 \section{Subtask C - Relation Extraction}
 \subsection{Word2Vec Usage}
@@ -250,13 +287,11 @@ Cross validation was applied to both SVMs, however, the range of values tested d
 
 This \textit{many features} SVM was implemented in \texttt{RelationshipSVM} (which extends from the previously described \texttt{BaseSvm}) in the Java project accompanying this report.
 
-\begin{center}
-	\begin{figure}
-		\includegraphics[width=\textwidth]{img/relsvmcrossvalidation.png}
-		\caption[Relation SVM Cross Validation]{The cross validation results on both the hyponym and synonym variants of the \textit{many features} and \textit{few features} relationship SVMs.}
-		\label{figure:relsvmcv}
-	\end{figure}
-\end{center}
+\begin{figure}
+	\includegraphics[width=\textwidth]{img/relsvmcrossvalidation.png}
+	\caption[Relation SVM Cross Validation]{The cross validation results on both the hyponym and synonym variants of the \textit{many features} and \textit{few features} relationship SVMs.}
+	\label{figure:relsvmcv}
+\end{figure}
 
 \subsection{SVM - Few Features}
 Mentioned above, as the data was sparsely labelled and each point had a high feature count in the \textit{many features} SVM approach, this \textit{few features} approach aimed to reduce the complexity of the data presented in a hope it would allow for easier hyperplane fitting, meaning significantly reduced training times and hopefully a higher accuracy rate.

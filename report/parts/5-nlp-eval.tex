@@ -22,32 +22,33 @@ A summary of evaluation using the ScienceIE scripts, which covers all subtasks u
 \section{Subtask A - Key Phrase Extraction}
 
 \subsection{Method 1: Support Vector Machine}
-As described in the design section of this report, the SVM created for extracting key phrases began with a set of features which then underwent several iterations with other features being added.
 
-A problem referenced in the literature review was evaluation of key phrase extraction. What was discussed is how to classify good and bad systems. It is easy to accurately say how well a system performed compared to a set of gold standard data, but this paper considers whether that is enough to say whether a given extraction system is a success or not.
+\begin{figure}
+	\includegraphics[width=\textwidth]{img/kpsvmresults.png}
+	\caption[Key Phrase SVM Self Evaluation Through Iterations]{The key phrase SVM self evaluation results for varying strictness across iterations, where each iterations changes 1 thing. The coloured lines denote strictness as defined in table \ref{table:strictness}, with the legend assigning each colour to each strictness level. With each assignment, the darker of variant of the same colour is when the Google News (GN) Word2Vec model is used, and the lighter for when the Freebase (FB) model is used. Very strict evaluation was only created part way through development, so some early results are missing for that, but they would likely follow a similar patter to that of matching or \textit{strict} evaluation.}
+	\label{figure:kpsvmresults}
+\end{figure}
 
-% TODO Maybe talk abbout existing solutions in cross bracket metrics
+As described in the design section of this report, the SVM created for extracting key phrases began with a set of features which then underwent several iterations with other features and post processing being added. The full results, from start to finish, can be seen in figure \ref{figure:kpsvmresults}.
 
-\begin{table}
-	\centering
-	\begin{tabular}{ C{3cm} | C{10cm} }
-		\textbf{Strictness} & \textbf{Description} \\
-		\hline
-		Very strict (\texttt{REALLY\_STRICT}) & Both the predicted key phrase string and its boundaries need to match the gold standard string and boundaries. This is of equivalent strictness to the \textit{BRAT} evaluation completed by the ScienceIE scripts. \\
-		\hline
-		Matching (\texttt{STRICT}) & Just the predicted key phrase string needs to match the gold standard string. \\
-		\hline
-		Inclusive matching (\texttt{INCLUSIVE}) & The predicted key phrase string must be equal too or include the gold standard string. \\
-		\hline
-		Generous matching (\texttt{GENEROUS}) & The predicted key phrase string can include the gold standard string, or the gold stand string can include the predicted. \\
-	\end{tabular}
-	\caption[Strictness Descriptions for Self Evaluation of Key Phrases]{The strictness levels used in self evaluation of key phrase extraction. The \textit{strictness} title also includes the \texttt{Strictness} enumeration value as in the Java code for reference.}
-	\label{table:strictness}
-\end{table}
+The results of the initial SVM are interesting. The strict metric shows middling results below that of ScienceIE's average. However, the two more generous metrics are very high. This implies two good things: Firstly, as the \textit{inclusive} metric is high, it shows that while some unwanted information is being extracted, much of the key phrase data is been chosen. Furthermore, the \textit{generous} metric scoring not too much higher implies that a lot of the other key phrases incorrectly extracted are just noise produced by the SVM rather than the gold key phrases with some missing information. This shows that the SVM isn't performing terribly as much of the required information is outputted, however, it has some overflowing of extra information which needs to be reduced. The redundant information could be removed by improvements to the SVM, as well as some post analysis and processing to remove extra, unwanted pieces of information, which is why the processes discussed above were developed and their analysis is to follow.
 
-Therefore, when conducting self evaluation, several metrics will be generated. The metric titles and descriptions can be seen in table \ref{table:strictness}.
+The Word2Vec features added generally slightly improved things across all metrics for at least one Word2Vec model. Oddly, while using the Google News model increased the score for the more generous two metrics, it negatively impacted the strict metric, reducing the F1 score by 6\% compared to the original score. The Freebase model was the opposite of this, although less significant differences were observed, as for the more generous metrics things slightly degraded, and for the strict metric things slightly improved. For this feature, it would imply Freebase was the best model to use as it did increase the results of the strictly measured predictions. 
+
+The first post processing effect was added here with the TF-IDF filter. This gave all configurations minor improvements (the average F1 score rose by 0.01) as expected. 
+
+Including the parse depth feature saw averagely 0.01 score improvements across the board as well. The graph showing progression also begins to include the very strict metric as well. This metric is in-line with how the ScienceIE evaluation works, matching both the key phrase string and position in the document. The result saw a 60\% score reduction compared to the, just string matching, strict metric when using both Freebase and Google News. This means the system is choosing useful pieces of information from the papers, but unfortunately roughly half of the key phrases chosen are not from the correct place in the text. 
+
+Following this, the largest change to the SVM based key phrase extraction system happened; the inclusion of the \textit{sanitisation on creation} changes saw large improvements in F1 score - averagely 0.1 improvement for the Google News based strictly and very strictly evaluated tests. This was a very positive step, as the two generous metric scores didn't change very much. This mean that this post processing was effectively transforming a number of key phrases from being inclusive of the gold standard to matching the gold standard. 
+
+Including the stop word flag feature again slightly improved things for the actual SVM performance, again averaging an increase of 0.01 F1 score.
+
+The final change to the SVM process was to make the final changes to the key phrase creation sanitisation. While averagely this made no difference to the F1 results, for some cases it significantly damaged scores; namely when using the inclusive metric with the Freebase model, the F1 score dropped by almost 0.1. The Freebase model, under these presented set of features and processes, performs worse than the Google News model for all metrics aside from \textit{strict}, where the difference is only 0.02 F1 score. This change was still positive however, as it made the key phrases much more pleasant to look at. Cases such as "support vector machine (svm" was tidied up, and generally words were not missing final letters which was a problem from earlier in SVM's life. Furthermore, this last change saw an opportunity to quickly generate some synonyms for almost no cost. Using this method saw 14 synonyms correctly generated when processing the test data. 
+
+From this, the best configuration can be seen to be when all proposed features and processing effects are used, with the Google News model being used for the Word2Vec features. Running this configuration and evaluating the predicted key phrase with the ScienceIE test scripts produces an overall F1 score of 0.2. This is perfectly in line with the self evaluation conducted under the strictest metric, which reinforces the self evaluation as trustworthy (as it got the correct score), and through that helps to validate claims the other evaluations give the information about the system they are meant to. 
 
 \subsubsection{Experimenting With Longer Documents}
+% TODO experinemnt with longer documents on paper...
 
 \subsection{Method 2: Clustering}
 While the SVM method showed some good results, unfortunately clustering was not as successful. 
@@ -188,4 +189,24 @@ In terms of the different methods of generating vectors for key phrases, keeping
 Furthermore, while leaving more important information in the key phrase for vector generation did improve the system performance, the false positives increases a large amount as well. Selecting just the root noun saw 14 times more false positive results than true positive; compared to when all key phrase information was left in, only 6 times as many false positives to true positives were seen. Not excluding data clearly improves the system accuracy, and increases the F1 score.
 
 \section{Conclusion}
+This paper set out to provide a set of solutions to the ScienceIE task and its subtasks. Considering the summary presented in table \ref{table:scienceieresults}, these experimental systems have performed in a satisfactory manor. 
 
+The key phrase extraction, using a range of features in a support vector machine and some effective post processing achieved reasonable results considering, if we ignore the location of the key phrase extractions, a maximum F1 score of 0.36 which is very close the to average at ScienceIE. For comparisons sake, it would be very interesting to run the same analysis on the results produced at ScienceIE, to see if the best teams realistically came very close to extracting 100\% of the required information (if the position of key phrases could be ignored, and potentially a little bit of extra information allowed).
+
+The key phrase classification produced good results, again being very close to the average at ScienceIE. While the Freebase Word2Vec model did not serve this use well, the Google News model did a very good job of classifying key phrases, producing comparable results with or without a default classification to give if it couldn't understand a key phrase. 
+
+Finally, the relation extraction did not perform very well, even when attempting just hyponym or synonym extraction. In fact, the one simple rule included in the post processing for subtask A produced 1 more correct synonym than any synonym SVM did during testing with gold standard data as an input. From this, unfortunately using just Word2Vec as a basis for a SVM feature set cannot be recommended, as it has very poor performance under these conditions. It is believe, however, that part of this is because of the lack of testing data as input, given there were many examples given to the SVM of what a relationship didn't look like, where there were few examples of what the relationships did look like.
+
+\subsection{Improvements}
+From this, a range of improvements and extensions could be applied:
+\begin{itemize}
+	\item \textbf{A more appropriate Word2Vec model.} Word2Vec was used in all three subtasks, but unfortunately only two models were tested with the systems, and neither had the context of scientific papers. If a system was created to crawl the internet fetching many scientific publications and have them all processed by Word2Vec, there may be a potential for a more suitable model to be created. Not only would the vocabulary be laid out in vector space in a way that should likely fit the testing data presented here better, but more of the tokens in this testing data should also appear in the model, which would improve things significantly for a start. 
+	\item \textbf{Expansion of key phrase SVM features.} If future work was to continue on the SVM created in subtask A, a way that is likely to produce better results is to include more features about each token. Specifically:
+	\begin{itemize}
+		\item Features giving more information about surrounding key phrase tokens (for example more information about recent key phrase tokens, information about overall key phrases so far for the given document),
+		\item The Word2Vec distance to the previous token (in an attempt to string together related tokens),
+		\item More lexical or semantic information about the current phrase.
+	\end{itemize}
+	\item \textbf{More training time and memory capacity for parameter tuning.} Time and memory limitations didn't allow for much more training time to be given to the \textit{many features} SVM, but potentially an increased \textit{C} value may help to find a hyperplane which could work better. For the key phrase SVM, while the parameters tested in cross validation seemed to plateau, further investigation may have revealed increased performance.
+	\item \textbf{Better data for training the relation SVMs.} As alluded to above, give the relation SVMs training data which includes a higher percentage of actual relations cases. This could be done through adding more papers with relations in, or removing some or all papers without any relations in.
+\end{itemize}

@@ -10,6 +10,8 @@ Accuracy is one, but often doesn't show the full story as if, on a data set wher
 
 Two better metrics can be calculated, which are precision and recall. They look at the rates of correct and incorrect predictions, and can be combined together (and often are in the NLP world) to produce an F1 score. This is what ScienceIE's scripts calculate, given ScienceIE's gold standard data and a researchers predictions, comparing instances where the researcher has correctly predicted key phrase boundaries, classification and relations against the gold standard data.
 
+An F1 score of 1 is perfect, and an F1 score of 0 means nothing was classified correctly at all.
+
 \subsubsection*{Tokenization}
 Tokenizatoin is a simple concept where a document is broken down, from one long string into individual words or symbols. 
 
