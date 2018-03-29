@@ -1,11 +1,33 @@
 \chapter{Creating a Proof of Concept Use for ScienceIE data}
 Having completed systems to handle the information extraction, the next major part of the project was to explore how this information can be utilised for researchers. 
 
-The most obvious domain for using summary information about a set of resources is search. Being able to efficiently search through a large set of documents to quickly find more useful information is a very useful thing.
+The most obvious domain for using summary information about a set of resources is search. Being able to efficiently search through a large set of documents to quickly find more useful information is a very useful thing. The focus of this section is to explore using the key phrase information in an efficient and convenient way to aid in user query across the ScienceIE data set. 
 
-\section{Further Research}
-Discuss the resources used to design maybe?
-Make sure to include research on searching I did...
+The ScienceIE data set is specifically being used because that is what the algorithms in this project are designed for. The problem of handling longer, full publications has been discussed, so to not complicate this investigation further, the standard short documents of ScienceIE shall form the database of documents.
+
+\section{Background and Technology Review}
+\subsubsection*{Existing Search}
+Two popular, publicly available search engines have been examined to extra some well designed features from. These are Google Scholar\footnote{\href{https://scholar.google.com/}{https://scholar.google.com/}} and ScienceDirect\footnote{\href{https://www.sciencedirect.com/}{https://www.sciencedirect.com/}}, and appendix \ref{appendix:searcheg} shows screen shots of both web sites given the same query. Common features are:
+\begin{itemize}
+	\item Limited results per page (10 on Google Scholar, 25 on ScienceDirect),
+	\item The total number of documents selected and the time it took to do this is displayed to the user,
+	\item Filtering options, including by date,
+	\item The title of a result is followed by a snippet of the document, with relevant words highlighted in some way,
+	\item The title is a link to an individual results page which presents information about the document, but there are also links to directly get the document downloaded.
+\end{itemize}
+
+\noindent Some custom features on each website are:
+\begin{itemize}
+	\item ScienceDirect supports searches with multiple parameters, including query fields specifically for author, title, pages, etc...
+	\item ScienceDirect also supports custom numbers of search results per page; 25 is the default, but the user can receive 50 or 100 results per page if they wish,
+	\item Google Scholar present \textit{related searches} to allow the user to navigate sideways towards their target paper, rather than straight down to it,
+	\item ScienceDirect features a \textit{recommended} section at the top where it showcases several publications it believes to be the most relevant.
+\end{itemize}
+
+Given the data set available in this project, most of these ideas presented by Google Scholar and ScienceDirect can be implemented. However, as ScienceIE's data is purely text snippets of documents, author, real title, publish information and more are unavailable, meaning any system created here cannot support filtering by these features, or display that information.
+
+
+
 \section{Design and Implementation}
 How it was pulled off
 \section{Web Interface}
