@@ -7,7 +7,7 @@ Taking on the [ScienceIE](https://scienceie.github.io/) task.
 * Java 8 (64-bit)
 * Maven 3
 * For Word2Vec, some [pretrained models](https://github.com/3Top/word2vec-api) (download `Google News` as a minumum).
-* It likely works on other Linuxs and probably on Windows if you put enough effort in, although the development and execution was all completed on Ubuntu 16.04.
+* It likely works on other Linuxs and probably on Windows if you put enough effort in, but the development and execution was all completed on Ubuntu 16.04.
 
 ### Running the system
 The 2 Java projects under the [`java`](java) directory are [`FYP-NLP`](java/FYP-NLP), which includes all NLP code, and [`FYP-GUI`](java/FYP-GUI), which includes the GUI code making the project usable as a service. Scripts are provided for convenience:
@@ -24,8 +24,8 @@ The 2 Java projects under the [`java`](java) directory are [`FYP-NLP`](java/FYP-
 ## Current Status of Software
 
 In terms of NLP...
-* For Task 1, the existing SVM is doing fine, and I think is about ready to leave alone. Official scripts give up to ~0.21 which isn't as good as the achievements at ScienceIE but good enough for me, especially when compared with my own evaluation which is a little fairer. Clustering was atempted (using Word2Vec to help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
-* For Task 2, the existing method of using Word2Vec with a simple averaging algorithm seems fairly effective (over 50% of classification on gold data is correct). SVM usage was also attempted inherited from task 1, but proven to be not very good - no surprises there!.
+* For Task 1, the existing SVM is ok. Official scripts give up to ~0.21 which isn't as good as the achievements at ScienceIE but good enough, especially when compared with my own evaluation which is a little fairer. Clustering was atempted (using Word2Vec's `.similarity` help calculate distance) but this didn't seem to be very good, usually making just 1 giant cluster which swallowed up single tokens at a time.
+* For Task 2, the existing method of using Word2Vec with a simple averaging algorithm seems fairly effective (over 50% of classification on gold data is correct). SVM usage was also attempted inherited from task 1, but proven to be not very good - no surprises there!
 * For Task 3, the existing SVM using Word2Vec is not very good at all. A limited number of words appear in WordNet meaning that may not be a way to work on this task either. A rule engine is expensive to build and probably unachievable, although potentially dynamic searching of Wikipedia/Freebase (resources used by the best solution at SemEval 2017) may be a good solution to at least produce some good output. Also attempted a slightly different SVM using Word2Vec and vector distances/angels, but did not improve.
 
 In terms of making the system into a product...
@@ -36,9 +36,9 @@ In terms of making the system into a product...
 
 ## The Dissertation and Presentation
 
-The dissertation is being completed in the [`report`](report) directory, and the [current PDF version can be viewed here](report/fyp.pdf).
+The dissertation can be seen at [report/fyp.pdf](report/fyp.pdf).
 
-The presentation is [`Presentation.pdf`](Presentation.pdf).
+The presentation can be seen at [`Presentation.pdf`](Presentation.pdf).
 
 ## Results
 The end-to-end annotationed set of ScienceIE's test data can be seen at [`resources/scienceie_test_my_annotations`](resources/scienceie_test_my_annotations)
@@ -142,17 +142,68 @@ Overall statistics (rls): Accuracy: 0.79427395 Precision: 0.17907574 Recall: 0.1
 Boundary statistics: Accuracy: 0.69546586 Precision: 0.46696035 Recall: 0.54798556 F1: 0.50423875
 ```
 
-### Task 2
-#### SVM 
+### SVM - as above with final changes to sanitisation
 
-```
-Overall statistics (gen): Accuracy: 0.90511886 Precision: 0.49532710 Recall: 0.02314410 F1: 0.04422194
-Overall statistics (inc): Accuracy: 0.90489209 Precision: 0.43000000 Recall: 0.01884312 F1: 0.03610411
-Overall statistics (str): Accuracy: 0.90434350 Precision: 0.22500000 Recall: 0.00795053 F1: 0.01535836
-```
-
-#### SVM - with Word2Vec
 Using Google News:
+
+```
+Overall statistics (gen): Accuracy: 0.92260462 Precision: 0.88344251 Recall: 0.80939570 F1: 0.84479965
+Overall statistics (inc): Accuracy: 0.88027113 Precision: 0.74637475 Recall: 0.67515432 F1: 0.70898042
+Overall statistics (str): Accuracy: 0.81902091 Precision: 0.36525308 Recall: 0.31950538 F1: 0.34085106
+Overall statistics (rls): Accuracy: 0.81119924 Precision: 0.21075741 Recall: 0.18181818 F1: 0.19522115
+Boundary statistics: Accuracy: 0.72504591 Precision: 0.51238558 Recall: 0.56095307 F1: 0.53557051
+```
+
+Using Freebase:
+
+```
+Overall statistics (gen): Accuracy: 0.92560503 Precision: 0.88991532 Recall: 0.75786713 F1: 0.81860026
+Overall statistics (inc): Accuracy: 0.89139549 Precision: 0.75230297 Recall: 0.60328317 F1: 0.66960219
+Overall statistics (str): Accuracy: 0.85371043 Precision: 0.42772703 Recall: 0.31215686 F1: 0.36091589
+Overall statistics (rls): Accuracy: 0.84760038 Precision: 0.23812801 Recall: 0.16351607 F1: 0.19389185
+Boundary statistics: Accuracy: 0.74038281 Precision: 0.55216586 Recall: 0.43072924 F1: 0.48394581
+```
+
+### Task 2
+#### W2V Classifier
+
+```
+word2vec model, distance metric, autoClazz, removeStopWords, useManyWords, correct, total, percentage
+freebase, closest, Unknown, noo, noo, 0, 2052, 0.0%
+freebase, average, Unknown, noo, noo, 0, 2052, 0.0%
+freebase, average, Unknown, yes, noo, 0, 2052, 0.0%
+freebase, average, Unknown, noo, yes, 0, 2052, 0.0%
+freebase, closest, Unknown, yes, noo, 0, 2052, 0.0%
+freebase, average, Unknown, yes, yes, 0, 2052, 0.0%
+freebase, closest, Unknown, noo, yes, 0, 2052, 0.0%
+freebase, closest, Unknown, yes, yes, 0, 2052, 0.0%
+freebase, closest, Material, noo, noo, 904, 2052, 44.054580896686154%
+freebase, average, Material, noo, noo, 904, 2052, 44.054580896686154%
+freebase, average, Material, yes, noo, 904, 2052, 44.054580896686154%
+freebase, average, Material, noo, yes, 904, 2052, 44.054580896686154%
+freebase, closest, Material, yes, noo, 904, 2052, 44.054580896686154%
+freebase, average, Material, yes, yes, 904, 2052, 44.054580896686154%
+freebase, closest, Material, noo, yes, 904, 2052, 44.054580896686154%
+freebase, closest, Material, yes, yes, 904, 2052, 44.054580896686154%
+google news, closest, Unknown, noo, noo, 945, 2052, 46.05263157894737%
+google news, average, Unknown, noo, noo, 983, 2052, 47.904483430799225%
+google news, average, Unknown, yes, noo, 980, 2052, 47.758284600389864%
+google news, average, Unknown, noo, yes, 933, 2052, 45.46783625730994%
+google news, closest, Unknown, yes, noo, 943, 2052, 45.955165692007796%
+google news, average, Unknown, yes, yes, 933, 2052, 45.46783625730994%
+google news, closest, Unknown, noo, yes, 904, 2052, 44.054580896686154%
+google news, closest, Unknown, yes, yes, 901, 2052, 43.9083820662768%
+google news, closest, Material, noo, noo, 1082, 2052, 52.72904483430799%
+google news, average, Material, noo, noo, 1120, 2052, 54.58089668615984%
+google news, average, Material, yes, noo, 1117, 2052, 54.43469785575049%
+google news, average, Material, noo, yes, 1070, 2052, 52.14424951267057%
+google news, closest, Material, yes, noo, 1080, 2052, 52.63157894736842%
+google news, average, Material, yes, yes, 1070, 2052, 52.14424951267057%
+google news, closest, Material, noo, yes, 1041, 2052, 50.73099415204678%
+google news, closest, Material, yes, yes, 1038, 2052, 50.58479532163743%
+```
+
+#### SVM 
 
 ```
 Overall statistics (gen): Accuracy: 0.90625261 Precision: 0.69142857 Recall: 0.05224525 F1: 0.09714974
@@ -160,40 +211,27 @@ Overall statistics (inc): Accuracy: 0.90453540 Precision: 0.47200000 Recall: 0.0
 Overall statistics (str): Accuracy: 0.90336450 Precision: 0.21428571 Recall: 0.00929615 F1: 0.01781926
 ```
 
-#### W2V Classifier
-
-```
-Based on average distance
-	Correctly Classified Key phrases		Incorrectly Classified Key phrases	
-Parameters	GOOGLE_NEWS	FREEBASE_IDS	GOOGLE_NEWS	FREEBASE_IDS
-UNKNOWN + false			2052	2052
-MATERIAL + false	904	904	1148	1148
-MATERIAL + true	1117	904	935	1148
-				
-Based on closest distance
-	Correctly Classified Key phrases		Incorrectly Classified Key phrases	
-Parameters	GOOGLE_NEWS	FREEBASE_IDS	GOOGLE_NEWS	FREEBASE_IDS
-UNKNOWN + false			2052	2052
-MATERIAL + false	904	904	1148	1148
-MATERIAL + true	1080	904	972	1148
-
-```
-
 ### Task 3
+The Word2Vec model used for the following was Google News
+
 #### SVM based on Word2Vec - sum of tokens in KP
-Using Google News:
 
 ```
-Overall statistics: Accuracy: 0.99417070 Precision: 0.13402062 Recall: 0.06341463 F1: 0.08609272
-Specific results were: tp: 13.0 fp: 84.0 tn: 47058.0 fn: 192.0
+A: 0.99417070 P: 0.13402062 R: 0.06341463 F1: 0.08609272
+tp: 13.0 fp: 84.0 tn: 47058.0 fn: 192.
 ```
 
 #### SVM based on Word2Vec - vector of root noun in KP
-Using Google News:
 
 ```
-Overall statistics: Accuracy: 0.99507961 Precision: 0.06666667 Recall: 0.00966184 F1: 0.01687764
-Specific results were: tp: 2.0 fp: 28.0 tn: 47119.0 fn: 205.0
+A: 0.99507961 P: 0.06666667 R: 0.00966184 F1: 0.01687764
+tp: 2.0 fp: 28.0 tn: 47119.0 fn: 205.0
+```
+
+#### SVM based on Word2Vec - ignoring stop words and unimportant words if possible
+
+```
+tp: 0.0 fp: 0.0 tn: 47149.0 fn: 207.0
 ```
 
 ### ScienceIE Scripts
