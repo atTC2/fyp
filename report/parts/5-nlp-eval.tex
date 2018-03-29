@@ -22,8 +22,30 @@ A summary of evaluation using the ScienceIE scripts, which covers all subtasks u
 \section{Subtask A - Key Phrase Extraction}
 
 \subsection{Method 1: Support Vector Machine}
+As described in the design section of this report, the SVM created for extracting key phrases began with a set of features which then underwent several iterations with other features being added.
 
-\subsubsection{Self Evaluation}
+A problem referenced in the literature review was evaluation of key phrase extraction. What was discussed is how to classify good and bad systems. It is easy to accurately say how well a system performed compared to a set of gold standard data, but this paper considers whether that is enough to say whether a given extraction system is a success or not.
+
+% TODO Maybe talk abbout existing solutions in cross bracket metrics
+
+\begin{table}
+	\centering
+	\begin{tabular}{ C{3cm} | C{10cm} }
+		\textbf{Strictness} & \textbf{Description} \\
+		\hline
+		Very strict (\texttt{REALLY\_STRICT}) & Both the predicted key phrase string and its boundaries need to match the gold standard string and boundaries. This is of equivalent strictness to the \textit{BRAT} evaluation completed by the ScienceIE scripts. \\
+		\hline
+		Matching (\texttt{STRICT}) & Just the predicted key phrase string needs to match the gold standard string. \\
+		\hline
+		Inclusive matching (\texttt{INCLUSIVE}) & The predicted key phrase string must be equal too or include the gold standard string. \\
+		\hline
+		Generous matching (\texttt{GENEROUS}) & The predicted key phrase string can include the gold standard string, or the gold stand string can include the predicted. \\
+	\end{tabular}
+	\caption[Strictness Descriptions for Self Evaluation of Key Phrases]{The strictness levels used in self evaluation of key phrase extraction. The \textit{strictness} title also includes the \texttt{Strictness} enumeration value as in the Java code for reference.}
+	\label{table:strictness}
+\end{table}
+
+Therefore, when conducting self evaluation, several metrics will be generated. The metric titles and descriptions can be seen in table \ref{table:strictness}.
 
 \subsubsection{Experimenting With Longer Documents}
 
@@ -49,14 +71,14 @@ To aid in the understanding of what happened, an illustration is provided in fig
 	\node (cde) at (-0.75, 2) {};
 	\node (all) at (-2.125, 5) {};
 	
-	\draw  (a) |- (ab.center);
-	\draw  (b) |- (ab.center);
-	\draw  (c) |- (cd.center);
-	\draw  (d) |- (cd.center);
-	\draw  (e) |- (cde.center);
-	\draw  (cd.center) |- (cde.center);
-	\draw  (ab.center) |- (all.center);
-	\draw  (cde.center) |- (all.center);
+	\draw  (a) |- (ab);
+	\draw  (b) |- (ab);
+	\draw  (c) |- (cd);
+	\draw  (d) |- (cd);
+	\draw  (e) |- (cde);
+	\draw  (cd.center) |- (cde);
+	\draw  (ab.center) |- (all);
+	\draw  (cde.center) |- (all);
 	
 	\node (a2) at (2 ,0) {a};
 	\node (b2) at (3, 0) {b};
@@ -68,14 +90,14 @@ To aid in the understanding of what happened, an illustration is provided in fig
 	\node (abcd2) at (4.125, 3) {};
 	\node (all2) at (5.0625, 5) {};
 	
-	\draw  (a2) |- (ab2.center);
-	\draw  (b2) |- (ab2.center);
-	\draw  (c2) |- (abc2.center);
-	\draw  (d2) |- (abcd2.center);
-	\draw  (e2) |- (all2.center);
-	\draw  (ab2.center) |- (abc2.center);
-	\draw  (abc2.center) |- (abcd2.center);
-	\draw  (abcd2.center) |- (all2.center);
+	\draw  (a2) |- (ab2);
+	\draw  (b2) |- (ab2);
+	\draw  (c2) |- (abc2);
+	\draw  (d2) |- (abcd2);
+	\draw  (e2) |- (all2);
+	\draw  (ab2.center) |- (abc2);
+	\draw  (abc2.center) |- (abcd2);
+	\draw  (abcd2.center) |- (all2);
 	\end{tikzpicture}
 	\caption[Visual Representation of Key Phrase Clustering]{Examples of hierarchical clustering on a set of items, \textit{a}, \textit{b}, \textit{c}, \textit{d} and \textit{e}, through to when they are all in the same cluster. The left drawing is an example of ideally what we would like to have seen. The right is a representation of what was very common generated.}
 	\label{figure:kpclusteringeg}
