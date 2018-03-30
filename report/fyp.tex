@@ -14,9 +14,33 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[open,openlevel=1]{bookmark}
 \usepackage{multirow,tabularx}
+\usepackage{listings}
+\usepackage{color}
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 \usepackage{multicol}
+
+\definecolor{maroon}{rgb}{0.5,0,0}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+
+\lstset{
+	basicstyle=\ttfamily,
+	columns=fullflexible,
+	showstringspaces=false
+}
+
+\lstdefinelanguage{XML}
+{
+	morestring=[s]{"}{"},
+	morecomment=[s]{?}{?},
+	morecomment=[s]{!--}{--},
+	commentstyle=\color{darkgreen},
+	stringstyle=\color{darkblue},
+	identifierstyle=\color{darkblue},
+	keywordstyle=\color{maroon},
+	morekeywords={dependency,groupId,artifactId,version,exclusions,exclusion}
+}
 
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
