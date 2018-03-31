@@ -42,13 +42,11 @@ The goal with this project is to prove a use of the data produced as part of Sci
 
 In terms of storing information, popular database technologies were surveyed. The stack overflow survey 2017 listed MySQL\footnote{\href{https://www.mysql.com/}{https://www.mysql.com/}} as the most used SQL platform by developers on the sight\footnote{\href{https://insights.stackoverflow.com/survey/2017\#technology-databases}{https://insights.stackoverflow.com/survey/2017\#technology-databases}}. One reason for this is that some competitive SQL platforms require licensing (especially when commercial use is considered), such as Oracle SQL, while MySQL is open source and can be used more freely. The platform can be easily acquired and installed on various platforms (with major Windows and Linux operating systems supported), with largely straight forward initial configuration (for a project of this scale). The standard MySQL installation also includes the MySQL Workbench, which includes a convenient tool for building a relational database schema\footnote{\href{https://dev.mysql.com/doc/workbench/en/wb-data-modeling.html}{https://dev.mysql.com/doc/workbench/en/wb-data-modeling.html}}, with the ability to export SQL scripts to build the designed database in a single execution (including tables, relations and users with certain access rights). 
 
-One of the most popular Java web frameworks available is Spring. Spring provides functionality to route requests to certain Java classes for processing, including the passing of any parameters with some degree of automatic validation, and the ability to process Java Servlet Pages (JSPs) which are compiled at run time to delivery varying pieces of information to the end users. It implemented the standard \textit{model-view-controller} (MVC) design pattern. To keep the focus on the use of data processed in this project, a convenient web container is desired, and that is what Spring Boot\footnote{\href{https://projects.spring.io/spring-boot/}{https://projects.spring.io/spring-boot/}} provides. This packages the Spring technology stack, web server technology (for example, Apache Tomcat) and any extra libraries required into a single, executable, Java project, making heavy use of annotations for the minimal configuration required. This makes it an extremely portable and (in terms of environment and system configuration) light weight application to set-up and run, which reflects as part of their projects mission statement to get developers "up and running as quickly as possible". It is a young project, with the original version being released in 2014 and version 2.0 being released during the course of this project, meaning it is built to work with the current standard of industrial Java technologies - so while this project is aiming to build a simple application, it shall have some powerful technologies standing behind it.
-
-% TODO find a reference for MVC?
+One of the most popular Java web frameworks available is Spring. Spring provides functionality to route requests to certain Java classes for processing, including the passing of any parameters with some degree of automatic validation, and the ability to process Java Servlet Pages (JSPs) which are compiled at run time to delivery varying pieces of information to the end users. It supports the standard \textit{model-view-controller} (MVC) design pattern. To keep the focus on the use of data processed in this project, a convenient web container is desired, and that is what Spring Boot\footnote{\href{https://projects.spring.io/spring-boot/}{https://projects.spring.io/spring-boot/}} provides. This packages the Spring technology stack, web server technology (for example, Apache Tomcat) and any extra libraries required into a single, executable, Java project, making heavy use of annotations for the minimal configuration required. This makes it an extremely portable and (in terms of environment and system configuration) light weight application to set-up and run, which reflects as part of their projects mission statement to get developers "up and running as quickly as possible". It is a young project, with the original version being released in 2014 and version 2.0 being released during the course of this project, meaning it is built to work with the current standard of industrial Java technologies - so while this project is aiming to build a simple application, it shall have some powerful technologies standing behind it.
 
 One of these technologies is Hibernate\footnote{\href{http://hibernate.org/}{http://hibernate.org/}}. This integrates with the Java Persistance API (JPA), supported by Spring, for extremely simply database interactions with many functions being supported by default. It combines a simple Java object which holds fields relating to each of the column in a database entity (table), and an abstract \texttt{CrudRepository} class which can be extended from to make a data access object which can retrieve records from a database and update them as well. Methods can be added to the extended class to make more complex queries, and either plain English can be used in the method name to define the query, or the specific SQL query statement can be specified if required\footnote{A guide to using this technology is freely available on Spring's website and is presented in a very simple manor. It can be viewed at \href{https://spring.io/guides/gs/accessing-data-jpa/}{https://spring.io/guides/gs/accessing-data-jpa/}} Furthermore, when fields are foreign keys of other entities, rather than being of an \textit{ID} type such as \texttt{Integer} or \texttt{Long}, the class representation of the foreign entity can be used instead, and Hibernate will automatically populate it with the correct object.
 
-\section{Design and Configuration}
+\section{Core Component Design}
 
 \subsection*{Design of the Services}
 There are four key requirements of the POC system which cover a large amount of usability. The first requirement is very simple. Two pages are required for this:
@@ -57,7 +55,34 @@ There are four key requirements of the POC system which cover a large amount of 
 	\item The second page, for displaying information about a paper, should begin with the title at the top, a section in the middle for the original text, and finish with a list of key phrases and relations. The key phrases, as a minimum, should be annotated on the main text as well.
 \end{itemize}
 
-The second requirement is covering the question of search. A new algorithm is proposed that includes the key phrase information about a paper. Using the concept of using the TF-IDF scores of both the tokens in all documents as well as the tokens in the query to try to find papers is utilised with a scaling factor, defined by the presence of key words in a paper.
+The second requirement is covering the question of search. A new algorithm is proposed that includes the key phrase information about a paper. Using the concept of combining the TF-IDF scores of both the tokens from documents as well as from in the query to try to prioritise papers is utilised with a scaling factor, defined by the presence of key words in a paper. When searching, the following process should happen:
+\begin{enumerate}
+	\item The query string shall be tokenized, and every token shall have its TF-IDF score calculated (relative to the training set, as all TF-IDF scores are calculated).
+	\item A set of papers are selected, with the criteria of needing to have at least one of the tokens from the query as a substring of the entire text.
+	\item For every paper selected, the tokens that relate to the search query are extracted. The extracted token may not be the same as the query token, as the query token could be a substring of the extracted token.
+	\item For every paper, for every unique token extracted in the previous step, the TF-IDF value of the extracted token is multiplied by the TF-IDF value of the query token it relates too as a \textit{TF-IDF weighting}. 
+	\item For every paper, for every token extracted, a \textit{scaling factor} is then calculated. Beginning at one, it is incremented by one for every key phrase (for the given paper) a query token appears in.
+	\begin{itemize}
+		\item If a user is \textit{focussing} on a certain classification of information (e.g. \textit{task}), then only the specified types of key phrases are used when scaling.
+	\end{itemize}
+	\item The \textit{TF-IDF weighting} for each token extracted from a paper is then multiplied by the \textit{scaling factor} calculated for the token.
+	\item These multiplied values are then summed for each paper. The sum is the papers score.
+	\item The papers are ordered by score, with the largest score being first to be presented to the user, and the lowest last.
+\end{enumerate}
+
+This should, as a base line, retrieve all relevant papers to a users query with a reasonable ordering relative to the TF-IDF values of the query words. Furthermore, it should prioritise terms that are part of key phrase of documents, which should list documents specifically addressing certain concepts higher than documents mentioning them, which is an ideal use for the key phrase information extracted. A problem which may occur is when a search term with a high TF-IDF value is found (as it has a low occurrence in the document it appears in) and a low TF-IDF word which happens to appear in key phrases. As the multiplier may be large for the low TF-IDF valued word, it may overtake the other, more important word in overall paper score, which may not be idea for the user. However, this isn't expected to happen often, as low TF-IDF valued words are unlikely to be part of key phrases, as (implied by their TF-IDF score) they are not critical pieces of information in the document. 
+
+The next requirement is the ability to add new papers. In terms of user input, this is fairly simple, as a string will be taken in and can be treated as a file descriptor. Given many other jobs need completing in this project, and a web resources paper type wasn't created in the NLP system, to for fill this requirement, any paper location added shall be treated as a file URI and looked for on the host system's disk. This can then be loaded into the system and processed through each of the subtask systems.
+
+To complete the processing, a paper will need a status associated with it. This status should describe what the next stage processing the paper should experience is. In order, the processes are: \textit{preprocessing}, \textit{key phrase extraction}, \textit{key phrase classification}, and \textit{relation extraction}. To complete the subtasks, the solutions with the best found configurations in the NLP system shall be used. The use of the set of SVMs this will require can be optimised: rather than training for every paper, the first time a SVM is used it can be trained, then serialised and saved to disk. Every time after that, it can be loaded back into memory without the need for hours or retraining. Furthermore, given the SVMs and Word2Vec take up a large amount of memory, rather than processing one paper at a tie end-to-end, all papers needing an action being completed can be processed at once with its required resources being loaded and reused throughout, before unloading ready for the next stage of processing which will work on all papers in that status as well.
+
+Overall, this should all the efficient processing of all papers in the system. As the extracted content is predicted, it can be immediately added to the database allowing the search and other systems to immediately update with the latest information.
+
+Finally, the last requirement is a little open to interpretation, as all that is required is the display of some summary information about what is in the database. Two data visualisations are proposed:
+\begin{itemize}
+	\item The first is a simple pie chart. It shall have three segments, each representing the percentage of key phrases that are each classification. Next to the pie chart (aside from a legend or similar describing each segment) the number of key phrases should also be displayed, so the number of each classification can be understood.
+	\item The second is a larger visualisation. Three word clouds should be created, made up of the tokens of key phrases extracted, one for each classification. To determine the size of a token in a word cloud, it's TF-IDF value should be used. This will allow words with high importance to stand out over words which are still key phrases, but less important. This should give a user an insight into what information is in the system, and ideas for what to search for to achieve better results given they know what words are in the key phrases.
+\end{itemize}
 
 \subsection*{Database Design and Entity Relationship Diagram}
 
@@ -74,6 +99,7 @@ The \texttt{paper} and \texttt{key\_phrase} entities are largely the same as the
 The method for storing hyponyms and synonyms is slightly different to the NLP system. Rather than being part of a relations list the parent paper record holds, instead each relation holds the \texttt{key\_phrase} references they are a relation of. The original \texttt{paper} can still be retrieved through retrieving the referenced \texttt{key\_phrase} records. The \texttt{hyponym} record holds the two \texttt{key\_phrase} records it is a relation of, as well as a relative ID, which is the ID of the hyponym relation relative to the individual paper it is from. The \texttt{synonym} relation is a little more complex. While the NLP system created didn't support more than two way synonym relation extraction and there was only one example of a three way synonym relation in the ScienceIE data set, to support the range of relations defined as part of ScienceIE these synonym entity has to support one synonym referencing a variable amount of \texttt{key\_phrase} records. Therefore, to avoid a many-to-many relation between entities, each \texttt{synonym} record holds a reference to a \texttt{syn\_link}, the concept being a set of synonyms, each referencing one \texttt{key\_phrase}, all reference the same \texttt{syn\_link} record, which makes the synonym relation between the set of referenced key phrases. Having \texttt{syn\_link} also provides a convenient way to count he number of synonyms in the system.
 
 \section{Implementation}
+This section shall cover the infrastructure of the POC system and how the requirements are handled. The graphical user interface (GUI) information shall be described later in the \textit{Web Interface} section.
 
 \subsection*{Project Configuration}
 The creation of the project involved including various dependencies in the \texttt{pom.xml} file and setting up the launch configuration for Spring Boot.
@@ -119,7 +145,95 @@ Several parts of the above are concerned with, as well as required configuration
 
 Finally, the class \texttt{FypGuiApplication} needed to be created, as it is this class that contains the classic \texttt{public static void main(String[] args)} method that starts the whole program. Along side the opportunity to include any other pieces of configuration completed through Java code, this initiated the Spring MVC technology stack.
 
+\subsection*{Implementing The Requirements}
+To complete the requirements, several internal services needed to be created. For the simple display of data (for the first requirement), simple database queries could be ran and the data immediately propagated to screen. However, the other requirements require more complex solutions. 
+
+Before continuing, the following classes are all annotated with \texttt{@Service}. This tells Spring to instantiate these classes (each one as a singleton) and allows them to be automatically injected into other objects. For example, \texttt{PaperUtil} is a class which provides utility methods for the system (including holding training paper information and utilities for calculating TF-IDF values and for loading serialised papers). It has a \texttt{@Service} tag, and if another class wishes to use it, \texttt{@Autowired private PaperUtil util;} can be added as a field in the class and Spring will automatically make the instantiated \texttt{PaperUtil} object available.
+
+To handle search, two classes were created. \texttt{PaperSearch} handles the incoming \texttt{SearchQuery} object, which is all the information about a users query. Using this information, \texttt{PaperSearch} retrieves all the database information required to complete the suggested algorithm for calculating paper scores. Each paper, one by one, is then passed to \texttt{PaperScoreCalculator.calculatePaperScore} to have its score calculated. The reason for a second class being used here is it allows the user of asynchronous technology. The method called is annotated with \texttt{@Async}, and returns \texttt{CompletableFuture$<$Double$>$} (score is measured in the \texttt{Double} data type), which causes the processing calling the method to not wait for a return value and carry on, effectively making a new thread every time the method is called. The effect this has is that a loop can be made, calling this method for every paper, which immediately returns a list of \texttt{CompletableFuture$<$Double$>$}. This list, effectively made up of a set of threads, can be joined on later, meaning execution will only continue past the \textit{join} once all threads have finished their calculations. The configuration for this pool of threads is completed in the \texttt{FypGuiApplication} class which starts the system. Given the test set, the data set that will be input to the system, is 100 items large, the thread pool was given a size of 100, so if a query covering all papers was requested the entire query could be parallelised. This should allow fast execution of this case, and should also cope with several users doing multiple queries simultaneously without much slow down. From testing, using this asynchronous method oppose to sequentially calculating a score for each paper saw some massive speed increases, which can be seen in table \ref{table:searchtimesasync}. Once the search is complete and the results ordered, the papers are converted to a \texttt{SearchResult} model which contains the key information for the user to see while searching.
+
+\begin{table}
+	\centering
+	\begin{tabular}{ C{4.5cm} | C{4.5cm} | C{4.5cm} }
+		\textbf{Query} & \textbf{Time in seconds (sequential)} & \textbf{Time in seconds (asynchronous)} \\
+		\hline
+		a & 80 & 23 \\
+		the & 10 & 3.8 \\
+		support vector machine & 0.5 & 0.2 \\
+	\end{tabular}
+	\caption[Search Times with and without parallel execution]{Times for searches to complete, before and after asynchronous calculation of paper scores were added.}
+	\label{table:searchtimesasync}
+\end{table}
+
+The next requirement to implement was the input and processing of all papers. Upon input of a new paper by a user, a new \text{paper} record was made. It simply held the location given of the paper and a status of 0. To pick up this new paper, the \texttt{PaperProcessor} class has a method \textit{processWaitingPapers}. This method is annotated with \texttt{@Scheduled(fixedDelay = 60000)}, which tells Spring to run this method once every 60000 seconds (60 minutes), which is a long time but stops it regularly doing requests to the database making that connection busy, to a database that should rarely have new papers added given web resources are not supported. This method searches for all papers with a given status, one status at a time (starting at 0 and ending at 3). This covers all \textit{in progress} papers. It then applies a \textit{task} to it, which is the processing step from the NLP system. In this sense, it makes maintenance of this system fairly simple, as if there was a need to test another process for a subtask, the class using this process could be listed and \texttt{PaperProcess} would apply it automatically. If there was any issue with processing a paper, its status would be set to -1 so it would not be processed again, and would be easy to find as an error paper in the database.
+
+Each \textit{task} was implemented in a class which implemented the \texttt{NlpProcessor} interface. The classes created were, in order of processing, \texttt{PreProcessor}, \texttt{KpSvm}, \texttt{ClassW2V} and \texttt{RelSvm}. The interface defined three required methods which \texttt{PaperProcess} runs in order: \texttt{loadObjects()} which loads the required resources for that process to be run, \texttt{processPaper(Paper)} which is run on every paper to extract the required information using the components from the NLP system, and finally \texttt{unload()} which ensured the memory is cleared to allow for other classes to load in their required resources.
+
+% TODO does the above make sense and cover everything...?
+
+Finally, the information for the data visualisations needed to be prepared. The pie chart, listing the proportions of each classification of key phrase, were deemed simple to compute at run time, as it requires querying the database to find the count of each classification and simple division of that over the total number of key phrases. However, the key phrase word clouds need slightly more computation to display.
+
+For each of the three word clouds, all of the key phrases for that classification need retrieving, tokenizing and their TF-IDFs calculating. This takes some time, which is too long for a user to wait to view them, and will be the same for every query (unless the processing of papers is currently happening). Therefore, a cache was designed. This cache was built under the method \texttt{KeyPhraseCloudCache.updateCache()}, which has the special annotation \texttt{@PostConstruct}. This annotation tells Spring to run this method after the object has been created and any dependencies added through the \texttt{@AutoWired} made available, but before the web server is actually launched. This increases the system start up time, but means the word clouds are available to be send to an interface immediately. To ensure the clouds are up to date if papers are being processed, every time a set is processed under any task, this \texttt{.updateCache()} method is called again to regenerate the word clouds.
+
+An important note on the architecture here is the use of TF-IDF, and that it requires a library of papers to be calculated. The training papers are loaded in the mentioned \texttt{PaperUtil} class, which also has a method with the \texttt{@PostConstruct} annotation which loads this information. These training papers can be retrieved by any other class (mainly for use in training the SVMs as part of the paper processing functionality), but are also used when a TF-IDF value is calculated. The potential problem if the word cloud builder tried to use \texttt{PaperUtil} to calculate TF-IDF before the training papers had been loaded in and prepared. However, as \texttt{PaperUtil} is a dependency of \texttt{KeyPhraseCloudCache}, Spring ensures the post construct method in \texttt{PaperUtil} is always ran before that of \texttt{KeyPhraseCloudCache} to ensure that any resources are fully loaded and ready to be used. 
+
 \section{Web Interface}
+\subsection*{Controller Infrastructure}
+The web interface covers a series of different pages. Spring, supporting the MVC design pattern, allows for controller classes (annotated with \texttt{@Controller}) to load views in the form of JSPs, and pass them model information acquired from other services. In the case of forms where the user has to input some data, a model can be bound directly to the input fields on the page. When submitted, automatic validation (including type checking) can be done by Spring, and the controller can receive the model object for processing. Specified in the controller class, URIs are bound to specific controllers. The controllers can also have different methods for interpreting \texttt{GET} and \texttt{POST} requests, for which different parameters can be specified.
+
+\begin{table}
+	\centering
+	\begin{tabular}{ c | c | c | c | C{6.5cm} }
+		\textbf{URI} & \textbf{Method} & \textbf{Controller} & \textbf{JSP} & \textbf{Functionality} \\
+		\hline
+		\texttt{/} & GET & \texttt{Home} & \texttt{home.jsp} & Return the title of the project and displays the pie chart visualisation. \\
+		\hline
+		\texttt{/add} & GET & \texttt{Add} & \texttt{add.jsp} & Returns the page to input a paper location on. \\
+		\hline
+		\texttt{/add} & POST & \texttt{Add} & \texttt{add.jsp} & Accepts a papers location, and if valid adds it to the database for processing. Returns a message indicating success or failure of the action. \\
+		\hline
+		\texttt{/search} & GET & \texttt{Search} & \texttt{search.jsp} & Returns the search input fields. \\
+		\hline
+		\texttt{/search} & POST & \texttt{Search} & \texttt{search.jsp} & On submission, validates the search and uses the \texttt{PaperSearch} service to do a search. It then returns the same page as before, with a table listing all results. Clicking on a row loads \text{/view} for that paper. \\
+		\hline
+		\texttt{/view} & GET & \texttt{View} & \texttt{view.jsp} & It accepts a paper ID as an input. It then loads the paper from the database (including all extraction information) and adds it to the JSP to be returned to the user. \\
+		\hline
+		\texttt{/kps} & GET & \texttt{KPView} & \texttt{kps.jsp} & Returns the shell of the page to display the word clouds on. \\
+		\hline
+		\texttt{/kps} & POST & \texttt{KPView} & N/A & Accepting a type parameter, it returns all world cloud information (tokens and TF-IDF values) in a JSON format. \\
+		\hline
+		\texttt{/kps/\{type\}} & GET & \texttt{KPView} & \texttt{kp.jsp} & Returns a page containing a table of all key phrases with a classification of the given \textit{\{type\}}. Each row is a link, and takes the user to the \text{/view} for its parents paper. \\
+		\hline
+		N/A & N/A & \texttt{Error} & \texttt{error.jsp} & This controller handles errors. The returned page includes the HTTP error code (for example 404: not found) and, if debug is enabled in \texttt{application.properties}, a stack trace of what went wrong. \\
+	\end{tabular}
+	\caption[Available Requests the POC Website Supports]{All available requests that are supported by the web site. The \textit{controller} is the name of the Java class that provides the functionality.}
+	\label{table:webservices}
+\end{table}
+
+All supported URIs and request methods, with controller, JSP and function provided are listed in table \ref{table:webservices}. 
+
+When data is added to a JSP, it can often be directly printed out, however, some items are in lists (such as search results) which cannot be printed straight out. There are also cases where we wish to display one thing or another (for example, a success message or an error message) so there is the need to do \textit{if} statements in the JSP. The JavaServer Pages Standard Tag Library (JSTL) provides all the solutions needed here, as the \texttt{forEach} tag can be used to iterate down a list of data, and tags such as \texttt{if} and \texttt{choose} can be used to show or hide different parts of the page. The JSTL tags need to be imported on every page.
+
+To ensure all pages have the necessary styling, scripts and navigation bar (which is essential for navigating through the website) are included on every page, the following tags are on every page:
+
+\begin{lstlisting}[language=XML]
+<jsp:include page="header.jsp"></jsp:include>
+<jsp:include page="navbar.jsp">
+  <jsp:param name="active" value="" />
+</jsp:include>
+\end{lstlisting}
+
+\texttt{header.jsp} and \texttt{navbar.jsp} include all of the imports and generic styling every page should have applied.
+
+\subsection*{Styling}
+In terms of styling, to keep layout simple and text clear to read (as both of the example websites are), rather than building a consistent style from the ground up, Bootstrap\footnote{Bootstrap is made up of CSS files and JavaScript files, all of which are needed and can be retrieved from \href{https://getbootstrap.com/}{https://getbootstrap.com/}. At the time of development, version 3 was available.} was used. To give the website a slightly more unique feel, an on-line customer was utilised to help quickly develop an aesthetically pleasing and easy to read style\footnote{The \textit{slate} theme was used as a basis on \href{https://www.bootstrap-live-customizer.com/}{https://www.bootstrap-live-customizer.com/}.}.
+
+To support Bootstrap and custom scripting in the web pages produced, jQuery\footnote{\href{https://jquery.com/}{https://jquery.com/}} was also included in the project.
+
+Using Bootstrap allowed for neat and uniform layouts, with full support for both mobile and desktop browsers. This mean text scaled correctly so should always be easy to read, along with dynamic resizing of important elements such as tables. Furthermore, Bootstrap has label styling, which was utilised to help highlight the classifications of key words. Throughout the project, Bootstraps' \textit{info} (blue), \textit{warning} (orange) and \textit{success} (green) colours were used for marking tasks, processes and materials respectively. Keeping this consistent styling helps make sure the user can quickly understand new information presented, without having to relearn what graphical components mean.
+
+\subsection*{Data Visualisations}
+To present the proposed data visualisations. 
 
 \section{Testing}
 
