@@ -313,4 +313,39 @@ The following are screen shots of the query "computer science" being queried in 
 \chapter{How to run the project from source}
 \label{appendix:howtorun}
 
+To run the two applications, the following prerequisite steps must be taken:
+\begin{enumerate}
+	\item Install Java 8, Maven 3 and MySQL.
+	\begin{itemize}
+		\item Running \texttt{./install\_*.sh} in \texttt{resources/scripts} will do this for a system with \texttt{apt-get} available, such as Ubuntu.
+	\end{itemize}
+	\item Run the \texttt{env\_maven\_opts.sh} script in \texttt{resources/scripts} to setup required system environment variables.
+	\item A Word2Vec model is needed. Based on this report, the pre-trained Google News model\footnote{\href{https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/}{https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/}} is recommended for download.
+\end{enumerate}
+
+\noindent Some files required by the system need pointing to. 
+In terms of training and testing paper locations, checking the \texttt{paper.txt} and \texttt{test\_papers.txt} in the resource folders of both Java projects should reveal the paths used on the development system. The paths listed in this file are all processed unless they begin with a \texttt{\#}, and either point to a text file for processing, or a directory containing multiple text files for processing. Change these appropriately. 
+
+Other components are more embedded in the Java code. Ideally a better solution to this should have been included by the developer, but unfortunately other tasks used up this time. Change \texttt{log4j2.xml:8} and \texttt{NlpObjectStore.java:23} to any folder where logs and serialised files can be saved. Change \texttt{Word2VecPretrained.java:11} to point to a Word2Vec model (either the Google News model or a model renamed to the same file descriptor).
+
+To setup the MySQL database, navigate to \texttt{resources/sql}. Run, in order, \texttt{./setup.sh} and \texttt{./build.sh}. If you wish to use the final data made in this project run \texttt{./recover.sh}. Depending upon your MySQL configuration, you may need to change the password to be stronger. Finally, update \texttt{application.properties} in the FYP-GUI project's resource folder with the correct connection string and password.
+
+Navigate to the root of the two Java projects (both in \texttt{java/}), and a series of useful scripts for compiling and running are presented: \\
+
+\noindent \begin{tabular}{ l | p{3.5cm} | p{9cm} }
+	\textbf{Java Project} & \textbf{Script} & \textbf{Description} \\
+	\hline
+	FYP-NLP & \texttt{./build.sh} & Compiles the system, without running any tests. \\
+	\hline
+	FYP-NLP & \texttt{./install.sh} & Compiles the system, without running any tests, and installs the project to the local Maven repository (required for building the FYP-GUI project). \\
+	\hline
+	FYP-NLP & \texttt{./test.sh $<$test class$>$} & Compiles the system and runs the JUnit test class given. Test classes can be found in \texttt{java/FYP-NLP/src/test/java/xyz/tomclarke/fyp/nlp}, and specifying the name of the class will run all test methods inside it without \texttt{@Ignore} above the \texttt{@Test} annotation.  \\
+	\hline
+	FYP-GUI & \texttt{./build.sh} & Compiles the GUI and runs all JUnit tests. \\
+	\hline
+	FYP-GUI & \texttt{./build-and-run.sh} & Compiles the GUI, without running any tests, and launches the GUI. \\
+	\hline
+	FYP-GUI & \texttt{./run.sh} & Launches the GUI (assumes it is already built). \\
+\end{tabular}
+
 \end{appendices}
