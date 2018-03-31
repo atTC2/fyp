@@ -183,7 +183,7 @@ The web interface covers a series of different pages. Spring, supporting the MVC
 
 \begin{table}
 	\centering
-	\begin{tabular}{ c | c | c | c | C{6.5cm} }
+	\begin{tabular}{ C{3cm} | c | c | c | C{5.5cm} }
 		\textbf{URI} & \textbf{Method} & \textbf{Controller} & \textbf{JSP} & \textbf{Functionality} \\
 		\hline
 		\texttt{/} & GET & \texttt{Home} & \texttt{home.jsp} & Return the title of the project and displays the pie chart visualisation. \\
@@ -196,7 +196,9 @@ The web interface covers a series of different pages. Spring, supporting the MVC
 		\hline
 		\texttt{/search} & POST & \texttt{Search} & \texttt{search.jsp} & On submission, validates the search and uses the \texttt{PaperSearch} service to do a search. It then returns the same page as before, with a table listing all results. Clicking on a row loads \text{/view} for that paper. \\
 		\hline
-		\texttt{/view} & GET & \texttt{View} & \texttt{view.jsp} & It accepts a paper ID as an input. It then loads the paper from the database (including all extraction information) and adds it to the JSP to be returned to the user. \\
+		\texttt{/view} & GET & \texttt{View} & \texttt{view.jsp} & It accepts a paper ID as an input. It then loads the paper from the database (including all extraction information) and adds it to the JSP to be returned to the user. It shows the title, main text, and a table with all key phrases in. Relations were not shown due to no good way being decided upon to represent the information, but given the NLP system gives poor results for relations this features was not focussed on too heavily. \\
+		\hline
+		\texttt{/view/download} \texttt{/view/extractions} & GET & \texttt{View} & N/A & Given a valid paper ID as an input, this returns a stream of a text file containing the original document or the extractions in BRAT format, respectively. \\
 		\hline
 		\texttt{/kps} & GET & \texttt{KPView} & \texttt{kps.jsp} & Returns the shell of the page to display the word clouds on. \\
 		\hline
@@ -230,11 +232,53 @@ In terms of styling, to keep layout simple and text clear to read (as both of th
 
 To support Bootstrap and custom scripting in the web pages produced, jQuery\footnote{\href{https://jquery.com/}{https://jquery.com/}} was also included in the project.
 
-Using Bootstrap allowed for neat and uniform layouts, with full support for both mobile and desktop browsers. This mean text scaled correctly so should always be easy to read, along with dynamic resizing of important elements such as tables. Furthermore, Bootstrap has label styling, which was utilised to help highlight the classifications of key words. Throughout the project, Bootstraps' \textit{info} (blue), \textit{warning} (orange) and \textit{success} (green) colours were used for marking tasks, processes and materials respectively. Keeping this consistent styling helps make sure the user can quickly understand new information presented, without having to relearn what graphical components mean.
+\begin{figure}
+	\centering
+	\includegraphics[width=12cm]{img/extractorie-view.png} \\
+	\caption[An example view page of the website]{The view page, with a paper's content being shown.}
+	\label{figure:extractorieview}
+\end{figure}
+
+Using Bootstrap allowed for neat and uniform layouts, with full support for both mobile and desktop browsers. This mean text scaled correctly so should always be easy to read, along with dynamic resizing of important elements such as tables. Furthermore, Bootstrap has label styling, which was utilised to help highlight the classifications of key words. Throughout the project, Bootstraps' \textit{info} (blue), \textit{warning} (orange) and \textit{success} (green) colours were used for marking tasks, processes and materials respectively. Keeping this consistent styling helps make sure the user can quickly understand new information presented, without having to relearn what graphical components mean. The strongest use of the labels is on the view page, where the text (on a dark background) is greeted with bold highlighted areas where key phrases are, making the key information stand out. This can be seen in figure \ref{figure:extractorieview}.
 
 \subsection*{Data Visualisations}
-To present the proposed data visualisations. 
+To present the proposed data visualisations, JavaScript solutions were searched for. This would allow the visualisations to be rendered in browser, which reduces the bandwidth required by a image, and can be made to scale depending upon the size of the screen (desktop or mobile).
+
+\begin{figure}
+	\centering
+	\includegraphics[width=12cm]{img/extractorie-home.png} \\
+	\caption[The home page of the website]{The home page of the website, with the pie chart visualisation.}
+	\label{figure:extractoriehome}
+\end{figure}
+
+For the pie chart, it was found the D3.js could be used to create interactive visualisations, and a third party source allowed simple creation of a donut chart\footnote{\href{https://d3js.org/}{https://d3js.org/} is the base technology, with \href{http://d3pie.org/}{http://d3pie.org/} being used to create a custom donut chart with ease.}. The donut chart generated was set to have overall information in the centre of the chart (including key phrase count and paper count), with the segments being labelled as to the class they represent and the percentage of key phrases they represent. Furthermore, the centre of the chart was made clickable, taking the user to the word cloud page, and the segments were made clickable, taking the user to a list of all key phrases under the given classification. This all results in a lightweight chart that quickly shows some key pieces of information about the contained data, in an interactive way which engages the user. There is even a loading animation included which shows the segments growing, to draw user attention to the visualisation. This is an important chart as it is part of the home page of the system, so being fast to load and show off the information clearly is critical. The segments are also the correct colours to match the rest of the website. The final results can be seen in figure \ref{figure:extractoriehome}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=9cm]{img/extractorie-kp.png} \\
+	\caption[The home page of the website]{The page containing the three word clouds, one for each classification.}
+	\label{figure:extractoriecloud}
+\end{figure}
+
+To achieve the word cloud visualisation, D3.js was again investigated, but a simpler solution using jQuery as a base was found. A third party library called jQCloud\footnote{\href{http://mistic100.github.io/jQCloud/}{http://mistic100.github.io/jQCloud/}} was found which supported the input of a JavaScript array of objects, where each object has a string field and a value field which is what determines the size of the string field when drawn. This is why the \texttt{KPView} controller has a method which returns JSON, as this called be called and its response piped into the jQCloud constructor function. AJAX was used to call the \texttt{KPView} controller three times, once for each classification, and passed the result, when it arrived, to the JQCloud drawing function which draws the cloud of the page. Links under each cloud to a full list of all key phrases with that classification are also provided. The final product can be seen in figure \ref{figure:extractoriecloud}.
+
+\subsection*{The Search Page}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=12cm]{img/extractorie-search-supportvectormachine.png} \\
+	\caption[An example search of the website]{The search page of the website, with "support vector machine" queried.}
+	\label{figure:extractoriesearch}
+\end{figure}
+
+The search page consists of a few simple inputs, seen at the top of figure \ref{figure:extractoriesearch}. It allows for any string to be input, along with a set of check boxes for the user to clearly indicate a focus.
+
+Upon searching, the back end is called which returns a list of \texttt{searchResult} objects, contained in a \texttt{SearchResultAndDetails} which holds some extra information. The extra information given includes the number of search results and the time the search took (inspired by the example websites' feedback to the user) which are both displayed just below the search bar (shown on the screen shot). The search results themselves are shown in a table. The table has a main column which contains the title of the paper, and a snippet. This snippet contains the piece of text in the document (plus or minus a few words) containing the related query term (with the specific words being in bold, again inspired by the example websites). The key phrase and relation counts for the papers listed are also shown on the right. Next to the title of the paper, is a \textit{quick download button} which is a way for the user to skip to the document rather than load the websites \texttt{/view} page for that paper. A similar idea is presented for relations (downloading the annotation data) on the far right next to the counts.
+
+While not shown in the screen shot, the list is capped at 10 items. After 10 items have been drawn (if there are more than 10 items to draw), a final row is appended with the text "Show X more", where X is the number of results hidden. Clicking on this row reveals the remainder of the results. This is so the user is not overloaded with a large amount of text and information as soon as the search returns. 
 
 \section{Testing}
+
+% TODO talk about trying word commonality before TF-IDF in the word cloud
 
 \section{Conclusion}
