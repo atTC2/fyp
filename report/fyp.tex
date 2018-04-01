@@ -45,13 +45,6 @@
 
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
-\renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
-\renewcommand{\cftaftertoctitle}{\hfill\hfill}
-\renewcommand{\cftloftitlefont}{\hfill\Large\bfseries}
-\renewcommand{\cftafterloftitle}{\hfill}
-\renewcommand{\cftlottitlefont}{\hfill\Large\bfseries}
-\renewcommand{\cftafterlottitle}{\hfill}
-
 \hypersetup{linktoc=all}
 
 \begin{document}
@@ -76,7 +69,7 @@
 
 \begin{center}
     \large
-    \vspace{.5cm}
+    \vspace{0.5cm}
     Final Year Project\\
     \vspace{0.5cm}
     \huge
@@ -89,7 +82,7 @@
     \vspace{2cm}
     Author\\
     Thomas Clarke (1443652)\\
-    \vspace{.5cm}
+    \vspace{0.5cm}
     Supervisor\\
     Dr Mark Lee\\
     \vspace{2cm}
@@ -122,7 +115,7 @@ To achieve subtask A, the text of a paper is parsed to find it's semantic tree. 
 
 The best solutions found in this paper for subtasks A, B and C, under the ScienceIE script evaluation, saw F1 scores of 0.2, 0.11 and 0.02 in end-to-end tests and scores of 0.2, 0.55 and 0.1 when tested individually, respectively. 
 
-To explore how this system could be used, a proof-of-concept website was created hosting the information. This used Spring Boot to create a Java based web project which supported not only an archive of processed papers, but also the means to search using query strings and automatic processing of submitted papers to the system (through using the most successful versions of systems described above). The search was the main feature developed, which aimed to use the key phrase information and the phrases' tokens' TF-IDF scores to help prioritise the results more relevant to the user if they use key words from the target papers. A reasonable solution was found for this, although further testing with a larger range of papers would confirm its usefulness. \\
+To explore how this system could be used, a proof-of-concept website was created hosting the information. This used Spring Boot to create a Java based web project which supported not only an archive of processed papers, but also the means to search using query strings and automatic processing of submitted papers to the system (through using the most successful versions of systems described above). The search was the main feature developed, which aimed to use the key phrase information and the phrases' tokens' TF-IDF scores to help prioritise the results more relevant to the user if they use key words from the target papers. A reasonable solution was found for this, although further testing with a larger range of papers would confirm its usefulness. Two data visualisations, a donut chart and a set of word clouds, were also implented to display snapshots of the information extracted by the earlier systems. \\
 
 \noindent All code and resources produced and used throughout the production of this project are available at:
 \begin{center}

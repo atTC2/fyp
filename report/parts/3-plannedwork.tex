@@ -1,10 +1,7 @@
-\chapter{Analysis and Specification}
-Say what I'm going to do, but probably a bad idea to have a section for this. It may work better to just have a all of the 'what im doing' in each section when we get there.
+\chapter{Project Architecture}
+With any large software project, it is sensible to choose a platform with all the necessary tools available so the developer can achieve their goals. The following describes the environment and technologies used generically through out the entire project.
 
-\section{Project Architecture}
-With any large software project, it is sensible to choose a platform with all the necessary tools available so the developer can achieve their goals. 
-
-\subsection{Language}
+\section{Language}
 Due to the past experience of the author, Java was an obvious choice. Given extensive time working in the language during university and in industry, a thorough understanding of the programming language was already achieved, which allowed for planning of a sensible software architecture to optimise code quality and (implicitly) the potential of increased success of the systems created. 
 
 Furthermore, Java is a very popular and accessible language world wide - backed up by the active StackOverflow community (casual and professional alike) with Java being one of the most popular technologies for at least the last five years, evidenced through their user surveys 2018\footnote{\href{https://insights.stackoverflow.com/survey/2018}{https://insights.stackoverflow.com/survey/2018}}, 2017\footnote{\href{https://insights.stackoverflow.com/survey/2017}{https://insights.stackoverflow.com/survey/2017}} and 2016\footnote{\href{https://insights.stackoverflow.com/survey/2016}{https://insights.stackoverflow.com/survey/2016}}. Due to this, Java has extensive support for many common problems people encounter, with issues being discussed and solutions proved across various forums. 
@@ -15,7 +12,7 @@ Finally, Java serialisation was used throughout (and will be noted when is). Ser
 
 As a brief aside, Python is another extremely popular language used for NLP and likely could have been used for at least the first half of this project producing similar results.
 
-\subsubsection*{log4j}
+\subsection*{log4j}
 log4j 2\footnote{\href{https://logging.apache.org/log4j/2.x/}{https://logging.apache.org/log4j/2.x/}} is a popular and robust library developed under the Apache Software Foundation to do logging in Java. It's useful features include:
 \begin{itemize}
 	\item Automatic output of logs to both terminal and file: As well as immediate visual feedback, log files can be used for later processing and evidence gathering.
@@ -26,7 +23,7 @@ log4j 2\footnote{\href{https://logging.apache.org/log4j/2.x/}{https://logging.ap
 
 While direct output of this will not be present in the rest of this report, it is worth noting this was an extremely useful tool for developing all of the systems to follow. 
 
-\subsubsection*{Maven}
+\subsection*{Maven}
 Apache Maven\footnote{\href{https://maven.apache.org/}{https://maven.apache.org/}} is another important tool. Like log4j, it is developed by the Apache foundation. 
 
 Maven is a tool to help with project management and has many uses. It is based around a \textit{project object model} (POM) configured in a \texttt{pom.xml} file at the root of a Java project, which itself has a structure defined by Maven. The key uses utilised in this project are:
@@ -38,7 +35,7 @@ Maven is a tool to help with project management and has many uses. It is based a
 
 Maven is used as the management backbone throughout the development of software discussed in this report. When libraries are used in a project, a link to their dependency configuration for Maven's \texttt{pom.xml} shall be included. As a good example, log4j\footnote{\href{https://logging.apache.org/log4j/2.x/maven-artifacts.html}{https://logging.apache.org/log4j/2.x/maven-artifacts.html}} has an extensive page providing a detailed description of how to import the library.
 
-\subsubsection*{JUnit}
+\subsection*{JUnit}
 JUnit is a popular Java framework for testing. It is simple to use, catching unexpected (or expected) exceptions and ensuring values are correct with \texttt{assert} statements. 
 
 Maven also integrates with it, so that (by default) when you build a Java project with Maven, all of the methods marked with \texttt{@Test} annotation in the test source directory are executed to ensure the program is working as expected (as far as the tests ensure that). It will then provide a report and trace of any issues once complete. Maven will also automatically exclude the test files from the final packaged product to reduce waste space for deployments of projects. 
@@ -47,14 +44,14 @@ While working through this project many JUnit tests were constructed (all of whi
 
 The tests can also be ignored\footnote{\href{http://maven.apache.org/surefire/maven-surefire-plugin/examples/skipping-tests.html}{http://maven.apache.org/surefire/maven-surefire-plugin/examples/skipping-tests.html}} which is very useful, as many of the tests written are base around evaluating the algorithms created rather than testing functionality; so not only does not every algorithm need to be retested at every compilation time, but if they were it would take many hours (and probably more memory than the standard computer has) to build and test the application. 
 
-\subsubsection*{Word2Vec}
+\subsection*{Word2Vec}
 The interesting Word2Vec technology is utilised in this project in various places. The original Word2Vec library implementation was in Python. However, the Deep Learning For Java (DL4J) team have included, as part of their machine learning and deep neural network library, Word2Vec funcitonality\footnote{\href{https://deeplearning4j.org/word2vec.html}{https://deeplearning4j.org/word2vec.html}}. This supports training a Word2Vec model, using the model, and saving and loading models. 
 
-The models used in this project are the Google News model\footnote{\href{https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing}{https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing}} and the Freebase model\footnote{\href{https://docs.google.com/file/d/0B7XkCwpI5KDYaDBDQm1tZGNDRHc/edit?usp=sharing}{https://docs.google.com/file/d/0B7XkCwpI5KDYaDBDQm1tZGNDRHc/edit?usp=sharing}}. While neither of these are made up of scientific articles, they both have a large vocabulary size (3 million and 1.4 million tokens respectively), and both based off of a 100 GB large samples, which should allow them to perform relatively well. 
+The models used in this project are the Google News model\footnote{\href{https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing}{https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing}} and the Freebase model\footnote{\href{https://docs.google.com/file/d/0B7XkCwpI5KDYaDBDQm1tZGNDRHc/edit?usp=sharing}{https://docs.google.com/file/d/0B7XkCwpI5KDYaDBDQm1tZGNDRHc/edit?usp=sharing}}. While neither of these are made up of scientific articles, they both have a large vocabulary size (3 million and 1.4 million tokens respectively), and both based off of a 100 GB large samples, which should allow them to perform relatively well. This is the reason Word2Vec is being used over GloVe, as these models have much larger vocabulary sizes that the pre-trained GloVe models found, so in theory have a better change of covering the vocabulary of the ScienceIE data set\footnote{This GitHub page contains a selection of popular models for both Word2Vec and GloVe: \href{https://github.com/3Top/word2vec-api}{https://github.com/3Top/word2vec-api}}.
 
 Attempts were made to use a Wikipedia based model (Wiki2Vec\footnote{\href{https://github.com/idio/wiki2vec}{https://github.com/idio/wiki2vec}}) but unfortunately no successful attempt was made to use it in this project (there were various problems converting the model to a Java readable format and loading it). While potentially of lower quality semantics (as Wikipedia isn't officially maintained) it may have had more of the vocabulary the ScienceIE data supports as Wikipedia covers many topics including those of scientific nature so could have increased coverage of the model when finding similarities between various scientific tokens. 
 
-\subsection{Platform}
+\section{Platform}
 While Java is cross platform (another excellent reason for using it), some of the underlying system libraries that Wor2Vec relies on to function are included by default in many Linux distributions. It can be made to work on Microsoft Windows operating systems, but it requires a large amount of complex configuration and generally not worth the pay off. Therefore, this system was built on the Ubuntu 16.04 distribution of Linux, as this involved the least amount of configuration to get working.
 
 Furthermore, some of the algorithms created as part of this paper are able to fill up available memory on a computer very quickly. The memory available as part of this project was 16 GB. Linux swap space was configured (an \textit{overflow} area for memory usage) but generally one would not like to use this, as it is slow to read from and will add some wear to the solid state drive in the host system available (due to many fast reads and writes) which isn't good. This is another reason for using Linux as the platform to build these systems on, as the memory overhead from the operating system is much smaller when compared with Microsoft Windows 10 (in the order of gigabytes of memory saved). Furthermore, Linux can also be run headless (without a GUI) to further reduce the operating systems memory usage, which on Ubuntu 16.04 saves approximately an extra gigabyte of memory. With support for Secure Shell (SSH) to remotely connect to the system, to run tests and read results, Linux is an excellent choice of platform for optimising memory usage while running these algorithms.
