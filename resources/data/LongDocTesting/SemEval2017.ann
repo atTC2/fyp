@@ -1,0 +1,121 @@
+T0	Unknown 53 117	keyphrases and relations between themfrom  scientific  documents
+T0	Unknown 900 904	reas
+T0	Unknown 914 924	information
+T0	Unknown 1180 1184	task
+T0	Unknown 1262 1272	keyphrases
+T0	Unknown 1576 1586	keyphrases
+T0	Unknown 1901 1945	scientific articles of the Com-puter Science
+T0	Unknown 2051 2058	interest
+T0	Unknown 2601 2605	task
+T0	Unknown 2636 2657	information extraction
+T0	Unknown 2875 2909	dataset  is  annotated  for  three
+T0	Unknown 3202 3213	nterest-ing
+T0	Unknown 3558 3578	scientific ar-ticles
+T0	Unknown 3692 3697	uthor
+T0	Unknown 3730 3740	ndMcCallum
+T0	Unknown 3906 3911	mpact
+T0	Unknown 3931 3940	nterestof
+T0	Unknown 3994 3998	task
+T0	Unknown 4110 4119	documents
+T0	Unknown 4186 4210	nnotations  of  hypernym
+T0	Unknown 4390 4395	mpact
+T0	Unknown 4575 4598	Mention-level keyphrase
+T0	Unknown 4757 4768	materials)C
+T0	Unknown 4887 4912	reHYPONYM-OFandSYNONYM-OF
+T0	Unknown 5178 5185	ppendix
+T0	Unknown 5235 5245	keyphrases
+T0	Unknown 5588 5599	ddressesthe
+T0	Unknown 5700 5710	fields(CRF
+T0	Unknown 5834 5838	task
+T0	Unknown 6143 6316	ncluded the full textof the publication as well as additional metadata.500  paragraphs  from  journal  articles  evenly  dis-tributed  among  the  domains  Computer  Science
+T0	Unknown 6414 6423	documents
+T0	Unknown 6466 6468	Th
+T0	Unknown 6489 6499	pilot task
+T0	Unknown 6855 6859	task
+T0	Unknown 7059 7073	keyphrasescont
+T0	Unknown 7231 7240	nnotation
+T0	Unknown 7286 7304	semantic relations
+T0	Unknown 7529 7533	extr
+T0	Unknown 7564 7601	relations  from  a  large  scientific
+T0	Unknown 7750 7759	documents
+T0	Unknown 7852 7861	Documents
+T0	Unknown 8012 8022	keyphrases
+T0	Unknown 8257 8267	keyphrases
+T0	Unknown 8340 8349	documents
+T0	Unknown 8733 8735	ll
+T0	Unknown 8873 8896	ng  in  the  annotation
+T0	Unknown 9068 9077	documents
+T0	Unknown 9153 9162	documents
+T0	Unknown 9231 9236	mazon
+T0	Unknown 9588 9597	documents
+T0	Unknown 9605 9614	nnotation
+T0	Unknown 9833 9897	ntended  for  student  annotatorsto  triple  annotate  documents
+T0	Unknown 9937 9947	nnotations
+T0	Unknown 10006 10015	nnotators
+T0	Unknown 10054 10063	documents
+T0	Unknown 10108 10116	nnotator
+T0	Unknown 10170 10254	expert’sannotation.Pairwise  inter-annotator  agreementbetween the student annotator
+T0	Unknown 10271 10280	nno-tator
+T0	Unknown 10443 10452	documents
+T0	Unknown 10474 10483	documents
+T0	Unknown 10595 10604	nnotators
+T0	Unknown 10624 10634	n-notation
+T0	Unknown 11497 11506	sexisting
+T0	Unknown 11678 11688	pilot task
+T0	Unknown 11741 11751	keyphrases
+T0	Unknown 12334 12343	documents
+T0	Unknown 12457 12467	keyphrases
+T0	Unknown 12512 12521	documents
+T0	Unknown 12573 12580	Subtask
+T0	Unknown 12709 12719	keyphrases
+T0	Unknown 12831 12833	CM
+T0	Unknown 13197 13201	reas
+T0	Unknown 13387 13397	keyphrases
+T0	Unknown 13483 13493	keyphrases
+T0	Unknown 13568 13596	nnotator-provided keyphrases
+T0	Unknown 13668 13683	uthor-specified
+T0	Unknown 13836 13844	nnotator
+T0	Unknown 13865 13875	keyphrases
+T0	Unknown 13901 13925	cticvariations (A of B→B
+T0	Unknown 14086 14088	F1
+T0	Unknown 14191 14195	task
+T0	Unknown 14286 14290	task
+T0	Unknown 14487 14497	keyphrases
+T0	Unknown 14685 14694	dentified
+T0	Unknown 14855 14857	RP
+T0	Unknown 15152 15162	RPAfunding
+T0	Unknown 15412 15418	mplies
+T0	Unknown 15557 15567	n-notation
+T0	Unknown 15852 15871	Extraction  cor-pus
+T0	Unknown 15932 15942	keyphrases
+T0	Unknown 15993 16003	keyphrases
+T0	Unknown 16435 16445	nnotations
+T0	Unknown 16671 16680	documents
+T0	Unknown 16703 16714	typesFO-CUS
+T0	Unknown 16927 16936	documents
+T0	Unknown 17160 17170	keyphrases
+T0	Unknown 17271 17274	ted
+T0	Unknown 17868 17872	task
+T0	Unknown 19109 19111	F1
+T0	Unknown 19298 19307	keyphrase
+T0	Unknown 19467 19469	F1
+T0	Unknown 19912 19916	task
+T0	Unknown 20613 20623	p-proaches
+T0	Unknown 20694 20708	scenario teams
+T0	Unknown 21001 21003	F1
+T0	Unknown 21351 21371	respectively.However
+T0	Unknown 21541 21558	n F1 of 0.37found
+T0	Unknown 21797 21806	tax-onomy
+T0	Unknown 22494 22504	keyphrases
+T0	Unknown 22746 22753	Subtask
+T0	Unknown 23061 23076	scenario  teams
+T0	Unknown 23192 23199	Subtask
+T0	Unknown 24359 24365	n  SVM
+T0	Unknown 24824 24857	p-proach of s2end2end in Scenario
+T0	Unknown 24927 24934	Subtask
+T0	Unknown 25071 25081	Subtask  B
+T0	Unknown 26222 26229	accuracy
+T0	Unknown 26393 26412	SemEval  2017  Task
+T0	Unknown 26447 26457	keyphrases
+T0	Unknown 26820 26830	keyphrases
+T0	Unknown 26928 26938	keyphrases
