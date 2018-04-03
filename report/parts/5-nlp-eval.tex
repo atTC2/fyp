@@ -23,7 +23,7 @@ A summary of evaluation using the ScienceIE scripts, which covers all subtasks u
 
 \subsection{Method 1: Support Vector Machine}
 
-\begin{figure}
+\begin{figure}[t]
 	\includegraphics[width=\textwidth]{img/kpsvmresults.png}
 	\caption[Key Phrase SVM Self Evaluation Through Iterations]{The key phrase SVM self evaluation results for varying strictness across iterations, where each iterations changes 1 thing. The coloured lines denote strictness as defined in table \ref{table:strictness}, with the legend assigning each colour to each strictness level. With each assignment, the darker of variant of the same colour is when the Google News (GN) Word2Vec model is used, and the lighter for when the Freebase (FB) model is used. Very strict evaluation was only created part way through development, so some early results are missing for that, but they would likely follow a similar patter to that of matching or \textit{strict} evaluation.}
 	\label{figure:kpsvmresults}
@@ -194,7 +194,7 @@ In terms of the different methods of generating vectors for key phrases, keeping
 
 Furthermore, while leaving more important information in the key phrase for vector generation did improve the system performance, the false positives increases a large amount as well. Selecting just the root noun saw 14 times more false positive results than true positive; compared to when all key phrase information was left in, only 6 times as many false positives to true positives were seen. Not excluding data clearly improves the system accuracy, and increases the F1 score.
 
-\section{Conclusion}
+\section{Discussion}
 This paper set out to provide a set of solutions to the ScienceIE task and its subtasks. Considering the summary presented in table \ref{table:scienceieresults}, these experimental systems have performed in a satisfactory manor. 
 
 The key phrase extraction using a range of features in a support vector machine and some effective post processing achieved reasonable results considering, if we ignore the location of the key phrase extractions, a maximum F1 score of 0.36 which is very close the to average at ScienceIE. For comparisons sake, it would be very interesting to run the same analysis on the results produced at ScienceIE, to see if the best teams realistically came very close to extracting 100\% of the required information (if the position of key phrases could be ignored, and potentially a little bit of extra information allowed). Clustering with Word2Vec was not successful, as not useful clusters could be formed. 
@@ -218,4 +218,7 @@ From this, a range of improvements and extensions could be applied:
 	\item \textbf{More training time and memory capacity for parameter tuning.} Time and memory limitations didn't allow for much more training time to be given to the \textit{many features} SVM, but potentially an increased \textit{C} value may help to find a hyperplane which could work better. For the key phrase SVM, while the parameters tested in cross validation seemed to plateau, further investigation may have revealed increased performance.
 	\item \textbf{Better data for training the relation SVMs.} As alluded to above, give the relation SVMs training data which includes a higher percentage of actual relations cases. This could be done through adding more papers with relations in, or removing some or all papers without any relations in.
 	\item \textbf{Experiment with full scientific publications.} While this subject was touched upon briefly in this report, working with full publications rather than short extracts would help contribute to the problem of information retrieval, which currently needs development in the context of long documents. Clearly, the algorithm proposed here is not useful when applied to full publications (in the limited testing done), as no meaningful information is extracted beyond what the title of the document should give. Potentially, the strongest algorithms presented produced at ScienceIE could be recreated, tested and altered to work with longer papers.
+	\begin{itemize}
+		\item One method that may be worth exploring, given the algorithms proposed here are targeting short documents, is that processing could be completed on individual paragraphs producing many key phrase for a document. Then a system could be developed to just look at the generated key phrases for each paragraph to choose key pieces of information to represent the entire paper.
+	\end{itemize}
 \end{itemize}
