@@ -45,7 +45,7 @@ Clustering is simply the idea of grouping items together that are similar. The r
 \section{ScienceIE Proceedings}
 Evaluating the outcome of ScienceIE at SemEval indicates potential paths for future systems and documents very recent activity in the information and key phrase extraction area. Three papers were published from the event regarding this task.
 
-Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined, with each of subtasks A, B and C were 0.56, 0.44 and 0.28 respectively (for end-to-end tests) \cite{Augenstein2017}. 
+Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined, with each of subtasks A, B and C were 0.56, 0.44 and 0.28 respectively (for end-to-end tests) \cite{Augenstein2017}. Key phrase extraction was considered the hardest part of this set of tasks.
 
 For subtask A, it was evaluated that while many high scores were achieved with recurrent neural networks, the highest scoring system was a SVM using a well-engineered lexical feature set. SVMs and neural networks were also popular choices for subtask B. For subtask C, many methods were attempted and while a convolutional neural network was the most effective, various other methods (including SVM, multinomial naïve Bayes and Conditional Random Fields (CRFs)) all achieved very similar and reasonably accurate scores (the best had an F1 score of 0.64 when evaluated solely on subtask C).
 
@@ -95,7 +95,7 @@ Some analysis conducted at ScienceIE \cite{Augenstein2017} showed some character
 	\item Only 31\% of key phrases seen in the training set were also in the test set.
 \end{itemize}
 
-This means that key phrase extraction appears quite difficult, as an algorithm needs to search for short phrases, processing phrases that it likely hasn't seen instances of before. Most of the key phrases being noun phrases, however, is valuable information as it helps to identify a simple heuristic that can be used when processing.
+This means that key phrase extraction appears quite difficult, as an algorithm needs to search for short phrases, processing phrases that it likely hasn't seen instances of before. Most of the key phrases being noun phrases, however, is valuable information as it helps to identify a simple feature of tokens to be evaluated.
 
 Other useful and interesting characteristics about the training set, found during this study, can be seen in table \ref{table:traininganalysis}. 
 
@@ -116,3 +116,8 @@ Other useful and interesting characteristics about the training set, found durin
 \end{table}
 
 Papers in the ScienceIE data set have many key phrases associated with them. With an average of 19 key phrases per paper, an average of 3 tokens per key phrase (meaning on average 57 key tokens per paper) and the average document containing only 159 tokens in total, around a third of all tokens are part of key phrases. This is partly due to the documents supplied by ScienceIE being very short (all are just one paragraph) and are \textit{extracts} of papers rather than full publications. It is not a problem that the documents for processing are short - in fact that may help as the longer the document, the harder it is to choose key phrases \cite{Hasan2014} - however, it may mean any algorithm created here may not scale well to full scientific papers. It seems the ScienceIE task is looking for localised key phrases, choosing several from one paragraph; while the author of a paper may choose to select just five or ten key phrases from the whole paper. While this project will focus on the ScienceIE task with the given test data, a brief look longer or full papers shall be considered.
+
+\section{Summary}
+The above background and literature review has defined some important concepts for the rest of this report, covered some of the strongest algorithms designed at ScienceIE and ideas developed outside of ScienceIE as well. It has highlighted some of the popular techniques for information extraction currently used, including the features that are useful for this task, which can also be context sensitive. The data available for this task has also been discussed, point out how the documents are short and the key phrases are many.
+
+The main reason for completing this task is that, as discussed at ScienceIE, key phrase extraction is still an open question in information retrieval. However, the discussed difficulty encountered when evaluating key phrase extraction may rank some systems poorly when they may actually have achieved a high volume of the target information, just with some extra noise in addition.
