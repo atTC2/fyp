@@ -44,6 +44,9 @@ While working through this project many JUnit tests were constructed (all of whi
 
 The tests can also be ignored\footnote{\href{http://maven.apache.org/surefire/maven-surefire-plugin/examples/skipping-tests.html}{http://maven.apache.org/surefire/maven-surefire-plugin/examples/skipping-tests.html}} which is very useful, as many of the tests written are base around evaluating the algorithms created rather than testing functionality; so not only does not every algorithm need to be retested at every compilation time, but if they were it would take many hours (and probably more memory than the standard computer has) to build and test the application. 
 
+\subsection*{libsvm}
+A popular SVM tool used in this project was libsvm (imported through Maven\footnote{\href{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}{https://mvnrepository.com/artifact/com.datumbox/libsvm/3.22}}). Originally written in C and ported over to Java (as well as many other languages), libsvm was designed to be flexible, supporting various kernels and suitable for beginners through to advanced users. It has support for the core use of SVMs - training and predicting, but also has features to aid in parameter selection such as a cross-validation function, a visualiser for the training data and a data scaling tool \cite{ChangChih-ChungandLin2011}.
+
 \subsection*{Word2Vec}
 The interesting Word2Vec technology is utilised in this project in various places. The original Word2Vec library implementation was in Python. However, the Deep Learning For Java (DL4J) team have included, as part of their machine learning and deep neural network library, Word2Vec funcitonality\footnote{\href{https://deeplearning4j.org/word2vec.html}{https://deeplearning4j.org/word2vec.html}}. This supports training a Word2Vec model, using the model, and saving and loading models. 
 
