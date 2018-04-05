@@ -19,7 +19,7 @@ Tokenizatoin is a simple concept where a document is broken down, from one long 
 Bag-of-Words is another simple concept, where each token is considered independently of is semantic meaning. 
 
 \subsection*{Stop Words}
-Stop words are words that are commonly filtered out due to their lack of specific meaning and generally do not contribute to useful input, although exceptions can be made if there is little other information. For example, common search engines are likely to ignore the word "the" in most searches, but this process of removal needs to be conducted carefully as, for example, when searching for "the who", "the" is an important part of that query. 
+Stop words are words that are commonly filtered out due to their lack of specific meaning and generally do not contribute to useful input, although exceptions can be made if there is little other information. For example, common search engines are likely to ignore the word ``the'' in most searches, but this process of removal needs to be conducted carefully as, for example, when searching for ``the who'', ``the'' is an important part of that query. 
 
 The stop words concept is used in this report, and the list of stop words used is taken from the Stanford CoreNLP GitHub repository\footnote{\href{https://github.com/stanfordnlp/CoreNLP/blob/master/data/edu/stanford/nlp/patterns/surface/stopwords.txt}{https://github.com/stanfordnlp/CoreNLP/blob/master/data/edu/stanford/nlp/patterns/surface/stopwords.txt}} and shown in appendix \ref{appendix:stopwords}.
 
@@ -28,7 +28,7 @@ TF-IDF is a metric for assessing how important a word is in a piece of text and 
 
 To be calculated for a given token, the document that token came from is required and a set of documents for comparison is required. The set of documents used in this project shall be the ScienceIE training set.
 
-The theory is, a word like "the" - which will likely appear many times in almost every document - should a very low TF-IDF score (close to 0). Unusual words however, such as "xylanases" which are likely very specific to the paper they are contained in will probably have a much higher TF-IDF value than that of "the".
+The theory is, a word like ``the'' - which will likely appear many times in almost every document - should a very low TF-IDF score (close to 0). Unusual words however, such as ``xylanases'' which are likely very specific to the paper they are contained in will probably have a much higher TF-IDF value than that of ``the''.
 
 \subsection*{Parse Trees and Part-Of-Speech (POS) Tagging}
 A \textit{parse} of a sentence is a tree structure where the root node is a \textit{sentence}, each node below that is a \textit{POS tag} and the leaves of the tree are the words or symbols in the sentence. The POS tag tells us about the semantic meaning of that node and its children - or sub tree - where the POS tag could be \textit{verb phrase} or \textit{noun phrase} for example.
@@ -45,7 +45,7 @@ Clustering is simply the idea of grouping items together that are similar. The r
 \section{ScienceIE Proceedings}
 Evaluating the outcome of ScienceIE at SemEval indicates potential paths for future systems and documents very recent activity in the information and key phrase extraction area. Three papers were published from the event regarding this task.
 
-Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined, with each of subtasks A, B and C were 0.56, 0.44 and 0.28 respectively (for end-to-end tests) \cite{Augenstein2017}. Key phrase extraction was considered the hardest part of this set of tasks.
+Firstly, an overview of how successful the task was shall be conducted. The highest end-to-end F1 score achieved by any team was measured to be 0.43 for all three sub-systems combined, with each of subtasks A, B and C were 0.56, 0.44 and 0.28 respectively (for end-to-end tests) \cite{Augenstein2017}. Key phrase extraction was considered the hardest part of this set of tasks, shown by the best scores for each task evaluated separately, scoring 0.56, 0.67 and 0.64 respectively.
 
 For subtask A, it was evaluated that while many high scores were achieved with recurrent neural networks, the highest scoring system was a SVM using a well-engineered lexical feature set. SVMs and neural networks were also popular choices for subtask B. For subtask C, many methods were attempted and while a convolutional neural network was the most effective, various other methods (including SVM, multinomial naïve Bayes and Conditional Random Fields (CRFs)) all achieved very similar and reasonably accurate scores (the best had an F1 score of 0.64 when evaluated solely on subtask C).
 
@@ -86,7 +86,7 @@ Given a large set of input texts, Word2Vec aims to learn the meaning of words. I
 In terms of information extraction, there has been a recent study into its use to find extra hyponym information from text \cite{Nayak2015} using GloVe. This study designed a function based on the GloVe vector space to create a system to predict hyponym pairs. Reasonable results were achieved, scoring up to 35\% precision in some cases. However, a problem discussed is that words can have multiple meanings, which can effectively confuse the model, which decreases its quality for determining similarity and therefore reducing the effectiveness of a system built. 
 
 \section{The Supplied Data Set}
-The ScienceIE data set consists of 50 development, 350 training and 100 test documents. 
+The ScienceIE data set consists of 50 development, 350 training and 100 test documents. This break up is sensible, as it allows for fast approximate results while developing with a small development set, and a large training and testing set to evaluate \textit{close to real world} performance (having a separate training and testing set should reduce over fitting where performance is optimised just for the dataset worked with).
 
 Some analysis conducted at ScienceIE \cite{Augenstein2017} showed some characteristics of the sample key phrases included:
 \begin{itemize}

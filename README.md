@@ -3,6 +3,10 @@
 Taking on the [ScienceIE](https://scienceie.github.io/) task.
 
 ## Set up and run
+### Files
+All files are hosted on the GitLab server run by the School of Computer Science, University of Birmingham:
+[`https://git-teaching.cs.bham.ac.uk/mod-ug-proj-2017/tbc452`](https://git-teaching.cs.bham.ac.uk/mod-ug-proj-2017/tbc452)
+
 ### Prerequisites
 * Java 8 (64-bit)
 * Maven 3
@@ -36,7 +40,7 @@ In terms of making the system into a product...
 
 ## The Dissertation and Presentation
 
-The dissertation can be seen at [report/fyp.pdf](report/fyp.pdf).
+The dissertation can be seen at [`report/fyp.pdf`](report/fyp.pdf).
 
 The presentation can be seen at [`Presentation.pdf`](Presentation.pdf).
 

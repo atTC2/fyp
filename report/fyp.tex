@@ -69,7 +69,6 @@
     \end{center}
 \end{figure}
 
-
 \begin{center}
     \large
     \vspace{0.5cm}
@@ -105,11 +104,11 @@ The content of this dissertation has been produced by the author as part of the 
 \section*{Abstract}
 This project presents solutions developed to solve the SemEval 2017 ScienceIE task - analysis of scientific publications to extract key information. This includes three subtasks: \textit{(A)} key phrase extraction, \textit{(B)} classification and \textit{(C)} relation extraction.
 
-To achieve subtask A, the text of a paper is parsed to find it's semantic tree. Then, each word in succession is tested in a Support Vector Machine (SVM), based around a words' semantic attributes to determine if it should be a, or part of a, key phrase. Each phrase generated is also sanitised to reduce excess information. Clustering based off of the Word2Vec distances between words was also experimented with, but was not able to produce satisfactory results. Subtask B involved treating each key phrase as a Bag-Of-Words, and calculating the phrases' distance to each classification type using Word2Vec. Finally, subtask C experimented with using the Word2Vec representation of a phrase and the relative distances between phrases combined with an SVM to try too detect relations.
+To achieve subtask A, the text of a paper is parsed to find it's semantic tree. Then, each word in succession has its label predicted in a Support Vector Machine (SVM), based around a words semantic attributes to determine if it should be a, or part of a, key phrase. Each phrase generated is also sanitised to reduce excess information. Clustering based off of the Word2Vec distances between words was also experimented with, but was not able to produce satisfactory results. Subtask B involved treating each key phrase as a Bag-Of-Words and calculating the phrases distance to each classification type using Word2Vec. Finally, subtask C experimented with using the Word2Vec representation of a phrase and the relative distances between phrases combined with an SVM to predict relations.
 
 The best solutions found in this paper for subtasks A, B and C, under the ScienceIE script evaluation, saw F1 scores of 0.2, 0.11 and 0.02 in end-to-end tests and scores of 0.2, 0.55 and 0.1 when tested individually, respectively. 
 
-To explore how this system could be used, a proof-of-concept website was created hosting the information. This used Spring Boot to create a Java based web project which supported not only an archive of processed papers, but also the means to search using query strings and automatic processing of submitted papers to the system (through using the most successful versions of systems described above). The search was the main feature developed, which aimed to use the key phrase information and the phrases' tokens' TF-IDF scores to help prioritise the results more relevant to the user if they use key words from the target papers. A reasonable solution was found for this, although further testing with a larger range of papers would confirm its usefulness. Two data visualisations, a donut chart and a set of word clouds, were also implented to display snapshots of the information extracted by the earlier systems. \\
+To explore how this system could be used, a proof-of-concept website was created hosting the information. This used Spring Boot to create a Java based web project which supported not only an archive of processed papers, but also the means to search using query strings and automatic processing of submitted papers to the system (through using the most successful versions of systems described above). The search was the main feature developed, which aimed to use the key phrase information and the phrases' tokens' TF-IDF scores to help prioritise the results more relevant to the user if they use key words from the target papers. A reasonable solution was found for this, although further testing with a larger range of papers would confirm its usefulness. Two data visualisations, a donut chart and a set of word clouds, were also implemented to display snapshots of the information extracted by the earlier systems. \\
 
 \noindent All code and resources produced and used throughout the production of this project are available at:
 \begin{center}
