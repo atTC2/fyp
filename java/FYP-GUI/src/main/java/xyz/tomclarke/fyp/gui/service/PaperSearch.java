@@ -217,6 +217,39 @@ public class PaperSearch {
         log.debug("paper, score");
         for (PaperDAO paper : matchingPapers) {
             log.debug(paper.getId() + ", " + paperScores.get(paper));
+            // TESTING: Generates CSV of search results and useful key phrases
+            // List<KeyPhraseDAO> kps = kpRepo.findByPaper(paper);
+            // int t = 0;
+            // int p = 0;
+            // int m = 0;
+            // for (KeyPhraseDAO kp : kps) {
+            // boolean usefulKp = false;
+            // for (String key : queryValues.keySet()) {
+            // if (kp.getText().toLowerCase().contains(key)) {
+            // usefulKp = true;
+            // break;
+            // }
+            // }
+            // if (!usefulKp) {
+            // // Skip
+            // continue;
+            // }
+            // switch (Classification.getClazz(kp.getClassification())) {
+            // case MATERIAL:
+            // m++;
+            // break;
+            // case TASK:
+            // t++;
+            // break;
+            // case PROCESS:
+            // p++;
+            // break;
+            // default:
+            // // This should never happen
+            // System.out.println("PROBLEM");
+            // }
+            // }
+            // System.out.println(paper.getId() + "," + t + "," + p + "," + m);
         }
 
         // Reset the original search text
