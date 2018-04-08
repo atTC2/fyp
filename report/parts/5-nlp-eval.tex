@@ -2,6 +2,7 @@
 
 \begin{table}
 	\centering
+	\caption[Summary of Results Evaluated With ScienceIE Scripts]{The best F1 scores achieved in this paper evaluated with the supplied ScienceIE scripts. This includes both tests for end-to-end data production, and individual subtask tests (where the gold standard data from the previous subtask is fed in). Summarised ScienceIE results are also included, extracted from the ScienceIE proceedings\cite{Augenstein2017}.}
 	\begin{tabular}{ c | C{2.7cm} | C{2.7cm} | C{2.2cm} | C{2.2cm} }
 		\multirow{2}{*}{\textbf{Subtask}} &\multicolumn{2}{c|}{\textbf{ScienceIE}} &\multicolumn{2}{c}{\textbf{This Report}} \\
 		& \textbf{Individual \newline Best / Average} & \textbf{End-To-End \newline Best / Average} & \textbf{Individual \newline Best} & \textbf{End-To-End \newline Best} \\
@@ -11,7 +12,6 @@
 		Relation Extraction & 0.64 / 0.43 & 0.28 / 0.07 & 0.1 & 0.02 \\
 		Overall & N/A & 0.43 / 0.25 & N/A & 0.11    
 	\end{tabular}
-	\caption[Summary of Results Evaluated With ScienceIE Scripts]{The best F1 scores achieved in this paper evaluated with the supplied ScienceIE scripts. This includes both tests for end-to-end data production, and individual subtask tests (where the gold standard data from the previous subtask is fed in). Summarised ScienceIE results are also included, extracted from the ScienceIE proceedings\cite{Augenstein2017}.}
 	\label{table:scienceieresults}
 \end{table}
 
@@ -114,6 +114,7 @@ Due to the low amount of information that could be extracted from the clustering
 
 \begin{table}
 	\centering
+	\caption[Word2Vec Classification Results]{The above table is the various configurations of the Word2Vec classifier, running with every possible configuration for the five parameters are listed. The result in bold line is the highest scoring configuration, with bold results being those above the baseline score of 44.05\% which is where every key phrase is simply classified as a \textit{material}. All Freebase results were not listed as there was no change in result other than for the \textit{default class} variable, so \textit{N/A} is present instead of each iteration of those variables. These results are based on classifying all 2052 ScienceIE key phrase test data points.}
 	\begin{tabular}{ C{2.5cm} | C{2cm} | C{2cm} | C{2cm} | C{2cm} | C{2cm} }
 		\textbf{Word2Vec Model} & \textbf{Distance Metric} & \textbf{Default Class} & \textbf{Remove words?} & \textbf{Use many words?} & \textbf{Accuracy} \\
 		\hline
@@ -136,7 +137,6 @@ Due to the low amount of information that could be extracted from the clustering
 		Freebase & N/A & Unknown & N/A & N/A & 0.00\% \\
 		Freebase & N/A & Material & N/A & N/A & 44.05\% \\
 	\end{tabular}
-	\caption[Word2Vec Classification Results]{The above table is the various configurations of the Word2Vec classifier, running with every possible configuration for the five parameters are listed. The result in bold line is the highest scoring configuration, with bold results being those above the baseline score of 44.05\% which is where every key phrase is simply classified as a \textit{material}. All Freebase results were not listed as there was no change in result other than for the \textit{default class} variable, so \textit{N/A} is present instead of each iteration of those variables. These results are based on classifying all 2052 ScienceIE key phrase test data points.}
 	\label{table:classresults}
 \end{table}
 
@@ -146,7 +146,7 @@ In terms of result, it can be seen that several configurations allow for over 50
 
 The obvious thing to note here is that all tests under Freebase without a default class have a 0\% accuracy (i.e. it didn't classify any key phrase correctly). With a little investigation, if all key phrases were labelled as a \textit{material}, the accuracy would be 44\% - which is what was achieved by all configurations with the Freebase model and a default classification of \textit{material}. Therefore, Freebase clearly isn't an effective vocabulary for working with scientific publications, seemingly containing none of the supplied words. 
 
-When using the Google News model, things are more interesting. Generally, using this model a decent accuracy can be achieved, even without the support of a default classification. This shows the model does include many of the terms used in the publications presented. In terms of distance metric, \textit{average} was slightly better; it was part of the best configuration (scoring 54.6\%), and also the average of all of the \textit{average} distance configurations was 2\% higher than the average of the \textit{closest} configurations (50\% and 48\% respectively).
+When using the Google News model, things are more interesting. Generally, when using this model a decent accuracy can be achieved, even without the support of a default classification. This shows the model does include many of the terms used in the publications presented. In terms of distance metric, \textit{average} was slightly better; it was part of the best configuration (scoring 54.6\%), and also the average of all of the \textit{average} distance configurations was 2\% higher than the average of the \textit{closest} configurations (50\% and 48\% respectively).
 
 The configuration change that made the least difference was whether or not the stop words were removed. This saw changes, averagely, of 0.1\% when comparing two configurations differing in only whether these words were removed. When some words were not removed the algorithm performed better, indicating that these words are more important than first thought for deciding class. This may be down to the edge cases discussed such as ``He'' or similar which, despite being a stop word, we would want to keep.
 
@@ -174,6 +174,7 @@ Both SVMs concepts were tested and the results for the hyponym and synonym varia
 
 \begin{table}
 	\centering
+	\caption[Relation Extraction Specific Results]{Results from doing relation extraction with the proposed SVMs. The results are calculated after the relations extracted by the hyponym and synonym SVMs are combined. The \textit{vector generation} column described how a vector for a key phrase was found.}
 	\begin{tabular}{ c | c | c | c | c }
 		\textbf{SVM Model} & \textbf{Vector Generation} & \textbf{True Positives} & \textbf{False Positives} & \textbf{F1 Score} \\
 		\hline
@@ -182,7 +183,6 @@ Both SVMs concepts were tested and the results for the hyponym and synonym varia
 		\textit{Many Features} & Stop words removed & 0 & 0 & 0 \\
 		\textit{Few Features} & All tokens included & 0 & 0 & 0 \\
 	\end{tabular}
-	\caption[Relation Extraction Specific Results]{Results from doing relation extraction with the proposed SVMs. The results are calculated after the relations extracted by the hyponym and synonym SVMs are combined. The \textit{vector generation} column described how a vector for a key phrase was found.}
 	\label{table:relresults}
 \end{table}
 

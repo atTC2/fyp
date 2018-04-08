@@ -33,10 +33,7 @@ Two popular, publicly available search engines have been examined to extra some 
 
 Given the data set available in this project, most of these ideas presented by Google Scholar and ScienceDirect can be implemented. However, as ScienceIE's data is purely text snippets of documents, author, real title, publish information and more are unavailable, meaning any system created here cannot support filtering by these features, or display that information. An original aid was to include a more advanced search, potentially including a PageRank type system \cite{Page1998} where the links would be based on referencing, but unfortunately without even the reference information for each paper available, this is impossible to achieve whit the ScienceIE dataset.
 
-The search on these two websites is likely based on latent semantic analysis \cite{Landauer1998,AswaniKumar2012} which looks at the similarities between search terms and attempts to take into account context. This method of representing words in a vector space prepared for querying is a popular method of document retrieval. This method of querying could potentially be modified to involve more weighting of tokens if the are included in key phrases, or be used to inspire a new algorithm that uses key phrase information to help with weighting word importance, after retrieving potential paper matches from the database.
-
-% TODO is the next bit even right for the paper? still not sure...
-In terms of finding papers with matching key words as the query, one attempt at querying to find paper matching all query phrases in relational databases was seen in DBXplorer \cite{Agrawal2002}. This project proposes the creation of axillary tables based on possible query tokens to allow for faster matching in the case of a large dataset. Rather than performing some matching process on each paper, the \textit{published} tables can be used to find resources fully matching a query, and then for resources which have only partial matched. While this (potentially outdated) approach may speed up querying for papers (before sorting is applied), given the small data sizes that are intended to be used with the system, it is likely not worth implementing this feature. 
+The search on these two websites is likely based on latent semantic analysis \cite{Landauer1998,AswaniKumar2012} which looks at the similarities between search terms and attempts to take into account context. This method of representing words in a vector space prepared for querying is currently popular method of document retrieval, and has been for a very long time. This method of querying could potentially be modified to involve more weighting of tokens if the are included in key phrases, or be used to inspire a new algorithm that uses key phrase information to help with weighting word importance, after retrieving potential paper matches from the database.
 
 \subsubsection*{Available Technologies}
 The goal with this project is to prove a use of the data produced as part of ScienceIE through some application. To make this application available for use, a web based service will be created that allows any user to join without the need for complex setup. The benefits of this include not having to distribute installation media and update media, along with centralised management of any database of information and being able to immediately make available new features.
@@ -158,6 +155,7 @@ To handle search, two classes were created. \texttt{PaperSearch} handles the inc
 
 \begin{table}
 	\centering
+	\caption[Search Times with and without parallel execution]{Times for searches to complete, before and after asynchronous calculation of paper scores were added.}
 	\begin{tabular}{ C{4.5cm} | C{4.5cm} | C{4.5cm} }
 		\textbf{Query} & \textbf{Time in seconds (sequential)} & \textbf{Time in seconds (asynchronous)} \\
 		\hline
@@ -165,7 +163,6 @@ To handle search, two classes were created. \texttt{PaperSearch} handles the inc
 		``the'' & 10 & 3.8 \\
 		``support vector machine'' & 0.5 & 0.2 \\
 	\end{tabular}
-	\caption[Search Times with and without parallel execution]{Times for searches to complete, before and after asynchronous calculation of paper scores were added.}
 	\label{table:searchtimesasync}
 \end{table}
 
@@ -185,10 +182,10 @@ An important note on the architecture here is the use of TF-IDF, and that it req
 
 \section{Web Interface}
 \subsection*{Controller Infrastructure}
-The web interface covers a series of different pages. Spring, supporting the MVC design pattern, allows for controller classes (annotated with \texttt{@Controller}) to load views in the form of JSPs, and pass them model information acquired from other services. In the case of forms where the user has to input some data, a model can be bound directly to the input fields on the page. When submitted, automatic validation (including type checking) can be done by Spring, and the controller can receive the model object for processing. Specified in the controller class, Uniform Resource Locators (URLs) are bound to specific controllers. The controllers can also have different methods for interpreting \texttt{GET} and \texttt{POST} requests, for which different parameters can be specified.
 
 \begin{table}
 	\centering
+	\caption[Available Requests the POC Website Supports]{All available requests that are supported by the web site. The \textit{controller} is the name of the Java class that provides the functionality.}
 	\begin{tabular}{ C{3cm} | c | c | c | C{5.5cm} }
 		\textbf{URL} & \textbf{Method} & \textbf{Controller} & \textbf{JSP} & \textbf{Functionality} \\
 		\hline
@@ -214,15 +211,14 @@ The web interface covers a series of different pages. Spring, supporting the MVC
 		\hline
 		N/A & N/A & \texttt{Error} & \texttt{error.jsp} & This controller handles errors. The returned page includes the HTTP error code (for example 404: not found) and, if debug is enabled in \texttt{application.properties}, a stack trace of what went wrong. \\
 	\end{tabular}
-	\caption[Available Requests the POC Website Supports]{All available requests that are supported by the web site. The \textit{controller} is the name of the Java class that provides the functionality.}
 	\label{table:webservices}
 \end{table}
 
-All supported URLs and request methods, with controller, JSP and function provided are listed in table \ref{table:webservices}. 
+The web interface covers a series of different views. Spring, supporting MVC, allows for controller classes (annotated with \texttt{@Controller}) to load views (JSPs) and pass them model information acquired from services. Forms, where the user has to input some data, allow a model to bind directly to the input fields on the view. When submitted, automatic validation can be done by Spring, and the controller can receive the model object for processing. Uniform Resource Locators (URLs) are bound to specific controller classes. The controllers can also have different methods for interpreting \texttt{GET} and \texttt{POST} requests, for which different parameters can be specified. All supported URLs and request methods, with controller, JSP and function provided are listed in table \ref{table:webservices}. 
 
 \begin{figure}
 	\centering
-	\includegraphics[width=12cm]{img/extractorie-add.png} \\
+	\includegraphics[width=13cm]{img/extractorie-add.png} \\
 	\caption[The \textit{add} Page of the Website]{The add page of the website, with feedback to the sure shown giving indication of a successful paper addition to the system.}
 	\label{figure:extractorieadd}
 \end{figure}
@@ -247,8 +243,8 @@ To support Bootstrap and custom scripting in the web pages produced, jQuery\foot
 
 \begin{figure}[t]
 	\centering
-	\includegraphics[width=12cm]{img/extractorie-view.png} \\
-	\caption[An Example Paper View on the Website]{The view page, with a paper's content being shown.}
+	\includegraphics[width=13cm]{img/extractorie-view.png} \\
+	\caption[An Example Paper View on the Website]{The view page, with a paper's content being shown (the full key phrase list at the bottom is cropped short).}
 	\label{figure:extractorieview}
 \end{figure}
 
@@ -259,7 +255,7 @@ To present the proposed data visualisations, JavaScript solutions were searched 
 
 \begin{figure}[t]
 	\centering
-	\includegraphics[width=12cm]{img/extractorie-home.png} \\
+	\includegraphics[width=13cm]{img/extractorie-home.png} \\
 	\caption[The Home Page of the Website]{The home page of the website, with the donut chart visualisation.}
 	\label{figure:extractoriehome}
 \end{figure}
@@ -279,7 +275,7 @@ To achieve the word cloud visualisation, D3.js was again investigated, but a sim
 
 \begin{figure}
 	\centering
-	\includegraphics[width=12cm]{img/extractorie-search-supportvectormachine.png} \\
+	\includegraphics[width=13cm]{img/extractorie-search-supportvectormachine.png} \\
 	\caption[An Example Search on the Website]{The search page of the website, with ``support vector machine'' searched for.}
 	\label{figure:extractoriesearch}
 \end{figure}
@@ -321,6 +317,7 @@ With regards to the paper display pages, the overall conveying of information is
 
 \begin{table}
 	\centering
+	\caption[Search Result Orderings with Different Focuses]{The resulting paper orderings for repeated searches where the focus is shifted. Each focus is selected in turn and ``test'' searched for. For each focus, a list of IDs is ordered as a result of the search algorithm developed, along with the count of relevant task (\textit{T}), process (\textit{P}) and material (\textit{M}) key phrases relevant to the search, and therefore being used in the search algorithm.}
 	\begin{tabular}{ C{0.5cm} | C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} | C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} |  C{0.5cm} } 
 		\multicolumn{4}{c|}{\textbf{No Focus}} & \multicolumn{4}{c|}{\textbf{Task Focussed}} & \multicolumn{4}{c|}{\textbf{Process Focussed}} & \multicolumn{4}{c}{\textbf{Material Focussed}} \\
 		\hline
@@ -346,7 +343,6 @@ With regards to the paper display pages, the overall conveying of information is
 		\textbf{33} & 0 & 0 & 0 & \textbf{33} & 0 & 0 & 0 & \textbf{30} & 0 & 0 & 0 & \textbf{30} & 0 & 0 & 0 \\
 		\textbf{30} & 0 & 0 & 0 & \textbf{30} & 0 & 0 & 0 & \textbf{28} & 1 & 0 & 0 & \textbf{28} & 1 & 0 & 0
 	\end{tabular}
-	\caption[Search Result Orderings with Different Focuses]{The resulting paper orderings for repeated searches where the focus is shifted. Each focus is selected in turn and ``test'' searched for. For each focus, a list of IDs is ordered as a result of the search algorithm developed, along with the count of relevant task (\textit{T}), process (\textit{P}) and material (\textit{M}) key phrases relevant to the search, and therefore being used in the search algorithm.}
 	\label{table:searchresults}
 \end{table}
 

@@ -1,2 +1,51 @@
 \chapter{Conclusion}
-Overall, the solutions presented to the ScienceIE problem do not succeed in beating the solutions proposed as part of the task, however, do explore other idea about how to achieve them. Word2Vec usage in particular was explored and utilised through the solutions provided to all three subtasks. A more suitable model for Word2Vec would have been useful and likely boosted the performance of the systems. The reason for creating these systems is to extract classified key pieces of information from scientific papers, and a use for this was proposed and demonstrated in the proof-of-concept website produced. This used key phrase information when completing search to try to prioritise relevant papers to a users query, which was reasonably fast and accurate, given the data available. 
+Overall, the solutions presented to the ScienceIE problem do not succeed in beating the solutions proposed as part of the task, however, do explore other ideas about how to achieve the goals. Word2Vec usage in particular was explored and utilised through the solutions provided to all three subtasks. A more suitable model for Word2Vec would have been useful and likely boosted the performance of the systems. The reason for creating these systems is to extract classified key pieces of information from scientific papers, and a use for this was proposed and demonstrated in the proof-of-concept website produced. This used key phrase information when completing search to try to prioritise relevant papers to a users query, which was reasonably fast and accurate, given the data available. 
+
+The project was completed on time and mostly in accordance with the initial project plan. Small iterative improvements were constantly made to the code base through out, but periods of significant effort for various tasks is shown in the Gantt chart in figure \ref{figure:progresschart}.
+
+\begin{figure}[H]
+	\centering
+	\begin{ganttchart}[y unit title=0.4cm,
+		y unit chart=0.5cm,
+		vgrid,hgrid, 
+		title label anchor/.style={below=-1.6ex},
+		title left shift=.05,
+		title right shift=-.05,
+		title height=1,
+		bar/.style={fill=gray!50},
+		incomplete/.style={fill=white},
+		progress label text={},
+		bar height=0.7,
+		group right shift=0,
+		group top shift=.6,
+		group height=.3]{1}{21}
+		% Labels
+		\gantttitle{2017}{12}
+		\gantttitle{2018}{9} \\
+		\gantttitle{September}{3} % 3
+		\gantttitle{October}{3} % 6
+		\gantttitle{November}{3} % 9
+		\gantttitle{December}{3} % 12
+		\gantttitle{January}{3} % 15
+		\gantttitle{February}{3} % 18
+		\gantttitle{March}{3} \\ % 21
+		% Tasks
+		\ganttbar[bar/.append style={fill=green}]{Initial Research}{1}{5} \\
+		\ganttbar[bar/.append style={fill=yellow}]{Project Configuration}{5}{5} \\
+		\ganttbar[bar/.append style={fill=red}]{Library Exploration}{5}{6} \\
+		\ganttbar[bar/.append style={fill=red}]{Subtask A SVM}{6}{11} \\
+		\ganttbar[bar/.append style={fill=red}]{Subtask A Clustering}{9}{10} \\
+		\ganttbar[bar/.append style={fill=red}]{Subtask C \textit{Many Features}}{10}{12} \\
+		\ganttbar[bar/.append style={fill=red}]{Subtask B}{11}{12} \\
+		\ganttbar[bar/.append style={fill=blue}]{POC Configuration Setup}{12}{12} \\
+		\ganttbar[bar/.append style={fill=green}]{POC Research}{12}{15} \\
+		\ganttbar[bar/.append style={fill=blue}]{POC Architecture}{13}{14} \\
+		\ganttbar[bar/.append style={fill=blue}]{POC Screens}{14}{15} \\
+		\ganttbar[bar/.append style={fill=blue}]{POC Services}{16}{18} \\
+		\ganttbar[bar/.append style={fill=red}]{Subtask C \textit{Few Features}}{18}{18} \\
+		\ganttbar[bar/.append style={fill=blue}]{POC Testing}{19}{19} \\
+		\ganttbar[bar/.append style={fill=yellow}]{Miscellaneous Fixing}{20}{21}
+	\end{ganttchart}
+	\caption[Gantt Chart of Development]{A Gantt chart displaying the development progress of the project. The colours red, blue, green and yellow represent work on the NLP system, the POC system, research and miscellaneous tasks respectively. This roughly matches the initial project plan, although work on labelled sections was not fully exclusive (for example the subtask A SVM could be revisited to be improved upon while working on a POC task).}
+	\label{figure:progresschart}
+\end{figure}

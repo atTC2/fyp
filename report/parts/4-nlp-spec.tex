@@ -13,7 +13,7 @@ In Java, for each paper file from ScienceIE, a \texttt{Paper} object was constru
 	\item It was initially planned that there would be a \textit{HTML} and \textit{WebPDF} classes for online resources. For similar reasons to \texttt{PDFPaper} extraction development, these two classes were never implemented. 
 \end{itemize}
 
-The bulk of the preprocessing came in the form of using a parser to calculate the parse tree of a text. As discussed, many teams at ScienceIE used spaCy. As the plan for this project was to complete it in a single, self contained Java project, the Stanford CoreNLP package was used \cite{Manning2014} (imported through Maven\footnote{\href{https://stanfordnlp.github.io/CoreNLP/download.html}{https://stanfordnlp.github.io/CoreNLP/download.html}}). While offering a range of useful NLP features, the main ones utilised by the project were tokenization and finding the parse tree of the text which included POS tagging. An \texttt{Annotator} class was constructed which accepts a \texttt{Paper} input and annotates the text using the CoreNLP library, with the result being stored in the \texttt{Paper}.
+The bulk of the preprocessing came in the form of using a parser to calculate the parse tree of a text, inspired by the projects at ScienceIE, to give later algorithms more information about the text to work with. As discussed, many teams at ScienceIE used spaCy. As the plan for this project was to complete it in a single, self contained Java project, the Stanford CoreNLP package was used \cite{Manning2014} (imported through Maven\footnote{\href{https://stanfordnlp.github.io/CoreNLP/download.html}{https://stanfordnlp.github.io/CoreNLP/download.html}}) which performs on similar analysis with similar quality to that of spaCy. While offering a range of useful NLP features, the main ones utilised by the project were tokenization and finding the parse tree of the text which included POS tagging. An \texttt{Annotator} class was constructed which accepts a \texttt{Paper} input and annotates the text using the CoreNLP library, with the result being stored in the \texttt{Paper}.
 
 Further processing on this information was also completed: A token \textit{map} was created, with a key set being all tokens present in the document, and the value being the number of times the token was in the document. This was to help when calculating TF-IDF scores later in processing.
 
@@ -39,6 +39,7 @@ It is clear that current trends view the position of key phrases are very import
 
 \begin{table}
 	\centering
+	\caption[Initial Key Phrase SVM Features]{Initial key phrase support vector features used. A set of these features is generated for each token. When defining the value range, the variable is named as it is in the Java code.}
 	\begin{tabular}{ C{7cm} | c }
 		\textbf{Feature Description} & \textbf{Value Range} \\
 		\hline
@@ -58,7 +59,6 @@ It is clear that current trends view the position of key phrases are very import
      	\hline
      	Whether the previous token was part of a key phrase. & \texttt{svLWKP} $\in$ \{0, 1\} \\
 	\end{tabular}
-	\caption[Initial Key Phrase SVM Features]{Initial key phrase support vector features used. A set of these features is generated for each token. When defining the value range, the variable is named as it is in the Java code.}
 	\label{table:kpinitsvs}
 \end{table}
 
@@ -96,6 +96,7 @@ While working on development of the key phrase SVM, further features were consid
 
 \begin{table}
 	\centering
+	\caption[Additional Key Phrase SVM Features]{Additional features to be calculated for each token added to the SVM. These were implemented in order and their benefit or reduction in performance is measured.}
 	\begin{tabular}{ C{7cm} | c }
 		\textbf{Feature Description} & \textbf{Value Range} \\
 		\hline
@@ -109,7 +110,6 @@ While working on development of the key phrase SVM, further features were consid
 		\hline
 		Whether or not the token is a stop word. & \texttt{svIgnoreWord} $\in$ \{0, 1\} \\
 	\end{tabular}
-	\caption[Additional Key Phrase SVM Features]{Additional features to be calculated for each token added to the SVM. These were implemented in order and their benefit or reduction in performance is measured.}
 	\label{table:kpextsvs}
 \end{table}
 
@@ -146,6 +146,7 @@ A problem referenced in the literature review was evaluation of key phrase extra
 
 \begin{table}
 	\centering
+	\caption[Strictness Descriptions for Self Evaluation of Key Phrases]{The strictness levels used in self evaluation of key phrase extraction. The \textit{strictness} title also includes the \texttt{Strictness} enumeration value as in the Java code for reference.}
 	\begin{tabular}{ C{3cm} | C{10cm} }
 		\textbf{Strictness} & \textbf{Description} \\
 		\hline
@@ -157,7 +158,6 @@ A problem referenced in the literature review was evaluation of key phrase extra
 		\hline
 		Generous matching (\texttt{GENEROUS}) & The predicted key phrase string can include the gold standard string, or the gold stand string can include the predicted. \\
 	\end{tabular}
-	\caption[Strictness Descriptions for Self Evaluation of Key Phrases]{The strictness levels used in self evaluation of key phrase extraction. The \textit{strictness} title also includes the \texttt{Strictness} enumeration value as in the Java code for reference.}
 	\label{table:strictness}
 \end{table}
 
@@ -222,6 +222,7 @@ There is a potential downside to this, as some key phrases may appear as only co
 
 \begin{table}
 	\centering
+	\caption[Word2Vec Classification Target Words]{The target classes and the set of words that are of a similar domain to be used in testing of the Word2Vec classifier.}
 	\begin{tabular}{ c | c }
 		\textbf{Target Class} & \textbf{Similar Word Set to use when Testing} \\
 		\hline
@@ -231,13 +232,12 @@ There is a potential downside to this, as some key phrases may appear as only co
 		 \hline
 		Material & Material, resource \\
 	\end{tabular}
-	\caption[Word2Vec Classification Target Words]{The target classes and the set of words that are of a similar domain to be used in testing of the Word2Vec classifier.}
 	\label{table:w2vclasswords}
 \end{table}
 
 Finally, there is the question of what token to find similarity too. A simple way forward is comparing the tokens to the word identifying the class (``test'', ``process'' and ``material''). However, if the quality of the Word2Vec model isn't very good (it could have an incorrect idea about what a \textit{task} is for instance) the classification may be of poor quality as well. To attempt to solve this problem, more words based around the same concept should be tested against. Therefore, when testing this algorithm the similarities used will be the similarity of the word defining a class, or the maximum similarity to a word from a selection of words related to a class. The words sets that shall be used are defined in table \ref{table:w2vclasswords}.
 
-\subsection{The Word2Vec Vocabulary Problem}
+\subsubsection*{The Word2Vec Vocabulary Problem}
 
 \begin{figure}
 	\centering
