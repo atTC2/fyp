@@ -2,6 +2,10 @@
 
 Taking on the [ScienceIE](https://scienceie.github.io/) task.
 
+This was my dissertation for B.Sc in Computer Science, School of Computer Science, University of Birmingham, April 2018. My supervisor was [Dr Mark Lee](http://www.cs.bham.ac.uk/~mgl/).
+
+My final score was 79.
+
 ## Set up and run
 ### Files
 All files are hosted on the GitLab server run by the School of Computer Science, University of Birmingham:
